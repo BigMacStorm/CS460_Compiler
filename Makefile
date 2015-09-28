@@ -1,4 +1,4 @@
-# Compiles and links together the whore program
+# Compiles and links together the whole program
 # This can be modifed as needed
 
 CC	= cc
