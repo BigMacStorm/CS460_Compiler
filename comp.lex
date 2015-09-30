@@ -1,64 +1,247 @@
 /*  A minimal Lex scanner generator
     Passes tokens which are undefined yet to yacc
+	col and line numbers are recorded but not used in an error function yet
 */
-%top {
+%{
 	#include "y.tab.h"
 	#include <stdlib.h>
-}
+	int linenum = 0;
+	int colnum = 0;
+%}
 
 %%
-auto			return(AUTO);
-break			return(BREAK);
-case			return(CASE);
-char			return(CHAR);
-const			return(CONST);
-continue		return(CONT);
-default			return(DEFAULT);
-do				return(DO);
-double			return(DOUBLE);
-else			return(ELSE);
-enum			return(ENUM);
-extern			return(EXTERN);
-float			return(FLOAT);
-for				return(FOR);
-goto			return(GOTO);
-if				return(IF);
-int				return(INT);
-long			return(LONG);
-register		return(REG);
-return			return(RETURN);
-short			return(SHORT);
-signed			return(SIGNED);
-sizeof			return(SIZEOF);
-static			return(STATIC);
-struct			return(STRUCT);
-switch			return(SWITCH);
-typedef			return(TYPED);
-union			return(UNION);
-unsigned		return(UNSIGNED);
-void			return(VOID);
-volatile		return(VOLATILE);
-while			return(WHILE);
-\+				return(PLUS);
-\-				return(MINUS);
-\*				return(MULT);
-\/				return(DIV);
+auto			{
+				colnum = colnum + yyleng; //if you can think of a more efficient way for this go for it
+				return(AUTO);
+				}
+
+break			{
+				colnum = colnum + yyleng;
+				return(BREAK);
+				}
+
+case			{
+				colnum = colnum + yyleng;
+				return(CASE);
+				}
+
+char			{
+				colnum = colnum + yyleng;
+				return(CHAR);
+				}
+
+const			{
+				colnum = colnum + yyleng;
+				return(CONST);
+				}
+
+continue		{
+				colnum = colnum + yyleng;
+				return(CONT);
+				}
+
+default			{
+				colnum = colnum + yyleng;
+				return(DEFAULT);
+				}
+
+do				{
+				colnum = colnum + yyleng;
+				return(DO);
+				}
+
+double			{
+				colnum = colnum + yyleng;
+				return(DOUBLE);
+				}
+
+else			{
+				colnum = colnum + yyleng;
+				return(ELSE);
+				}
+
+enum			{
+				colnum = colnum + yyleng;
+				return(ENUM);
+				}
+
+extern			{
+				colnum = colnum + yyleng;
+				return(EXTERN);
+				}
+
+float			{
+				colnum = colnum + yyleng;
+				return(FLOAT);
+				}
+
+for				{
+				colnum = colnum + yyleng;
+				return(FOR);
+				}
+
+goto			{
+				colnum = colnum + yyleng;
+				return(GOTO);
+				}
+
+if				{
+				colnum = colnum + yyleng;
+				return(IF);
+				}
+
+int				{
+				colnum = colnum + yyleng;
+				return(INT);
+				}
+
+long			{
+				colnum = colnum + yyleng;
+				return(LONG);
+				}
+
+register		{
+				colnum = colnum + yyleng;
+				return(REG);
+				}
+
+return			{
+				colnum = colnum + yyleng;
+				return(RETURN);
+				}
+
+short			{
+				colnum = colnum + yyleng;
+				return(SHORT);
+				}
+
+signed			{
+				colnum = colnum + yyleng;
+				return(SIGNED);
+				}
+
+sizeof			{
+				colnum = colnum + yyleng;
+				return(SIZEOF);
+				}
+
+static			{
+				colnum = colnum + yyleng;
+				return(STATIC);
+				}
+
+struct			{
+				colnum = colnum + yyleng;
+				return(STRUCT);
+				}
+
+switch			{
+				colnum = colnum + yyleng;
+				return(SWITCH);
+				}
+
+typedef			{
+				colnum = colnum + yyleng;
+				return(TYPED);
+				}
+
+union			{
+				colnum = colnum + yyleng;
+				return(UNION);
+				}
+
+unsigned		{
+				colnum = colnum + yyleng;
+				return(UNSIGNED);
+				}
+
+void			{
+				colnum = colnum + yyleng;
+				return(VOID);
+				}
+
+volatile		{
+				colnum = colnum + yyleng;
+				return(VOLATILE);
+				}
+
+while			{
+				colnum = colnum + yyleng;
+				return(WHILE);
+				}
+
+\+				{
+				colnum = colnum + 1;
+				return(PLUS);
+				}
+
+\-				{
+				colnum = colnum + 1;
+				return(MINUS);
+				}
+
+\*				{
+				colnum = colnum + 1;
+				return(MULT);
+				}
+
+\/				{
+				colnum = colnum + 1;
+				return(DIV);
+				}
+
 [0-9]+			{
-				yylval = atoi(yytext);
+				//do symbol table stuff if connected to a variable
+				colnum = colnum + yyleng;
 				return(INTEGER);
 				}
-;				return(SEMI);
-\(				return(OPEN);
-\)				return(CLOSE);
-[ \t\n]+		{
-				//do stuff for line numbers
+
+[0-9]+\.[0-9]+	{
+				//do symbol table stuff if connected to a variable
+				colnum = colnum + yyleng;
+				return(FLOATNUM);
 				}
-([a-zA-Z]+[0-9]*)+	{
-					//Check mode of symbol table
-					//insert or update ID
-					return(ID);
-					}
-.				return(ERROR);
+
+;				{
+				colnum = colnum + 1;
+				return(SEMI);
+				}
+
+\(				{
+				colnum = colnum + 1;
+				return(OPEN);
+				}
+
+\)				{
+				colnum = colnum + 1;
+				return(CLOSE);
+				}
+
+[ \t]+			{
+				colnum = colnum + yyleng;
+				}
+				
+\n				{
+				linenum = linenum +1;
+				}
+				
+"[a-zA-Z0-9]+"	{
+				colnum = colnum + yyleng;
+				return(STRING);
+				}
+				
+[a-zA-Z0-9]+	{ 
+				//Check mode of symbol table
+				//edit mode of symbol table?
+				//insert or update ID
+				colnum = colnum + yyleng;
+				return(ID);
+				}
+				
+.				{
+				colnum = colnum + yyleng;
+				return(ERROR);
+				}
 
 %%
 
