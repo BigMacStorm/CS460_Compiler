@@ -7,6 +7,7 @@
 	#include <stdlib.h>
 	int linenum = 0;
 	int colnum = 0;
+	char errormsg [70];
 %}
 
 %%
@@ -221,7 +222,8 @@ while			{
 				colnum = colnum + yyleng;
 				}
 				
-\n				{
+\n+				{
+				colnum = 1;
 				linenum = linenum +1;
 				}
 				
@@ -239,7 +241,9 @@ while			{
 				}
 				
 .				{
-				colnum = colnum + yyleng;
+				sprintf(errormsg, "invalid character or operation at line %d, col %d", linenum, colnum);
+				//also print line of error
+				yyerror(errormsg);
 				return(ERROR);
 				}
 
