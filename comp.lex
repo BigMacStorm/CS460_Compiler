@@ -5,8 +5,8 @@
 %{
 	#include "y.tab.h"
 	#include <stdlib.h>
-	int linenum = 0;
-	int colnum = 0;
+	int linenum = 1;
+	int colnum = 1;
 	char errormsg [70];
 %}
 
@@ -191,18 +191,6 @@ while			{
 				return(DIV);
 				}
 
-[0-9]+			{
-				//do symbol table stuff if connected to a variable
-				colnum = colnum + yyleng;
-				return(INTEGER);
-				}
-
-[0-9]+\.[0-9]+	{
-				//do symbol table stuff if connected to a variable
-				colnum = colnum + yyleng;
-				return(FLOATNUM);
-				}
-
 ;				{
 				colnum = colnum + 1;
 				return(SEMI);
@@ -226,10 +214,35 @@ while			{
 				colnum = 1;
 				linenum = linenum + yyleng;
 				}
-				
-"[a-zA-Z0-9]+"	{
+
+[0-9]+			{
+				//do symbol table stuff if connected to a variable
+				//limit max size of int
 				colnum = colnum + yyleng;
-				return(STRING);
+				return(INTEGER_CONSTANT);
+				}
+
+[0-9]+\.[0-9]+	{
+				//do symbol table stuff if connected to a variable
+				//Limit size
+				colnum = colnum + yyleng;
+				return(FLOATING_CONSTANT);
+				}
+				
+[A-Za-z]		{
+				colnum = colnum + yyleng;
+				return(CHARACTER_CONSTANT);
+				}
+				
+[A-Za-z]		{
+				//?
+				colnum = colnum + yyleng;
+				return(ENUMERATION_CONSTANT);
+				}
+				
+"[^"\n]*"		{
+				colnum = colnum + yyleng;
+				return(STRING_LITERAL);
 				}
 				
 [a-zA-Z0-9]+	{ 
@@ -237,7 +250,7 @@ while			{
 				//edit mode of symbol table?
 				//insert or update ID
 				colnum = colnum + yyleng;
-				return(ID);
+				return(IDENTIFIER);
 				}
 				
 .				{
