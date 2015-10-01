@@ -1,42 +1,14 @@
-/* definitions ****************************************************************/
-%{
-extern "C"{
-  int yyparse();
-  int yylex();
-}
-#include <stdio.h>
-#include "symbolTable.h"
-#include "Debugger.h"
-
-Debugger debugger;
-
-extern SymbolTable symTable;
-extern int yylineno;
-extern char* yytext;
-
-void yyerror(char* s);
-%}
-
-%union{
-  char cval;
-  int ival;
-  double dval;
-  long lval;
-  char* sval;
-  SymbolNode* symval;
- }
-
-%token IDENTIFIER
-%token INTEGER_CONSTANT FLOATING_CONSTANT CHARACTER_CONSTANT ENUMERATION_CONSTANT
-%token STRING_LITERAL
+%token IDENTIFIER 
+%token INTEGER_CONSTANT FLOATING_CONSTANT CHARACTER_CONSTANT ENUMERATION_CONSTANT 
+%token STRING_LITERAL 
 %token SIZEOF
-%token PTR_OP
-%token INC_OP DEC_OP
-%token LEFT_OP RIGHT_OP
+%token PTR_OP 
+%token INC_OP DEC_OP 
+%token LEFT_OP RIGHT_OP 
 %token LE_OP GE_OP EQ_OP NE_OP
-%token AND_OP OR_OP
-%token MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN SUB_ASSIGN
-%token LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN XOR_ASSIGN OR_ASSIGN
+%token AND_OP OR_OP 
+%token MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN SUB_ASSIGN 
+%token LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN XOR_ASSIGN OR_ASSIGN 
 %token TYPEDEF_NAME
 
 %token TYPEDEF EXTERN STATIC AUTO REGISTER
@@ -45,11 +17,7 @@ void yyerror(char* s);
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 
-%token ERROR
-
 %start translation_unit
-
-/* Grammar ruls and actions ***************************************************/
 %%
 
 translation_unit
@@ -71,8 +39,7 @@ function_definition
 
 declaration
 	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';' {
-  }
+	| declaration_specifiers init_declarator_list ';'
 	;
 
 declaration_list
@@ -85,7 +52,7 @@ declaration_specifiers
 	| storage_class_specifier declaration_specifiers
 	| type_specifier
 	| type_specifier declaration_specifiers
-	| type_qualifier
+	| type_qualifier 
 	| type_qualifier declaration_specifiers
 	;
 
@@ -103,7 +70,7 @@ type_specifier
 	| SHORT
 	| INT
 	| LONG
-	| FLOAT
+	| FLOAT 
 	| DOUBLE
 	| SIGNED
 	| UNSIGNED
@@ -474,8 +441,16 @@ identifier
 	: IDENTIFIER
 	;
 %%
-/* user code ****************************************************************/
-void yyerror (char* s) {
-    fflush(stdout);
-    printf("%s on line %d - %s\n", s, yylineno, yytext);
+
+#include <stdio.h>
+
+extern char yytext[];
+extern int column;
+
+yyerror(s)
+char *s;
+{
+	fflush(stdout);
+	printf("\n%*s\n%*s\n", column, "^", column, s);
 }
+
