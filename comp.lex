@@ -224,7 +224,7 @@ while			{
 				
 \n+				{
 				colnum = 1;
-				linenum = linenum +1;
+				linenum = linenum + yyleng;
 				}
 				
 "[a-zA-Z0-9]+"	{
