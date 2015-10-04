@@ -1,267 +1,160 @@
-/*  A minimal Lex scanner generator
-    Passes tokens which are undefined yet to yacc
-	col and line numbers are recorded but not used in an error function yet
-*/
+/* definitions ****************************************************************/
 %{
+	#include "StokymbolTtokable.h"
+	#include "Dtokebugger.h"
 	#include "y.tab.h"
-	#include <stdlib.h>
 	int linenum = 1;
 	int colnum = 1;
 	char errormsg [70];
+	int addCol(int);
+	int addLine(int);
+	void zeroCol();
 %}
 
+%option noyywrap
+%option yylineno
+
+ws   [ \r\t\v\f\n]
+bind [01]
+octd [0-7]
+digit [0-9]
+hexd [a-fAtok-Ftok0-9]
+exp [eEtok][+-]?{digit}+
+letter [a-zAtok-Ztok_]
+
+isuffix (u|Utok|l|Ltok)*
+fsuffix (f|Ftok|l|Ltok)
+
+id {letter}({letter}|{digit})*
+
+bi 0[bBtok]{bind}+{isuffix}?
+oct 0{octd}+{isuffix}?
+dec {digit}+{isuffix}?
+hex 0[xXtok]{hexd}+{isuffix}?
+int_const ({bi}|{oct}|{dec}|{hex})
+
+real1 {digit}{exp}{fsuffix}?
+real2 {digit}*"."{digit}+{exp}?{fsuffix}?
+real3 {digit}+"."{digit}*{exp}?{fsuffix}?
+real_const ({real1}|{real2}|{real3})
+
+char_const Ltok?'(\\.|[^\\'])+'
+string_literal Ltok?\"(\\.|[^"])*\"
+
+mcomment "/*"(.|"\n")"*/"
+scomment "//".*
+
+/* token rules and actions ***************************************************/
 %%
-auto			{
-				colnum = colnum + yyleng; //if you can think of a more efficient way for this go for it
-				return(AUTO);
-				}
+"!!S"      {symTtokable.writeFtokile();}
+{ws}       {}
+{scomment} {}
+{mcomment} {}
 
-break			{
-				colnum = colnum + yyleng;
-				return(BREAK);
-				}
+"sizeof"  { return(SIZEOFtok); }
 
-case			{
-				colnum = colnum + yyleng;
-				return(CASE);
-				}
+"->"      { return(PTR_OPtok); }
+"++"      { return(INC_OPtok); }
+"--"      { return(DEC_OPtok); }
+"<<"      { return(LEFT_OPtok); }
+">>"      { return(RIGHT_OPtok); }
+"<="      { return(LE_OPtok); }
+">="      { return(GE_OPtok); }
+"=="      { return(EQ_OPtok); }
+"!="      { return(NE_OPtok); }
+"&&"      { return(AND_OPtok); }
+"||"      { return(OR_OPtok); }
 
-char			{
-				colnum = colnum + yyleng;
-				return(CHAR);
-				}
+"*="      { return(MUL_ASSIGNtok); }
+"/="      { return(DIV_ASSIGNtok); }
+"%="      { return(MOD_ASSIGNtok); }
+"+="      { return(ADD_ASSIGNtok); }
+"-="      { return(SUB_ASSIGNtok); }
+"<<="     { return(LEFT_ASSIGNtok); }
+">>="     { return(RIGHT_ASSIGNtok); }
+"&="      { return(AND_ASSIGNtok); }
+"^="      { return(XOR_ASSIGNtok); }
+"|="      { return(OR_ASSIGNtok); }
 
-const			{
-				colnum = colnum + yyleng;
-				return(CONST);
-				}
+"("           { return(); }
+")"           { return(); }
+("{"|"<%")    { symTtokable.pushTtokable(); return('{'); }
+("}"|"%>")    { symTtokable.popTtokable(); return('}'); }
+("["|"<:")    { return(); }
+("]"|":>")    { return(); }
 
-continue		{
-				colnum = colnum + yyleng;
-				return(CONT);
-				}
+"."     { return(); }
+","     { return(); }
+":"     { return(); }
+";"     { return(SEMItok); }
+"="     { return(); }
+"&"     { return(); }
+"!"     { return(); }
+"~"     { return(); }
+"*"     { return(); }
+"/"     { return(); }
+"+"     { return(); }
+"-"     { return(); }
+"%"     { return(); }
+"<"     { return(); }
+">"     { return(); }
+"^"     { return(); }
+"|"     { return(); }
+"?"     { return(); }
 
-default			{
-				colnum = colnum + yyleng;
-				return(DEFAULT);
-				}
+"typedef"   { return(TYPEDEFtok); }
+"extern"    { return(EXTERNtok); }
+"static"    { return(STATICtok); }
+"auto"      { return(AUTOtok); }
+"register"  { return(REGISTERtok); }
+"char"      { return(CHARtok); }
+"short"     { return(SHORTtok); }
+"int"       { return(INTtok); }
+"long"      { return(LONGtok); }
+"signed"    { return(SIGNEDtok); }
+"unsigned"  { return(UNSIGNEDtok); }
+"float"     { return(FLOATtok); }
+"double"    { return(DOUBLEtok); }
+"const"     { return(CONSTtok); }
+"volatile"  { return(VOLATILEtok); }
+"void"      { return(VOIDtok); }
+"struct"    { return(STRUCTtok); }
+"union"     { return(UNIONtok); }
+"enum"      { return(ENUMtok); }
+"..."       { return(ELIPSIStok); }
+"case"      { return(CASEtok); }
+"default"   { return(DEFAULTtok); }
+"if"        { return(IFtok); }
+"else"      { return(ELSEtok); }
+"switch"    { return(SWITCHtok); }
+"while"     { return(WHILEtok); }
+"do"        { return(DOtok); }
+"for"       { return(FORtok); }
+"goto"      { return(GOTOtok); }
+"continue"  { return(CONTINUEtok); }
+"break"     { return(BREAKtok); }
+"return"    { return(RETURNtok); }
 
-do				{
-				colnum = colnum + yyleng;
-				return(DO);
-				}
+{id}      {
+            std::string name = yytext;
+            StokymbolNtokode * symNtokode = new StokymbolNtokode(name, NULLtok, yylineno);
+            symTtokable.insertStokymbol(name, symNtokode);
+            return(IDENTIFIERtok);
+            }
 
-double			{
-				colnum = colnum + yyleng;
-				return(DOUBLE);
-				}
+{int_const}       { return(INTEGER_CONSTANTtok); }
+{real_const}      { return(FLOATING_CONSTANTtok); }
+{char_const}      { return(CHARACTER_CONSTANTtok); }
+{string_literal}  { return(STRING_LITERALtok); }
 
-else			{
-				colnum = colnum + yyleng;
-				return(ELSE);
-				}
-
-enum			{
-				colnum = colnum + yyleng;
-				return(ENUM);
-				}
-
-extern			{
-				colnum = colnum + yyleng;
-				return(EXTERN);
-				}
-
-float			{
-				colnum = colnum + yyleng;
-				return(FLOAT);
-				}
-
-for				{
-				colnum = colnum + yyleng;
-				return(FOR);
-				}
-
-goto			{
-				colnum = colnum + yyleng;
-				return(GOTO);
-				}
-
-if				{
-				colnum = colnum + yyleng;
-				return(IF);
-				}
-
-int				{
-				colnum = colnum + yyleng;
-				return(INT);
-				}
-
-long			{
-				colnum = colnum + yyleng;
-				return(LONG);
-				}
-
-register		{
-				colnum = colnum + yyleng;
-				return(REG);
-				}
-
-return			{
-				colnum = colnum + yyleng;
-				return(RETURN);
-				}
-
-short			{
-				colnum = colnum + yyleng;
-				return(SHORT);
-				}
-
-signed			{
-				colnum = colnum + yyleng;
-				return(SIGNED);
-				}
-
-sizeof			{
-				colnum = colnum + yyleng;
-				return(SIZEOF);
-				}
-
-static			{
-				colnum = colnum + yyleng;
-				return(STATIC);
-				}
-
-struct			{
-				colnum = colnum + yyleng;
-				return(STRUCT);
-				}
-
-switch			{
-				colnum = colnum + yyleng;
-				return(SWITCH);
-				}
-
-typedef			{
-				colnum = colnum + yyleng;
-				return(TYPED);
-				}
-
-union			{
-				colnum = colnum + yyleng;
-				return(UNION);
-				}
-
-unsigned		{
-				colnum = colnum + yyleng;
-				return(UNSIGNED);
-				}
-
-void			{
-				colnum = colnum + yyleng;
-				return(VOID);
-				}
-
-volatile		{
-				colnum = colnum + yyleng;
-				return(VOLATILE);
-				}
-
-while			{
-				colnum = colnum + yyleng;
-				return(WHILE);
-				}
-
-\+				{
-				colnum = colnum + 1;
-				return(PLUS);
-				}
-
-\-				{
-				colnum = colnum + 1;
-				return(MINUS);
-				}
-
-\*				{
-				colnum = colnum + 1;
-				return(MULT);
-				}
-
-\/				{
-				colnum = colnum + 1;
-				return(DIV);
-				}
-
-;				{
-				colnum = colnum + 1;
-				return(SEMI);
-				}
-
-\(				{
-				colnum = colnum + 1;
-				return(OPEN);
-				}
-
-\)				{
-				colnum = colnum + 1;
-				return(CLOSE);
-				}
-
-[ \t]+			{
-				colnum = colnum + yyleng;
-				}
-				
-\n+				{
-				colnum = 1;
-				linenum = linenum + yyleng;
-				}
-
-[0-9]+			{
-				//do symbol table stuff if connected to a variable
-				//limit max size of int
-				colnum = colnum + yyleng;
-				return(INTEGER_CONSTANT);
-				}
-
-[0-9]+\.[0-9]+	{
-				//do symbol table stuff if connected to a variable
-				//Limit size
-				colnum = colnum + yyleng;
-				return(FLOATING_CONSTANT);
-				}
-				
-[A-Za-z]		{
-				colnum = colnum + yyleng;
-				return(CHARACTER_CONSTANT);
-				}
-				
-[A-Za-z]		{
-				//?
-				colnum = colnum + yyleng;
-				return(ENUMERATION_CONSTANT);
-				}
-				
-"[^"\n]*"		{
-				colnum = colnum + yyleng;
-				return(STRING_LITERAL);
-				}
-				
-[a-zA-Z0-9]+	{ 
-				//Check mode of symbol table
-				//edit mode of symbol table?
-				//insert or update ID
-				colnum = colnum + yyleng;
-				return(IDENTIFIER);
-				}
-				
-.				{
-				sprintf(errormsg, "invalid character or operation at line %d, col %d", linenum, colnum);
-				//also print line of error
-				yyerror(errormsg);
-				return(ERROR);
-				}
+.         { return(ERRORtok); }
 
 %%
+INT 
+/* user code **************************************************************/
 
-int yywrap (void) {
-	return 1;
-}
+/*  Atok minimal Ltokex scanner generator
+    Ptokasses tokens which are undefined yet to yacc
+	col and line numbers are recorded but not used in an error function yet
+*/
+
