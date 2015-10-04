@@ -1,8 +1,7 @@
 /* definitions ****************************************************************/
 %{
-	#include "StokymbolTtokable.h"
-	#include "Dtokebugger.h"
 	#include "y.tab.h"
+	#include "SymbolTable.h"
 	int linenum = 1;
 	int colnum = 1;
 	char errormsg [70];
@@ -14,23 +13,23 @@
 %option noyywrap
 %option yylineno
 
-ws   [ \r\t\v\f\n]
+ws   [ \r\t\v\f]
 bind [01]
 octd [0-7]
 digit [0-9]
-hexd [a-fAtok-Ftok0-9]
-exp [eEtok][+-]?{digit}+
-letter [a-zAtok-Ztok_]
+hexd [a-fA-F0-9]
+exp [eE][+-]?{digit}+
+letter [a-zA-Z_]
 
-isuffix (u|Utok|l|Ltok)*
-fsuffix (f|Ftok|l|Ltok)
+isuffix (u|U|l|L)*
+fsuffix (f|F|l|L)
 
 id {letter}({letter}|{digit})*
 
-bi 0[bBtok]{bind}+{isuffix}?
+bi 0[bB]{bind}+{isuffix}?
 oct 0{octd}+{isuffix}?
 dec {digit}+{isuffix}?
-hex 0[xXtok]{hexd}+{isuffix}?
+hex 0[xX]{hexd}+{isuffix}?
 int_const ({bi}|{oct}|{dec}|{hex})
 
 real1 {digit}{exp}{fsuffix}?
@@ -46,7 +45,7 @@ scomment "//".*
 
 /* token rules and actions ***************************************************/
 %%
-"!!S"      {symTtokable.writeFtokile();}
+"!!S"      {symTable.writeFile();}
 {ws}       {}
 {scomment} {}
 {mcomment} {}
@@ -76,31 +75,31 @@ scomment "//".*
 "^="      { return(XOR_ASSIGNtok); }
 "|="      { return(OR_ASSIGNtok); }
 
-"("           { return(); }
-")"           { return(); }
-("{"|"<%")    { symTtokable.pushTtokable(); return('{'); }
-("}"|"%>")    { symTtokable.popTtokable(); return('}'); }
-("["|"<:")    { return(); }
-("]"|":>")    { return(); }
+"("           { return(OPEN_PARENtok); }
+")"           { return(CLOSE_PARENtok); }
+("{"|"<%")    { symTtokable.pushTtokable(); return(OPEN_CURLYtok); }
+("}"|"%>")    { symTtokable.popTtokable(); return(CLOSE_CURLYtok); }
+("["|"<:")    { return(OPEN_SQUAREtok); }
+("]"|":>")    { return(CLOSE_SQUAREtok); }
 
-"."     { return(); }
-","     { return(); }
-":"     { return(); }
+"."     { return(PERIODtok); }
+","     { return(COMMAtok); }
+":"     { return(COLONtok); }
 ";"     { return(SEMItok); }
-"="     { return(); }
-"&"     { return(); }
-"!"     { return(); }
-"~"     { return(); }
-"*"     { return(); }
-"/"     { return(); }
-"+"     { return(); }
-"-"     { return(); }
-"%"     { return(); }
-"<"     { return(); }
-">"     { return(); }
-"^"     { return(); }
-"|"     { return(); }
-"?"     { return(); }
+"="     { return(EQUALtok); }
+"&"     { return(UNARY_ANDtok); }
+"!"     { return(UNARY_BANGtok); }
+"~"     { return(UNARY_TILDEtok); }
+"*"     { return(UNARY_ASTERISKtok); }
+"/"     { return(FORWARD_SLASHtok); }
+"+"     { return(UNARY_PLUStok); }
+"-"     { return(UNARY_MINUStok); }
+"%"     { return(PERCENTtok); }
+"<"     { return(LEFT_ANGLEtok); }
+">"     { return(RIGHT_ANGLEtok); }
+"^"     { return(UP_CARROTtok); }
+"|"     { return(PIPEtok); }
+"?"     { return(QUESTION_MARKtok); }
 
 "typedef"   { return(TYPEDEFtok); }
 "extern"    { return(EXTERNtok); }
@@ -150,11 +149,23 @@ scomment "//".*
 .         { return(ERRORtok); }
 
 %%
-INT 
 /* user code **************************************************************/
 
 /*  Atok minimal Ltokex scanner generator
     Ptokasses tokens which are undefined yet to yacc
 	col and line numbers are recorded but not used in an error function yet
 */
+void addCol(int matchedCol)
+{
+	colnum = colnum + matchedCol;
+}
+void addLine(int matchedLine)
+{
+	linenum = linenum + matchedLine;
+}
+void zeroCol()
+{
+	colnum = colnum = 1;
+}
+//change hex matches to int
 
