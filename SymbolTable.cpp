@@ -16,12 +16,7 @@ void SymbolTable::popTable(){
   this->debugger.debug("The top symbol table is popped off");
 }
 
-bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val)
-/* If the given key is not found in the current symbol table,
-make a pair of the key and the value and return NULL; otherwise
-return the shadowed symbol value
-*/
-{
+bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
   SymbolNode* content;
 
   if(this->symTables.empty()){
@@ -35,18 +30,21 @@ return the shadowed symbol value
     content = lookUpShadowedSymbol(key);
     if(content == NULL){
       this->debugger.debug("Symbol "+key+" is inserted at top level");
-    }else{
+    }
+    else{
       this->debugger.debug("Symbol "+key+" shadows another in parent level");
     }
-    return false;
-  }else{
-    this->debugger.debug("Symbol "+key+" shadows another in top level");
     return true;
+  }
+  else{
+    this->debugger.debug("Symbol "+key+" conflicts with one already in top level");
+    return false;
   }
 }
 
 SymbolNode* SymbolTable::lookupTopTable(const std::string& key)
-/* looks up the top level and returns the content if the key is found; otherwise, it returns NULL.
+/* looks up the top level and returns the content if the key is found;
+otherwise, it returns NULL.
 */
 {
   // declarations/initializations
