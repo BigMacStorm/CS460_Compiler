@@ -1,14 +1,14 @@
-%token IDENTIFIERtok 
+%token IDENTIFIERtok
 %token INTEGER_CONSTANTtok FLOATING_CONSTANTtok CHARACTER_CONSTANTtok ENUMERATION_CONSTANTtok 
-%token STRING_LITERALtok 
+%token STRING_LITERALtok
 %token SIZEOFtok
-%token PTR_OPtok 
-%token INC_OPtok DEC_OPtok 
-%token LEFT_OPtok RIGHT_OPtok 
+%token PTR_OPtok
+%token INC_OPtok DEC_OPtok
+%token LEFT_OPtok RIGHT_OPtok
 %token LE_OPtok GE_OPtok EQ_OPtok NE_OPtok
-%token AND_OPtok OR_OPtok 
-%token MUL_ASSIGNtok DIV_ASSIGNtok MOD_ASSIGNtok ADD_ASSIGNtok SUB_ASSIGNtok 
-%token LEFT_ASSIGNtok RIGHT_ASSIGNtok AND_ASSIGNtok XOR_ASSIGNtok OR_ASSIGNtok 
+%token AND_OPtok OR_OPtok
+%token MUL_ASSIGNtok DIV_ASSIGNtok MOD_ASSIGNtok ADD_ASSIGNtok SUB_ASSIGNtok
+%token LEFT_ASSIGNtok RIGHT_ASSIGNtok AND_ASSIGNtok XOR_ASSIGNtok OR_ASSIGNtok
 %token TYPEDEF_NAMEtok
 
 %token TYPEDEFtok EXTERNtok STATICtok AUTOtok REGISTERtok
@@ -52,7 +52,7 @@ declaration_specifiers
 	| storage_class_specifier declaration_specifiers
 	| type_specifier
 	| type_specifier declaration_specifiers
-	| type_qualifier 
+	| type_qualifier
 	| type_qualifier declaration_specifiers
 	;
 
@@ -70,7 +70,7 @@ type_specifier
 	| SHORTtok
 	| INTtok
 	| LONGtok
-	| FLOATtok 
+	| FLOATtok
 	| DOUBLEtok
 	| SIGNEDtok
 	| UNSIGNEDtok
