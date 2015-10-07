@@ -1,6 +1,4 @@
 Not necessarily in this order:
--Download Harris' C grammar
--Rename tokens as desired
 -Make it print out reductions
 -Create fake lex file to test with?
 -Create the required script
