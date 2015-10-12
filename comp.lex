@@ -1,19 +1,21 @@
 /* definitions ****************************************************************/
 %{
-	#include "y.tab.h"
-	#include "SymbolTable.h"
+	#include "comp.tab.h"
+	//#include "SymbolTable.h"
 	int linenum = 1;
 	int colnum = 1;
 	char errormsg [70];
-	int addCol(int);
-	int addLine(int);
+	void addCol(int);
+	void addLine(int);
 	void zeroCol();
+	void checkOverflow(int, char*);
 %}
 
 %option noyywrap
 %option yylineno
 
 ws   [ \r\t\v\f]
+newline \n+
 bind [01]
 octd [0-7]
 digit [0-9]
@@ -45,10 +47,11 @@ scomment "//".*
 
 /* token rules and actions ***************************************************/
 %%
-"!!S"      {symTable.writeFile();}
-{ws}       {}
-{scomment} {}
-{mcomment} {}
+"!!S"
+{ws}
+{scomment}
+{mcomment}
+{newline}       { addLine(yyleng); }
 
 "sizeof"  { return(SIZEOFtok); }
 
@@ -77,8 +80,8 @@ scomment "//".*
 
 "("           { return(OPEN_PARENtok); }
 ")"           { return(CLOSE_PARENtok); }
-("{"|"<%")    { symTtokable.pushTtokable(); return(OPEN_CURLYtok); }
-("}"|"%>")    { symTtokable.popTtokable(); return(CLOSE_CURLYtok); }
+("{"|"<%")    { return(OPEN_CURLYtok); }
+("}"|"%>")    { return(CLOSE_CURLYtok); }
 ("["|"<:")    { return(OPEN_SQUAREtok); }
 ("]"|":>")    { return(CLOSE_SQUAREtok); }
 
@@ -135,9 +138,9 @@ scomment "//".*
 "return"    { return(RETURNtok); }
 
 {id}      {
-            std::string name = yytext;
-            StokymbolNtokode * symNtokode = new StokymbolNtokode(name, NULLtok, yylineno);
-            symTtokable.insertStokymbol(name, symNtokode);
+            //std::string name = yytext;
+            //StokymbolNtokode * symNtokode = new StokymbolNtokode(name, NULLtok, yylineno);
+            //symTtokable.insertStokymbol(name, symNtokode);
             return(IDENTIFIERtok);
             }
 
@@ -146,7 +149,7 @@ scomment "//".*
 {char_const}      { return(CHARACTER_CONSTANTtok); }
 {string_literal}  { return(STRING_LITERALtok); }
 
-.         { return(ERRORtok); }
+.         { //return(ERRORtok); }
 
 %%
 /* user code **************************************************************/
@@ -154,7 +157,11 @@ scomment "//".*
 /*  Atok minimal Ltokex scanner generator
     Ptokasses tokens which are undefined yet to yacc
 	col and line numbers are recorded but not used in an error function yet
-*/
+
+void checkOverflow (int intInput)
+{
+	intInput = 0;
+}
 void addCol(int matchedCol)
 {
 	colnum = colnum + matchedCol;
@@ -167,5 +174,4 @@ void zeroCol()
 {
 	colnum = colnum = 1;
 }
-//change hex matches to int
-
+*/
