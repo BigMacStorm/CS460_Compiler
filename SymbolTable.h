@@ -9,8 +9,7 @@
 
 class SymbolTable{
 public:
-  SymbolTable();
-
+  static SymbolTable* getInstance();
   void pushTable(std::map<std::string, SymbolNode*>);
   void pushTable();
   void popTable();
@@ -25,8 +24,10 @@ public:
   void setDebug(bool debug);
 
 private:
+  SymbolTable();
   Debugger debugger;
   std::stack< std::map<std::string, SymbolNode*> > symTables;
+  static SymbolTable* instance;
 };
 
 #endif

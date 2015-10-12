@@ -8,6 +8,6 @@ class Debugger{
   public:
     Debugger();
     void setDebug(bool debug);
-    void debug(const std::string& message);
+    void debug(const std::string& message) const;
 };
 #endif

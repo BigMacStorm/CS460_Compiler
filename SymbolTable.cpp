@@ -1,6 +1,14 @@
 #include "SymbolTable.h"
+SymbolTable* SymbolTable::instance = NULL;
+
 SymbolTable::SymbolTable(){}
 
+SymbolTable* SymbolTable::getInstance(){
+  if(SymbolTable::instance == NULL){
+    SymbolTable::instance = new SymbolTable();
+  }
+  return SymbolTable::instance;
+}
 void SymbolTable::pushTable(std::map<std::string,SymbolNode*> newSymTable){
   this->symTables.push(newSymTable);
 }
@@ -8,12 +16,12 @@ void SymbolTable::pushTable(std::map<std::string,SymbolNode*> newSymTable){
 void SymbolTable::pushTable(){
   std::map<std::string,SymbolNode*> newSymTable;
   this->symTables.push(newSymTable);
-  this->debugger.debug("A new symbol table is pushed on");
+  this->debugger.debug("\nA new symbol table is pushed on");
 }
 
 void SymbolTable::popTable(){
   this->symTables.pop();
-  this->debugger.debug("The top symbol table is popped off");
+  this->debugger.debug("The top symbol table is popped off\n");
 }
 
 bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
@@ -25,7 +33,6 @@ bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
 
   content = lookupTopTable(key);
   this->symTables.top()[key] = val;
-
   if(content == NULL){
     content = lookUpShadowedSymbol(key);
     if(content == NULL){
@@ -37,7 +44,7 @@ bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
     return true;
   }
   else{
-    this->debugger.debug("Symbol "+key+" conflicts with one already in top level");
+    this->debugger.debug("Symbol "+key+" is updated");
     return false;
   }
 }
@@ -59,7 +66,8 @@ otherwise, it returns NULL.
     }
   if(val != NULL){
     this->debugger.debug("Symbol "+key+" is found at top level");
-  }else{
+  }
+  else{
     this->debugger.debug("Symbol "+key+" is not found at top level");
   }
   return val;
@@ -102,7 +110,8 @@ it finds; otherwise, it returns NULL.
 
   if(found){
     this->debugger.debug("Symbol "+key+" is found at level "+ std::to_string(level));
-  }else{
+  }
+  else{
     this->debugger.debug("Symbol "+key+" is not found at any parent level");
   }
 
@@ -147,9 +156,7 @@ void SymbolTable::writeFile(std::string filename){
       type = (*iter->second).type;
       fout << "Symbol: " << iter->first << "; ";
       if(type != NULL){
-        fout << "TypeKind: "<< (*iter->second).type->getTypeKindStr() << "; "
-             << "StorageClass: "<< (*iter->second).type->getStorageClassStr() << "; "
-             << "TypeQualifier: "<< (*iter->second).type->getTypeQualifierStr() << "; ";
+        fout << (*iter->second).type->getTypeStr();
       }
       fout << "Position: " << (*iter->second).pos << ";";
       fout << "\n";

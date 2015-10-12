@@ -5,20 +5,21 @@ extern "C"{
   int yyparse();
   int yylex();
 }
-SymbolTable symTable;
-Debugger lexDebugger;
-Debugger parseDebugger;
+SymbolTable symTable = *SymbolTable::getInstance();
+Debugger reductionDebugger;
+Debugger warningDebugger;
 extern FILE* yyin;
 
 int main(int argc, char** argv){
-  lexDebugger.setDebug(true);
-  parseDebugger.setDebug(true);
+  reductionDebugger.setDebug(true);
+  warningDebugger.setDebug(true);
   symTable.setDebug(true);
 
   std::remove("symbolTableOut.txt");
 
   symTable.pushTable();
   yyparse();
+  symTable.popTable();
 
   return 0;
 }

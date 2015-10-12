@@ -51,103 +51,103 @@ scomment "//".*
 {scomment} {}
 {mcomment} {}
 
-"sizeof"  { return(SIZEOF); }
+"sizeof"  { return(SIZEOFtok); }
 
-"->"      { return(PTR_OP); }
-"++"      { return(INC_OP); }
-"--"      { return(DEC_OP); }
-"<<"      { return(LEFT_OP); }
-">>"      { return(RIGHT_OP); }
-"<="      { return(LE_OP); }
-">="      { return(GE_OP); }
-"=="      { return(EQ_OP); }
-"!="      { return(NE_OP); }
-"&&"      { return(AND_OP); }
-"||"      { return(OR_OP); }
+"->"      { return(PTR_OPtok); }
+"++"      { return(INC_OPtok); }
+"--"      { return(DEC_OPtok); }
+"<<"      { return(LEFT_OPtok); }
+">>"      { return(RIGHT_OPtok); }
+"<="      { return(LE_OPtok); }
+">="      { return(GE_OPtok); }
+"=="      { return(EQ_OPtok); }
+"!="      { return(NE_OPtok); }
+"&&"      { return(AND_OPtok); }
+"||"      { return(OR_OPtok); }
 
-"*="      { return(MUL_ASSIGN); }
-"/="      { return(DIV_ASSIGN); }
-"%="      { return(MOD_ASSIGN); }
-"+="      { return(ADD_ASSIGN); }
-"-="      { return(SUB_ASSIGN); }
-"<<="     { return(LEFT_ASSIGN); }
-">>="     { return(RIGHT_ASSIGN); }
-"&="      { return(AND_ASSIGN); }
-"^="      { return(XOR_ASSIGN); }
-"|="      { return(OR_ASSIGN); }
+"*="      { return(MUL_ASSIGNtok); }
+"/="      { return(DIV_ASSIGNtok); }
+"%="      { return(MOD_ASSIGNtok); }
+"+="      { return(ADD_ASSIGNtok); }
+"-="      { return(SUB_ASSIGNtok); }
+"<<="     { return(LEFT_ASSIGNtok); }
+">>="     { return(RIGHT_ASSIGNtok); }
+"&="      { return(AND_ASSIGNtok); }
+"^="      { return(XOR_ASSIGNtok); }
+"|="      { return(OR_ASSIGNtok); }
 
-"("           { return('('); }
-")"           { return(')'); }
-("{"|"<%")    { symTable.pushTable(); return('{'); }
-("}"|"%>")    { symTable.popTable(); return('}'); }
-("["|"<:")    { return('['); }
-("]"|":>")    { return(']'); }
+"("           { return(OPEN_PARENtok); }
+")"           { return(CLOSE_PARENtok); }
+("{"|"<%")    { return(OPEN_CURLYtok); }
+("}"|"%>")    { return(CLOSE_CURLYtok); }
+("["|"<:")    { return(OPEN_SQUAREtok); }
+("]"|":>")    { return(CLOSE_SQUAREtok); }
 
-"."     { return('.'); }
-","     { return(','); }
-":"     { return(':'); }
-";"     { return(';'); }
-"="     { return('='); }
-"&"     { return('&'); }
-"!"     { return('!'); }
-"~"     { return('~'); }
-"*"     { return('*'); }
-"/"     { return('/'); }
-"+"     { return('+'); }
-"-"     { return('-'); }
-"%"     { return('%'); }
-"<"     { return('<'); }
-">"     { return('>'); }
-"^"     { return('^'); }
-"|"     { return('|'); }
-"?"     { return('?'); }
+"."     { return(PERIODtok); }
+","     { return(COMMAtok); }
+":"     { return(COLONtok); }
+";"     { return(SEMItok); }
+"="     { return(EQUALtok); }
+"&"     { return(UNARY_ANDtok); }
+"!"     { return(UNARY_BANGtok); }
+"~"     { return(UNARY_TILDEtok); }
+"*"     { return(UNARY_ASTERISKtok); }
+"/"     { return(FORWARD_SLASHtok); }
+"+"     { return(UNARY_PLUStok); }
+"-"     { return(UNARY_MINUStok); }
+"%"     { return(PERCENTtok); }
+"<"     { return(LEFT_ANGLEtok); }
+">"     { return(RIGHT_ANGLEtok); }
+"^"     { return(UP_CARROTtok); }
+"|"     { return(PIPEtok); }
+"?"     { return(QUESTION_MARKtok); }
 
-"typedef"   { return(TYPEDEF); }
-"extern"    { return(EXTERN); }
-"static"    { return(STATIC); }
-"auto"      { return(AUTO); }
-"register"  { return(REGISTER); }
-"char"      { return(CHAR); }
-"short"     { return(SHORT); }
-"int"       { return(INT); }
-"long"      { return(LONG); }
-"signed"    { return(SIGNED); }
-"unsigned"  { return(UNSIGNED); }
-"float"     { return(FLOAT); }
-"double"    { return(DOUBLE); }
-"const"     { return(CONST); }
-"volatile"  { return(VOLATILE); }
-"void"      { return(VOID); }
-"struct"    { return(STRUCT); }
-"union"     { return(UNION); }
-"enum"      { return(ENUM); }
-"..."       { return(ELIPSIS); }
-"case"      { return(CASE); }
-"default"   { return(DEFAULT); }
-"if"        { return(IF); }
-"else"      { return(ELSE); }
-"switch"    { return(SWITCH); }
-"while"     { return(WHILE); }
-"do"        { return(DO); }
-"for"       { return(FOR); }
-"goto"      { return(GOTO); }
-"continue"  { return(CONTINUE); }
-"break"     { return(BREAK); }
-"return"    { return(RETURN); }
+"typedef"   { return(TYPEDEFtok); }
+"extern"    { return(EXTERNtok); }
+"static"    { return(STATICtok); }
+"auto"      { return(AUTOtok); }
+"register"  { return(REGISTERtok); }
+"char"      { return(CHARtok); }
+"short"     { return(SHORTtok); }
+"int"       { return(INTtok); }
+"long"      { return(LONGtok); }
+"signed"    { return(SIGNEDtok); }
+"unsigned"  { return(UNSIGNEDtok); }
+"float"     { return(FLOATtok); }
+"double"    { return(DOUBLEtok); }
+"const"     { return(CONSTtok); }
+"volatile"  { return(VOLATILEtok); }
+"void"      { return(VOIDtok); }
+"struct"    { return(STRUCTtok); }
+"union"     { return(UNIONtok); }
+"enum"      { return(ENUMtok); }
+"..."       { return(ELIPSIStok); }
+"case"      { return(CASEtok); }
+"default"   { return(DEFAULTtok); }
+"if"        { return(IFtok); }
+"else"      { return(ELSEtok); }
+"switch"    { return(SWITCHtok); }
+"while"     { return(WHILEtok); }
+"do"        { return(DOtok); }
+"for"       { return(FORtok); }
+"goto"      { return(GOTOtok); }
+"continue"  { return(CONTINUEtok); }
+"break"     { return(BREAKtok); }
+"return"    { return(RETURNtok); }
 
 {id}      {
             std::string name = yytext;
             SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
             symTable.insertSymbol(name, symNode);
-            return(IDENTIFIER);
+            return(IDENTIFIERtok);
             }
 
-{int_const}       { return(INTEGER_CONSTANT); }
-{real_const}      { return(FLOATING_CONSTANT); }
-{char_const}      { return(CHARACTER_CONSTANT); }
-{string_literal}  { return(STRING_LITERAL); }
+{int_const}       { return(INTEGER_CONSTANTtok); }
+{real_const}      { return(FLOATING_CONSTANTtok); }
+{char_const}      { return(CHARACTER_CONSTANTtok); }
+{string_literal}  { return(STRING_LITERALtok); }
 
-.         { return(ERROR); }
+.                 { return(ERRORtok); }
 
 %%
 /* user code **************************************************************/

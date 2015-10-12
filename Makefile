@@ -2,7 +2,7 @@ CC  = g++
 CFLAGS = -c -g -Wall
 LEX	= flex
 YACC	= bison
-YFLAG = -d
+YFLAG = -d --debug --verbose
 LFLAG =
 LIBS = -ll -ly
 SRCS = driver.cpp lex.yy.c y.tab.c Debugger.cpp Type.cpp SymbolNode.cpp SymbolTable.cpp
@@ -18,7 +18,7 @@ lex.yy.c: comp.lex y.tab.c
 	$(LEX) $(LFLAG) $<
 
 clean:
-	-rm -f compiler lex.yy.* y.tab.* *.o  *~
+	-rm -f compiler lex.yy.* y.tab.* y.output *.o  *~
 
 .SUFFIXES: .cpp .c .o
 
