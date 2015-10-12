@@ -149,7 +149,8 @@ scomment "//".*
 {char_const}      { return(CHARACTER_CONSTANTtok); }
 {string_literal}  { return(STRING_LITERALtok); }
 
-.         { //return(ERRORtok); }
+.         { //return(ERRORtok);
+	      }
 
 %%
 /* user code **************************************************************/
@@ -158,7 +159,8 @@ scomment "//".*
     Ptokasses tokens which are undefined yet to yacc
 	col and line numbers are recorded but not used in an error function yet
 
-void checkOverflow (int intInput)
+*/
+void checkOverflow (int intInput, char * ugh)
 {
 	intInput = 0;
 }
@@ -174,4 +176,3 @@ void zeroCol()
 {
 	colnum = colnum = 1;
 }
-*/
