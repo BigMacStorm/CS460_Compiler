@@ -8,7 +8,8 @@
 	void addCol(int);
 	void addLine(int);
 	void zeroCol();
-	void checkOverflow(int, char*);
+	void checkOverflow(char*);
+	void printLine();
 %}
 
 %option noyywrap
@@ -160,9 +161,9 @@ scomment "//".*
 	col and line numbers are recorded but not used in an error function yet
 
 */
-void checkOverflow (int intInput, char * ugh)
+void checkOverflow (char * intInput)
 {
-	intInput = 0;
+	//string compare, int too big for any type
 }
 void addCol(int matchedCol)
 {
@@ -175,4 +176,10 @@ void addLine(int matchedLine)
 void zeroCol()
 {
 	colnum = colnum = 1;
+}
+void printErrorLine()
+{
+	//open current file(?)
+	//print entire line
+	//print ^ colnum spaces over on next line
 }
