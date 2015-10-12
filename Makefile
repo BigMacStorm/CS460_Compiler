@@ -11,10 +11,10 @@ OBJS = driver.o lex.yy.o y.tab.o Debugger.o Type.o SymbolNode.o SymbolTable.o
 compiler: $(OBJS)
 	$(CC) -o $@ $(OBJS) $(LIBS)
 
-y.tab.c: comp.y
+y.tab.c: compiler.y
 	$(YACC) $(YFLAG) -o y.tab.c $<
 
-lex.yy.c: comp.lex y.tab.c
+lex.yy.c: compiler.lex y.tab.c
 	$(LEX) $(LFLAG) $<
 
 clean:
