@@ -51,7 +51,6 @@ void yyerror(char* s);
 
 %token CASEtok DEFAULTtok IFtok ELSEtok SWITCHtok WHILEtok DOtok FORtok GOTOtok CONTINUEtok BREAKtok RETURNtok
 
-/**  **/
 %token ERRORtok
 
 %start translation_unit
@@ -373,6 +372,7 @@ declarator
       reductionDebugger.debug("declarator -> direct_declarator");
   }
   | pointer direct_declarator {
+      // pointer mode
       reductionDebugger.debug("declarator -> pointer direct_declarator");
   }
   ;
@@ -382,21 +382,27 @@ direct_declarator
       reductionDebugger.debug("direct_declarator -> identifier");
   }
   | OPEN_PARENtok declarator CLOSE_PARENtok {
+      // e.g., int (*a)[COLS]
       reductionDebugger.debug("direct_declarator -> OPEN_PARENtok declarator CLOSE_PARENtok");
   }
   | direct_declarator OPEN_SQUAREtok CLOSE_SQUAREtok {
+      // array mode
       reductionDebugger.debug("direct_declarator -> direct_declarator OPEN_SQUAREtok CLOSE_SQUAREtok");
   }
   | direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok {
+      // array mode
       reductionDebugger.debug("direct_declarator -> direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
   }
   | direct_declarator OPEN_PARENtok CLOSE_PARENtok {
+      // function mode
       reductionDebugger.debug("direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok");
   }
   | direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok {
+      // function mode
       reductionDebugger.debug("direct_declarator -> direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
   }
   | direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok {
+      //
       reductionDebugger.debug("direct_declarator -> direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok");
   }
   ;

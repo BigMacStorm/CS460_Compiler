@@ -135,7 +135,7 @@ void SymbolTable::writeFile(std::string filename){
   std::stack< std::map<std::string,SymbolNode*> > tmpSymTables;
   std::map<std::string,SymbolNode*> currentSymTable;
   std::map<std::string,SymbolNode*>::iterator iter;
-  Type* type;
+  Spec* spec;
   int level;
 
   if(this->symTables.empty()){
@@ -153,12 +153,12 @@ void SymbolTable::writeFile(std::string filename){
     fout << "Symbol table #" << level << std::endl;
 
     for(iter = currentSymTable.begin(); iter != currentSymTable.end(); ++iter){
-      type = (*iter->second).type;
+      spec = (*iter->second).getSpec();
       fout << "Symbol: " << iter->first << "; ";
-      if(type != NULL){
-        fout << (*iter->second).type->getTypeStr();
+      if(spec != NULL){
+        fout << spec->getSpecStr();
       }
-      fout << "Position: " << (*iter->second).pos << ";";
+      fout << "Position: " << (*iter->second).getPos() << ";";
       fout << "\n";
     }
     fout << "-------------\n\n" << std::endl;
