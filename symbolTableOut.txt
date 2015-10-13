@@ -101,10 +101,10 @@ Symbol Tables
 Symbol table #1
 Symbol: a; Position: 1;
 Symbol: b; Position: 2;
-Symbol: foo; Position: 29;
+Symbol: foo; Position: 28;
 Symbol: main; Position: 8;
-Symbol: x; Position: 29;
-Symbol: y; Position: 29;
+Symbol: x; Position: 28;
+Symbol: y; Position: 28;
 -------------
 
 

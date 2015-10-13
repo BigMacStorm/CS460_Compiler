@@ -39,7 +39,7 @@ real3 {digit}+"."{digit}*{exp}?{fsuffix}?
 real_const ({real1}|{real2}|{real3})
 
 char_const L?'(\\.|[^\\'])+'
-string_literal L?\"(\\.|[^"])*\"
+string_literal L?\"(\\.|[^\\"])*\"
 
 mcomment "/*"(.|"\n")"*/"
 scomment "//".*

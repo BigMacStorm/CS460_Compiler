@@ -13,7 +13,7 @@ extern FILE* yyin;
 int main(int argc, char** argv){
   reductionDebugger.setDebug(true);
   warningDebugger.setDebug(true);
-  symTable.setDebug(true);
+  symTable.setDebug(false);
 
   std::remove("symbolTableOut.txt");
 
