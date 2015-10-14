@@ -9,6 +9,7 @@
 
 class SymbolTable{
 public:
+  ~SymbolTable();
   static SymbolTable* getInstance();
   void pushTable(std::map<std::string, SymbolNode*>);
   void pushTable();
@@ -20,14 +21,16 @@ public:
   SymbolNode* lookUpShadowedSymbol(const std::string& key);
   SymbolNode* lookupSymbol(const std::string&);
 
-  void writeFile(std::string filename = "symbolTableOut.txt");
-  void setDebug(bool debug);
+  void writeFile();
+  void setFileName(const std::string filename);
+  Debugger* getDebugger() const;
 
 private:
   SymbolTable();
-  Debugger debugger;
-  std::stack< std::map<std::string, SymbolNode*> > symTables;
   static SymbolTable* instance;
+  Debugger* debugger;
+  std::stack< std::map<std::string, SymbolNode*> > symTables;
+  std::string filename;
 };
 
 #endif
