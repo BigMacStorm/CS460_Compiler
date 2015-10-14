@@ -3,8 +3,8 @@
 	#include "comp.tab.h"
 	#include <string.h>
 	//#include "SymbolTable.h"
-	int linenum = 1;
-	int colnum = 1;
+	unsigned int linenum = 1;
+	unsigned int colnum = 1;
 	char errormsg [70];
 	void addCol(int);
 	void addLine(int);

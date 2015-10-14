@@ -25,7 +25,8 @@
 
 %start translation_unit
 
-
+//extern unsigned int linenum;
+//extern unsigned int colnum;
 
 %{
 #include <stdio.h>
@@ -463,6 +464,7 @@ int main() {
 
 // This causes a warning right now
 // Not sure how to suppress it yet
-void yyerror(const char* msg) {
+int yyerror(const char* msg) {
+    //printf("error line %d, col %d", linenum, colnum);
     printf("%s\n", msg);
 }
