@@ -25,6 +25,8 @@
 
 %start translation_unit
 
+
+
 %{
 #include <stdio.h>
 typedef int YYSTYPE;
@@ -461,6 +463,6 @@ int main() {
 
 // This causes a warning right now
 // Not sure how to suppress it yet
-void yyerror(char* msg) {
+void yyerror(const char* msg) {
     printf("%s\n", msg);
 }
