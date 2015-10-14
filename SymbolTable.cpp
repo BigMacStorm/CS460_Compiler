@@ -1,8 +1,13 @@
 #include "SymbolTable.h"
 SymbolTable* SymbolTable::instance = NULL;
 
-SymbolTable::SymbolTable(){}
-
+SymbolTable::SymbolTable(){
+  this->debugger = new Debugger();
+}
+SymbolTable::~SymbolTable(){
+  delete this->debugger;
+  debugger = NULL;
+}
 SymbolTable* SymbolTable::getInstance(){
   if(SymbolTable::instance == NULL){
     SymbolTable::instance = new SymbolTable();
@@ -16,12 +21,12 @@ void SymbolTable::pushTable(std::map<std::string,SymbolNode*> newSymTable){
 void SymbolTable::pushTable(){
   std::map<std::string,SymbolNode*> newSymTable;
   this->symTables.push(newSymTable);
-  this->debugger.debug("\nA new symbol table is pushed on");
+  this->debugger->debug("[S]: A new symbol table is pushed on ===============");
 }
 
 void SymbolTable::popTable(){
   this->symTables.pop();
-  this->debugger.debug("The top symbol table is popped off\n");
+  this->debugger->debug("[S]: The top symbol table is popped off ============");
 }
 
 bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
@@ -36,15 +41,15 @@ bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
   if(content == NULL){
     content = lookUpShadowedSymbol(key);
     if(content == NULL){
-      this->debugger.debug("Symbol "+key+" is inserted at top level");
+      this->debugger->debug("[S]: Symbol "+key+" is inserted at top level");
     }
     else{
-      this->debugger.debug("Symbol "+key+" shadows another in parent level");
+      this->debugger->debug("[S]: Symbol "+key+" shadows another in parent level");
     }
     return true;
   }
   else{
-    this->debugger.debug("Symbol "+key+" is updated");
+    this->debugger->debug("[S]: Symbol "+key+" is updated");
     return false;
   }
 }
@@ -65,10 +70,10 @@ otherwise, it returns NULL.
       val = currentSymTable[key];
     }
   if(val != NULL){
-    this->debugger.debug("Symbol "+key+" is found at top level");
+    this->debugger->debug("[S]: Symbol "+key+" is found at top level");
   }
   else{
-    this->debugger.debug("Symbol "+key+" is not found at top level");
+    this->debugger->debug("[S]: Symbol "+key+" is not found at top level");
   }
   return val;
 }
@@ -109,10 +114,10 @@ it finds; otherwise, it returns NULL.
   }
 
   if(found){
-    this->debugger.debug("Symbol "+key+" is found at level "+ std::to_string(level));
+    this->debugger->debug("[S]: Symbol "+key+" is found at level "+ std::to_string(level));
   }
   else{
-    this->debugger.debug("Symbol "+key+" is not found at any parent level");
+    this->debugger->debug("[S]: Symbol "+key+" is not found at any parent level");
   }
 
   return val;
@@ -128,7 +133,7 @@ if the key is found; otherwise, it returns NULL.
   }
   return val;
 }
-void SymbolTable::writeFile(std::string filename){
+void SymbolTable::writeFile(){
 
   // declarations/initializations
   std::ofstream fout;
@@ -144,13 +149,13 @@ void SymbolTable::writeFile(std::string filename){
 
   fout.open(filename.c_str(), std::ofstream::app);
   fout << "Symbol Tables\n"
-       << "=============" << std::endl;
+       << "====================================================" << std::endl;
   level = 1;
 
   // dump symbol tables
   while(!this->symTables.empty()){
     currentSymTable = this->symTables.top();
-    fout << "Symbol table #" << level << std::endl;
+    fout << "[Symbol table #" << level << "]"<< std::endl;
 
     for(iter = currentSymTable.begin(); iter != currentSymTable.end(); ++iter){
       spec = (*iter->second).getSpec();
@@ -161,18 +166,23 @@ void SymbolTable::writeFile(std::string filename){
       fout << "Position: " << (*iter->second).getPos() << ";";
       fout << "\n";
     }
-    fout << "-------------\n\n" << std::endl;
+    fout << "--------------------------------------------------" << std::endl;
 
     tmpSymTables.push(currentSymTable);
     this->symTables.pop();
     level++;
   }
+  fout << "====================================================\n\n" << std::endl;
+
   while(!tmpSymTables.empty()){
     this->symTables.push(tmpSymTables.top());
     tmpSymTables.pop();
   }
   fout.close();
 }
-void SymbolTable::setDebug(bool debug){
-  this->debugger.setDebug(debug);
+Debugger* SymbolTable::getDebugger() const{
+  return this->debugger;
+}
+void SymbolTable::setFileName(const std::string filename){
+  this->filename = filename;
 }
