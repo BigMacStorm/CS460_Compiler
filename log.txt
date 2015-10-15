@@ -1,0 +1,389 @@
+[S]: A new symbol table is pushed on ===============
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> ib1
+[S]: Symbol ib1 is not found at top level
+[S]: Symbol ib1 is not found at any parent level
+[S]: Symbol ib1 is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 0b00001
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> external_declaration
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> ib2
+[S]: Symbol ib2 is not found at top level
+[S]: Symbol ib2 is not found at any parent level
+[S]: Symbol ib2 is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 0B00011
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> translation_unit external_declaration
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> ib3
+[S]: Symbol ib3 is not found at top level
+[S]: Symbol ib3 is not found at any parent level
+[S]: Symbol ib3 is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 0b11111111111111111111111111111111
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> translation_unit external_declaration
+[L] Next symbol -> unsigned
+type_specifier -> UNSIGNEDtok
+[L] Next symbol -> long
+type_specifier -> LONGtok
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> ib4
+[S]: Symbol ib4 is not found at top level
+[S]: Symbol ib4 is not found at any parent level
+[S]: Symbol ib4 is inserted at top level
+declaration_specifiers -> type_specifier
+declaration_specifiers -> type_specifier declaration_specifiers
+declaration_specifiers -> type_specifier declaration_specifiers
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 0b1111111111111111111111111111111111111111111111111111111111111111
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> translation_unit external_declaration
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> ih1
+[S]: Symbol ih1 is not found at top level
+[S]: Symbol ih1 is not found at any parent level
+[S]: Symbol ih1 is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 0x00ABCDEF
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> translation_unit external_declaration
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> ih3
+[S]: Symbol ih3 is not found at top level
+[S]: Symbol ih3 is not found at any parent level
+[S]: Symbol ih3 is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 0xFFFFFFFF
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> translation_unit external_declaration
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> io1
+[S]: Symbol io1 is not found at top level
+[S]: Symbol io1 is not found at any parent level
+[S]: Symbol io1 is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 077777777
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> translation_unit external_declaration
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> io2
+[S]: Symbol io2 is not found at top level
+[S]: Symbol io2 is not found at any parent level
+[S]: Symbol io2 is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 017562730
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> translation_unit external_declaration
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> id1
+[S]: Symbol id1 is not found at top level
+[S]: Symbol id1 is not found at any parent level
+[S]: Symbol id1 is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 0
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> translation_unit external_declaration
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> id2
+[S]: Symbol id2 is not found at top level
+[S]: Symbol id2 is not found at any parent level
+[S]: Symbol id2 is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> =
+declarator -> direct_declarator
+[L] Next symbol -> 4294967295
+constant -> INTEGER_CONSTANTtok
+primary_expression -> constant
+postfix_expression -> primary_expression
+[L] Next symbol -> ;
+unary_expression -> postfix_expression
+cast_expression -> unary_expression
+multiplicative_expression -> cast_expression
+additive_expression -> multiplicative_expression
+shift_expression -> additive_expression
+relational_expression -> shift_expression
+equality_expression -> relational_expression
+and_expression -> equality_expression
+exclusive_or_expression -> and_expression
+inclusive_or_expression -> exclusive_or_expression
+logical_and_expression -> inclusive_or_expression
+logical_or_expression -> logical_and_expression
+conditional_expression -> logical_or_expression
+assignment_expression -> conditional_expression
+initializer -> assignment_expression
+init_declarator -> declarator EQUALtok initializer
+init_declarator_list -> init_declarator
+declaration -> declaration_specifiers init_declarator_list SEMItok
+external_declaration -> declaration
+translation_unit -> translation_unit external_declaration
+[L] Next symbol -> int
+type_specifier -> INTtok
+[L] Next symbol -> main
+[S]: Symbol main is not found at top level
+[S]: Symbol main is not found at any parent level
+[S]: Symbol main is inserted at top level
+declaration_specifiers -> type_specifier
+identifier -> IDENTIFIERtok
+direct_declarator -> identifier
+[L] Next symbol -> (
+[L] Next symbol -> )
+direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok
+[L] Next symbol -> {
+declarator -> direct_declarator
+[S]: A new symbol table is pushed on ===============
+[L] Next symbol -> }
+[S]: The top symbol table is popped off ============
+compound_statement -> OPEN_CURLYtok CLOSE_CURLYtok
+function_definition -> declaration_specifiers declarator compound_statement
+external_declaration -> function_definition
+translation_unit -> translation_unit external_declaration
+[S]: The top symbol table is popped off ============

@@ -6,6 +6,8 @@ extern "C"{
   int yylex();
 }
 SymbolTable symTable = *SymbolTable::getInstance();
+Debugger lexDebugger;
+Debugger lexSymbolDebugger;
 Debugger reductionDebugger;
 Debugger warningDebugger;
 
@@ -22,13 +24,15 @@ int main(int argc, char** argv){
        else if (args[arg] == "-d"){
          debug = true;
        }
-       else if (args[arg] == "-w"){
-       }
    }
 
   std::remove(logFile.c_str());
   std::remove(symTableLogFile.c_str());
 
+  lexDebugger.setFileName(logFile);
+  lexDebugger.setDebug(debug);
+  lexSymbolDebugger.setFileName(logFile);
+  lexSymbolDebugger.setDebug(debug);
   reductionDebugger.setFileName(logFile);
   reductionDebugger.setDebug(debug);
   symTable.setFileName(symTableLogFile);

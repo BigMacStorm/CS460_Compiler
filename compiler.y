@@ -22,6 +22,7 @@ void yyerror(char* s);
   int ival;
   double dval;
   long lval;
+  unsigned long long ullval;
   char* sval;
   SymbolNode* symval;
  }
