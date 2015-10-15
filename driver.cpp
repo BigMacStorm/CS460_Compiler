@@ -12,7 +12,7 @@ Debugger reductionDebugger;
 Debugger warningDebugger;
 
 int main(int argc, char** argv){
-  bool debug = false;
+  bool sdebug = false, ldebug = false, pdebug = false;
   std::string logFile = "log.txt";
   std::string symTableLogFile = "symTableLog.txt";
 
@@ -22,7 +22,15 @@ int main(int argc, char** argv){
          logFile = args[arg+1];
        }
        else if (args[arg] == "-d"){
-         debug = true;
+         if(args[arg+1].find("s") != std::string::npos){
+          sdebug = true;
+         }
+         if(args[arg+1].find("l") != std::string::npos){
+          ldebug = true;
+         }
+         if(args[arg+1].find("p") != std::string::npos){
+          pdebug = true;
+         }
        }
    }
 
@@ -30,14 +38,16 @@ int main(int argc, char** argv){
   std::remove(symTableLogFile.c_str());
 
   lexDebugger.setFileName(logFile);
-  lexDebugger.setDebug(debug);
+  lexDebugger.setDebug(ldebug);
   lexSymbolDebugger.setFileName(logFile);
-  lexSymbolDebugger.setDebug(debug);
+  lexSymbolDebugger.setDebug(ldebug);
+
   reductionDebugger.setFileName(logFile);
-  reductionDebugger.setDebug(debug);
+  reductionDebugger.setDebug(pdebug);
+
   symTable.setFileName(symTableLogFile);
   symTable.getDebugger()->setFileName(logFile);
-  symTable.getDebugger()->setDebug(debug);
+  symTable.getDebugger()->setDebug(sdebug);
 
   symTable.pushTable();
   yyparse();
