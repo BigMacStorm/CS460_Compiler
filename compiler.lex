@@ -625,6 +625,6 @@ unsigned long long myatoi(char* text){
 
 void dumpNextSymbol(){
   std::stringstream ss;
-  ss << "[L] Next symbol -> " << yytext;
+  ss << "[L]: Next symbol -> " << yytext;
   lexSymbolDebugger.debug(ss.str());
 }

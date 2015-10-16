@@ -1,5 +1,5 @@
 CC  = g++
-CFLAGS = -c -g -Wall
+CFLAGS = -c -g -Wall -std=c++11
 LEX	= flex
 YACC	= bison
 YFLAG = -d --debug --verbose

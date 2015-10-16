@@ -21,12 +21,12 @@ void SymbolTable::pushTable(std::map<std::string,SymbolNode*> newSymTable){
 void SymbolTable::pushTable(){
   std::map<std::string,SymbolNode*> newSymTable;
   this->symTables.push(newSymTable);
-  this->debugger->debug("[S]: A new symbol table is pushed on ===============");
+  this->debugger->debug("[S]: A new symbol table is pushed on ===========================================");
 }
 
 void SymbolTable::popTable(){
   this->symTables.pop();
-  this->debugger->debug("[S]: The top symbol table is popped off ============");
+  this->debugger->debug("[S]: The top symbol table is popped off ========================================");
 }
 
 bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){

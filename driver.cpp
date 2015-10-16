@@ -9,7 +9,6 @@ SymbolTable symTable = *SymbolTable::getInstance();
 Debugger lexDebugger;
 Debugger lexSymbolDebugger;
 Debugger reductionDebugger;
-Debugger warningDebugger;
 
 int main(int argc, char** argv){
   bool sdebug = false, ldebug = false, pdebug = false;
