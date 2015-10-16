@@ -5,7 +5,7 @@ extern "C"{
   int yylex();
 }
 #include <stdio.h>
-#include "symbolTable.h"
+#include "SymbolTable.h"
 #include "Debugger.h"
 
 extern Debugger warningDebugger;
@@ -82,10 +82,10 @@ A start_scope is called before compound_statement and a end_scope is called
 after compound_statement.
 *****************************************************************************/
 enter_scope
-  : {symTable.pushTable()}
+  : {symTable.pushTable();}
 ;
 end_scope
-  : {symTable.popTable()}
+  : {symTable.popTable();}
 ;
 
 function_definition
