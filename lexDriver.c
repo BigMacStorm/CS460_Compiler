@@ -7,9 +7,11 @@ int main (int argc, char* argv[])
 {
 	int args = 1;
 	int debugLevel = 0;
-	char outFileName[20];
+	char outFileName[30];
 	FILE* outFile;
 	
+	//current name of the output file, can be changed by -o option
+	strcpy(outFileName, "lexDriver.out");
 	//run through commandline arguments if there are any
 	if (argc > 1)
 	{
@@ -32,7 +34,7 @@ int main (int argc, char* argv[])
 			else if (strcmp(argv[args],"-dl") == 0)
 			{
 				printf("setting debug levels -dl, lex debug\n");
-				//lex debugging
+				//lex debugging, 
 				debugLevel = 1;
 			}
 			
@@ -53,6 +55,7 @@ int main (int argc, char* argv[])
 		}
 	}
 
+    
     //open input file and copy to ?
     //print first line of file input to outfile
     //request tokens from lex yylex() until newline token returned
