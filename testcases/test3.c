@@ -44,7 +44,7 @@ int main(){
   long long int i19 = -9223372036854775807;
   signed long long i20 = 9223372036854775807;
   signed long long int i21 = 9223372036854775807;
-  long int long signed i22 = 9223372036854775807;
+  long int long signed i212 = 9223372036854775807;
 
   // long long unsigned integers
   unsigned long long i22 = 9223372036854775807;
