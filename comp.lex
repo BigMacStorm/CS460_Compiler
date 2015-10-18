@@ -300,9 +300,9 @@ scomment "//".*
                 return(RETURNtok);
             }
 
-{id}        {   //std::string name = yytext;
-                //StokymbolNtokode * symNtokode = new StokymbolNtokode(name, NULLtok, yylineno);
-                //symTtokable.insertStokymbol(name, symNtokode);
+{id}        {   
+                //SymbolNode * symNode = new SymbolNode(yytext, NULL, linenum);
+                //symTable.insertSymbol(yytext, symNode);
                 addCol(yyleng);
                 checkIDLength(yytext);
                 return(IDENTIFIERtok);
@@ -325,20 +325,16 @@ scomment "//".*
                         return(STRING_LITERALtok);
                     }
 
-.         { //return(ERRORtok);
+.         { 
             addCol(yyleng);
             sprintf(errormsg, "ERROR: illegal character: line %d, col %d", linenum, colnum);
             yyerror(errormsg);
+            //return(ERRORtok);
 	      }
 
 %%
 /* user code **************************************************************/
 
-/*  Atok minimal Ltokex scanner generator
-    Ptokasses tokens which are undefined yet to yacc
-	col and line numbers are recorded but not used in an error function yet
-
-*/
 void checkOverflow (char * intInput)
 {
     char warning[100];
@@ -353,7 +349,7 @@ void checkIDLength(char* charInput)
 {
     char warning[100];
     int len = strlen(charInput);
-    if (len >= 10)
+    if (len >= 32)
     {
         sprintf(warning, "WARNING: Very long ID %s, line %d, col %d", charInput, linenum, colnum);
         printToStderr(warning);
