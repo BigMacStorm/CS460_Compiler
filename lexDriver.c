@@ -6,6 +6,7 @@
 int main (int argc, char* argv[])
 {
 	int args = 1;
+	int debugLevel = 0;
 	char outFileName[20];
 	FILE* outFile;
 	
@@ -23,26 +24,28 @@ int main (int argc, char* argv[])
 			
 			else if (strcmp(argv[args],"-d") == 0)
 			{
-				printf("setting debug levels\n");
-				//set debug levels
+				printf("setting debug levels -d, no debug\n");
+				//no debugging, just runs lex
+				debugLevel = 0;
 			}
 			
 			else if (strcmp(argv[args],"-dl") == 0)
 			{
-				printf("setting debug levels\n");
-				//set debug levels
+				printf("setting debug levels -dl, lex debug\n");
+				//lex debugging
+				debugLevel = 1;
 			}
 			
 			else if (strcmp(argv[args],"-ds") == 0)
 			{
-				printf("setting debug levels\n");
-				//set debug levels
+				printf("setting debug levels -ds, symbol table debug\n");
+				debugLevel = 2;
 			}
 			
 			else if (strcmp(argv[args],"-dls") == 0 || strcmp(argv[args],"-dsl") == 0)
 			{
-				printf("setting debug levels\n");
-				//set debug levels
+				printf("setting debug levels %s, lex and symbol debug\n");
+				debugLevel = 3;
 			}
 			
 			else

@@ -49,12 +49,28 @@ string_literal \"(\\.|[^"])*\"
 mcomment "/*"(.|"\n")"*/"
 scomment "//".*
 
+%x COMMENT
+
 /* token rules and actions ***************************************************/
 %%
-"!!S"
+"!!S"           {
+                    addCol(yyleng);
+                    //symbol table dump
+                }
 {ws}
-{scomment}       { addLine(1); }
-{mcomment}
+{scomment}      {   addLine(1); }
+"/*"            {
+                    //start of comment block
+                    printf("comment start");
+                    BEGIN(COMMENT);
+                }
+<COMMENT>\n     {   addLine(yylex); }
+<COMMENT>.      ;
+<COMMENT>"*/"   {
+                    //end comment block
+                    printf("comment end");
+                    BEGIN(INITIAL);
+                }
 {newline}       {   addLine(yyleng);
                     zeroCol();
                 }
