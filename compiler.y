@@ -39,7 +39,8 @@ void yyerror(char* s);
   double dval;
   long lval;
   unsigned long long ullval;
-  char* sval;
+  //char* sval;
+  char sval[100]; // Changing this to an array fixed a strcpy segfault
   SymbolNode* symval;
  }
 
