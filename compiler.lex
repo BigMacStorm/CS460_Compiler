@@ -28,7 +28,7 @@ void dumpNextSymbol();
 unsigned long long btoi(char*);
 unsigned long long otoi(char* text);
 unsigned long long htoi(char* text);
-unsigned long long myatoi(char*);
+int myatoi(char*);
 %}
 
 %option noyywrap
@@ -68,7 +68,7 @@ scomment "//".*
 
 /* token rules and actions ***************************************************/
 %%
-"!!S"        {symTable.writeFile();}
+{scomment}"!!S"        {symTable.writeFile();}
 {newlines}   {
                addLine(yyleng);
                zeroCol();
@@ -474,7 +474,8 @@ scomment "//".*
 {id}         {
                 dumpNextSymbol();
                 std::string name(yytext);
-                SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
+                yylval.sval = yytext;
+                SymbolNode * symNode = new SymbolNode(name, "", yylineno);
                 symTable.insertSymbol(name, symNode);
                 addCol(yyleng);
                 checkIDLength(yytext);
@@ -482,7 +483,7 @@ scomment "//".*
              }
 {int_const}       {
                     dumpNextSymbol();
-                    yylval.ullval = myatoi(yytext);
+                    yylval.ival = myatoi(yytext);
                     addCol(yyleng);
                     return(INTEGER_CONSTANTtok);
                   }
@@ -608,9 +609,8 @@ unsigned long long otoi(char* text){
   }
   return val;
 }
-unsigned long long myatoi(char* text){
+int myatoi(char* text){
   unsigned long long val = 0;
-
   if(text[0] == '0' && (text[1] == 'b' || text[1] == 'B')){
     val = btoi(text+2);
   }else if(text[0] == '0' && (text[1] == 'x' || text[1] == 'X')){

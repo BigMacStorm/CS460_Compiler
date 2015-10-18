@@ -5,15 +5,26 @@ extern "C"{
   int yylex();
 }
 #include <stdio.h>
+#include <fstream>
 #include "SymbolTable.h"
 #include "Debugger.h"
+#include "Declaration.h"
 
 extern Debugger reductionDebugger;
 extern SymbolTable symTable;
-extern int yylineno;
+extern int linenum;
+extern int colnum;
 extern char* yytext;
 
-void yyerror(char* s);
+// File for writing source lines and reductions to
+const char* LIST_FILE = "list_file";
+
+void yyerror(char* message);
+void error(const std::string& message);
+void reductionOut(const char* reductionCStr);
+
+Declaration decl; // holds info about a current declaration
+
 %}
 
 %union{
@@ -21,7 +32,6 @@ void yyerror(char* s);
   int ival;
   double dval;
   long lval;
-  unsigned long long ullval;
   char* sval;
   SymbolNode* symval;
  }
@@ -57,22 +67,21 @@ void yyerror(char* s);
 
 /* Grammar ruls and actions ***************************************************/
 %%
-
 translation_unit
   : external_declaration {
-     reductionDebugger.debug("[p]: translation_unit -> external_declaration");
+     reductionOut("[p]: translation_unit -> external_declaration");
   }
   | translation_unit external_declaration {
-    reductionDebugger.debug("[p]: translation_unit -> translation_unit external_declaration");
+    reductionOut("[p]: translation_unit -> translation_unit external_declaration");
   }
   ;
 
 external_declaration
   : function_definition {
-    reductionDebugger.debug("[p]: external_declaration -> function_definition");
+    reductionOut("[p]: external_declaration -> function_definition");
   }
   | declaration  {
-    reductionDebugger.debug("[p]: external_declaration -> declaration");
+    reductionOut("[p]: external_declaration -> declaration");
   }
   ;
 
@@ -81,7 +90,10 @@ A start_scope is called before compound_statement and a end_scope is called
 after compound_statement.
 *****************************************************************************/
 enter_scope
-  : {symTable.pushTable();}
+  : {
+      decl.clear();
+      symTable.pushTable();
+    }
 ;
 end_scope
   : {symTable.popTable();}
@@ -89,55 +101,96 @@ end_scope
 
 function_definition
   : enter_decl declarator end_decl compound_statement {
-      reductionDebugger.debug("[p]: function_definition -> declarator compound_statement");
+      reductionOut("[p]: function_definition -> declarator compound_statement");
       }
   | enter_decl declarator end_decl declaration_list compound_statement {
-      reductionDebugger.debug("[p]: function_definition -> declarator declaration_list compound_statement");
+      reductionOut("[p]: function_definition -> declarator declaration_list compound_statement");
       }
   | declaration_specifiers enter_decl declarator end_decl compound_statement {
-      reductionDebugger.debug("[p]: function_definition -> declaration_specifiers declarator compound_statement");
+      reductionOut("[p]: function_definition -> declaration_specifiers declarator compound_statement");
     }
   | declaration_specifiers enter_decl declarator end_decl declaration_list compound_statement {
-       reductionDebugger.debug("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement");
+       reductionOut("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement");
     }
   ;
 
 declaration
   : declaration_specifiers SEMItok{
-      reductionDebugger.debug("[p]: declaration -> declaration_specifiers SEMItok");
+      reductionOut("[p]: declaration -> declaration_specifiers SEMItok");
+      decl.clear();
   }
   | declaration_specifiers init_declarator_list SEMItok{
-      reductionDebugger.debug("[p]: declaration -> declaration_specifiers init_declarator_list SEMItok");
+      reductionOut("[p]: declaration -> declaration_specifiers init_declarator_list SEMItok");
+      decl.clear();
   }
   ;
 
 declaration_list
   : declaration{
-      reductionDebugger.debug("[p]: declaration_list -> declaration");
+      reductionOut("[p]: declaration_list -> declaration");
   }
   | declaration_list declaration{
-      reductionDebugger.debug("[p]: declaration_list -> declaration_list declaration");
+      reductionOut("[p]: declaration_list -> declaration_list declaration");
   }
   ;
 
+/*** declarator productions ****************************************************
+A enter_decl is called before the first declarator is called and a end_declarator
+is called after the declarator is finished
+*****************************************************************************/
+enter_decl
+  : {
+      reductionOut("[p]: start new declarator creation *********************************************");
+    }
+end_decl
+  : {
+      reductionOut("[p]: end declarator creation ***************************************************");
+    }
+
+init_declarator_list
+  : init_declarator {
+      // a single variable declaration
+      reductionOut("[p]: init_declarator_list -> init_declarator");
+      decl.complete();
+  }
+  | init_declarator_list COMMAtok init_declarator {
+      // multiple single line declarations
+      reductionOut("[p]: init_declarator_list -> init_declarator_list COMMAtok init_declarator");
+      decl.complete();
+  }
+  ;
+
+init_declarator
+  : enter_decl declarator end_decl{
+      // declaration
+      reductionOut("[p]: init_declarator -> declarator");
+  }
+  | enter_decl declarator end_decl EQUALtok initializer {
+      // initialization
+      reductionOut("[p]: init_declarator -> declarator EQUALtok initializer");
+  }
+  ;
+
+/*** Declaration Spec *********************************************************
+*****************************************************************************/
 declaration_specifiers
   : storage_class_specifier {
-      reductionDebugger.debug("[p]: declaration_specifiers -> storage_class_specifier");
+      reductionOut("[p]: declaration_specifiers -> storage_class_specifier");
   }
   | storage_class_specifier declaration_specifiers  {
-      reductionDebugger.debug("[p]: declaration_specifiers -> storage_class_specifier declaration_specifiers");
+      reductionOut("[p]: declaration_specifiers -> storage_class_specifier declaration_specifiers");
   }
   | type_specifier  {
-      reductionDebugger.debug("[p]: declaration_specifiers -> type_specifier");
+      reductionOut("[p]: declaration_specifiers -> type_specifier");
   }
   | type_specifier declaration_specifiers  {
-      reductionDebugger.debug("[p]: declaration_specifiers -> type_specifier declaration_specifiers");
+      reductionOut("[p]: declaration_specifiers -> type_specifier declaration_specifiers");
   }
   | type_qualifier  {
-      reductionDebugger.debug("[p]: declaration_specifiers -> type_qualifier");
+      reductionOut("[p]: declaration_specifiers -> type_qualifier");
   }
   | type_qualifier declaration_specifiers  {
-      reductionDebugger.debug("[p]: declaration_specifiers -> type_qualifier declaration_specifiers");
+      reductionOut("[p]: declaration_specifiers -> type_qualifier declaration_specifiers");
   }
   ;
 
@@ -170,19 +223,24 @@ typedef specifier
 
 storage_class_specifier
   : AUTOtok {
-    reductionDebugger.debug("[p]: storage_class_specifier -> AUTOtok");
+    reductionOut("[p]: storage_class_specifier -> AUTOtok");
+    decl.setStorage(SpecName::Auto);
   }
   | REGISTERtok {
-    reductionDebugger.debug("[p]: storage_class_specifier -> REGISTERtok");
+    reductionOut("[p]: storage_class_specifier -> REGISTERtok");
+    decl.setStorage(SpecName::Register);
   }
   | STATICtok {
-    reductionDebugger.debug("[p]: storage_class_specifier -> STATICtok");
+    reductionOut("[p]: storage_class_specifier -> STATICtok");
+    decl.setStorage(SpecName::Static);
   }
   | EXTERNtok {
-    reductionDebugger.debug("[p]: storage_class_specifier -> EXTERNtok");
+    reductionOut("[p]: storage_class_specifier -> EXTERNtok");
+    decl.setStorage(SpecName::Extern);
   }
   | TYPEDEFtok {
-    reductionDebugger.debug("[p]: storage_class_specifier -> TYPEDEFtok");
+    reductionOut("[p]: storage_class_specifier -> TYPEDEFtok");
+    decl.setStorage(SpecName::Typedef);
   }
   ;
 
@@ -198,808 +256,836 @@ The keyword void has three uses:
 type_specifier
   :
     VOIDtok {
-    reductionDebugger.debug("[p]: type_specifier -> VOIDtok");
+    reductionOut("[p]: type_specifier -> VOIDtok");
   }
   | CHARtok {
-    reductionDebugger.debug("[p]: type_specifier -> CHARtok");
+    reductionOut("[p]: type_specifier -> CHARtok");
+    decl.pushKind(SpecName::Basic);
+    decl.pushBase(SpecName::Char);
   }
   | SHORTtok {
-    reductionDebugger.debug("[p]: type_specifier -> SHORTtok");
+    reductionOut("[p]: type_specifier -> SHORTtok");
+    decl.pushKind(SpecName::Basic);
+    decl.pushBase(SpecName::Short);
   }
   | INTtok {
-    reductionDebugger.debug("[p]: type_specifier -> INTtok");
+    reductionOut("[p]: type_specifier -> INTtok");
+    decl.pushKind(SpecName::Basic);
+    decl.pushBase(SpecName::Int);
   }
   | LONGtok  {
-    reductionDebugger.debug("[p]: type_specifier -> LONGtok");
+    reductionOut("[p]: type_specifier -> LONGtok");
+    decl.pushKind(SpecName::Basic);
+    decl.pushBase(SpecName::Long);
   }
   | FLOATtok  {
-    reductionDebugger.debug("[p]: type_specifier -> FLOATtok");
+    reductionOut("[p]: type_specifier -> FLOATtok");
+    decl.pushKind(SpecName::Basic);
+    decl.pushBase(SpecName::Float);
   }
   | DOUBLEtok  {
-    reductionDebugger.debug("[p]: type_specifier -> DOUBLEtok");
+    reductionOut("[p]: type_specifier -> DOUBLEtok");
+    decl.pushKind(SpecName::Basic);
+    decl.pushBase(SpecName::Double);
   }
   | SIGNEDtok  {
-    reductionDebugger.debug("[p]: type_specifier -> SIGNEDtok");
+    reductionOut("[p]: type_specifier -> SIGNEDtok");
+    decl.setSign(SpecName::Signed);
   }
   | UNSIGNEDtok  {
-    reductionDebugger.debug("[p]: type_specifier -> UNSIGNEDtok");
+    reductionOut("[p]: type_specifier -> UNSIGNEDtok");
+    decl.setSign(SpecName::Unsigned);
   }
   | struct_or_union_specifier  {
-    reductionDebugger.debug("[p]: type_specifier -> struct_or_union_specifier");
+    reductionOut("[p]: type_specifier -> struct_or_union_specifier");
   }
   | enum_specifier  {
-    reductionDebugger.debug("[p]: type_specifier -> enum_specifier");
+    reductionOut("[p]: type_specifier -> enum_specifier");
+    decl.pushKind(SpecName::Enum);
+    decl.setMode(DeclMode::Enum);
   }
   | TYPEDEF_NAMEtok  {
-    reductionDebugger.debug("[p]: type_specifier -> TYPEDEF_NAMEtok");
+    decl.pushKind(SpecName::TypeName);
+    reductionOut("[p]: type_specifier -> TYPEDEF_NAMEtok");
   }
   ;
 
 type_qualifier
   : CONSTtok {
-    reductionDebugger.debug("[p]: type_qualifier -> CONSTtok");
+    reductionOut("[p]: type_qualifier -> CONSTtok");
+    decl.setQualifier(SpecName::Const);
   }
   | VOLATILEtok {
-    reductionDebugger.debug("[p]: type_qualifier -> VOLATILEtok");
+    reductionOut("[p]: type_qualifier -> VOLATILEtok");
+    decl.setQualifier(SpecName::Volatile);
   }
   ;
 
 struct_or_union_specifier
   : struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
-      reductionDebugger.debug("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok");
+      // struct id{ ... }
+      reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok");
   }
   | struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
-      reductionDebugger.debug("[p]: struct_or_union_specifier -> struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtokk");
+      // struct {...}
+      reductionOut("[p]: struct_or_union_specifier -> struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtokk");
   }
   | struct_or_union identifier {
-      // forward declaration
-      reductionDebugger.debug("[p]: struct_or_union_specifier -> struct_or_union identifier");
+      // forward declaration  struct id;
+      reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier");
   }
   ;
 
 struct_or_union
   : STRUCTtok {
-      reductionDebugger.debug("[p]: struct_or_union -> STRUCTtok");
+      reductionOut("[p]: struct_or_union -> STRUCTtok");
+      decl.pushKind(SpecName::Struct);
+      decl.setMode(DeclMode::Struct);
   }
   | UNIONtok {
-      reductionDebugger.debug("[p]: struct_or_union -> UNIONtok");
+      reductionOut("[p]: struct_or_union -> UNIONtok");
+      decl.pushKind(SpecName::Union);
+      decl.setMode(DeclMode::Union);
   }
   ;
 
 struct_declaration_list
   : struct_declaration {
-      reductionDebugger.debug("[p]: struct_declaration_list -> struct_declaration");
+      reductionOut("[p]: struct_declaration_list -> struct_declaration");
   }
   | struct_declaration_list struct_declaration {
-      reductionDebugger.debug("[p]: struct_declaration_list -> struct_declaration_list struct_declaration");
-  }
-  ;
-
-init_declarator_list
-  : init_declarator {
-      reductionDebugger.debug("[p]: init_declarator_list -> init_declarator");
-  }
-  | init_declarator_list COMMAtok init_declarator {
-      // multiple single line declarations
-      reductionDebugger.debug("[p]: init_declarator_list -> init_declarator_list COMMAtok init_declarator");
-  }
-  ;
-
-/*** declarator productions ****************************************************
-A enter_decl is called before the first declarator is called and a end_declarator
-is called after the declarator is finished
-*****************************************************************************/
-enter_decl: {decl = new Declarator();}
-end_decl: {}
-
-init_declarator
-  : enter_decl declarator end_decl{
-      reductionDebugger.debug("[p]: init_declarator -> declarator");
-  }
-  | declarator EQUALtok initializer {
-      // initialize the variable
-      reductionDebugger.debug("[p]: init_declarator -> declarator EQUALtok initializer");
+      reductionOut("[p]: struct_declaration_list -> struct_declaration_list struct_declaration");
   }
   ;
 
 struct_declaration
   : specifier_qualifier_list struct_declarator_list SEMItok {
-      reductionDebugger.debug("[p]: struct_declaration -> specifier_qualifier_list struct_declarator_list SEMItok");
+      reductionOut("[p]: struct_declaration -> specifier_qualifier_list struct_declarator_list SEMItok");
   }
   ;
 
 specifier_qualifier_list
   : type_specifier {
-      reductionDebugger.debug("[p]: specifier_qualifier_list -> type_specifier");
+      reductionOut("[p]: specifier_qualifier_list -> type_specifier");
   }
   | type_specifier specifier_qualifier_list {
-      reductionDebugger.debug("[p]: specifier_qualifier_list -> type_specifier specifier_qualifier_list");
+      reductionOut("[p]: specifier_qualifier_list -> type_specifier specifier_qualifier_list");
   }
   | type_qualifier {
-      reductionDebugger.debug("[p]: specifier_qualifier_list -> type_qualifier");
+      reductionOut("[p]: specifier_qualifier_list -> type_qualifier");
   }
   | type_qualifier specifier_qualifier_list {
-      reductionDebugger.debug("[p]: specifier_qualifier_list -> type_qualifier specifier_qualifier_list");
+      reductionOut("[p]: specifier_qualifier_list -> type_qualifier specifier_qualifier_list");
   }
   ;
 
 struct_declarator_list
   : struct_declarator {
-      reductionDebugger.debug("[p]: struct_declarator_list -> struct_declarator");
+      reductionOut("[p]: struct_declarator_list -> struct_declarator");
   }
   | struct_declarator_list COMMAtok struct_declarator {
-      reductionDebugger.debug("[p]: struct_declarator_list -> struct_declarator_list COMMAtok struct_declarator");
+      reductionOut("[p]: struct_declarator_list -> struct_declarator_list COMMAtok struct_declarator");
   }
   ;
 
 struct_declarator
   : declarator {
-      reductionDebugger.debug("[p]: struct_declarator -> declarator");
+      reductionOut("[p]: struct_declarator -> declarator");
   }
   | COLONtok constant_expression {
-      reductionDebugger.debug("[p]: struct_declarator -> COLONtok constant_expression");
+      reductionOut("[p]: struct_declarator -> COLONtok constant_expression");
   }
   | declarator COLONtok constant_expression {
-      reductionDebugger.debug("[p]: struct_declarator -> declarator COLONtok constant_expression");
+      reductionOut("[p]: struct_declarator -> declarator COLONtok constant_expression");
   }
   ;
 
 enum_specifier
   : ENUMtok OPEN_CURLYtok enumerator_list CLOSE_CURLYtok {
-      reductionDebugger.debug("[p]: enum_specifier -> ENUMtok OPEN_CURLYtok enumerator_list CLOSE_CURLYtok");
+      reductionOut("[p]: enum_specifier -> ENUMtok OPEN_CURLYtok enumerator_list CLOSE_CURLYtok");
   }
   | ENUMtok identifier OPEN_CURLYtok enumerator_list CLOSE_CURLYtok {
-      reductionDebugger.debug("[p]: enum_specifier -> ENUMtok identifier OPEN_CURLYtok enumerator_list CLOSE_CURLYtok");
+      reductionOut("[p]: enum_specifier -> ENUMtok identifier OPEN_CURLYtok enumerator_list CLOSE_CURLYtok");
   }
   | ENUMtok identifier {
-      reductionDebugger.debug("[p]: enum_specifier -> ENUMtok identifier");
+      reductionOut("[p]: enum_specifier -> ENUMtok identifier");
   }
   ;
 
 enumerator_list
   : enumerator {
-      reductionDebugger.debug("[p]: enumerator_list -> enumerator");
+      reductionOut("[p]: enumerator_list -> enumerator");
   }
   | enumerator_list COMMAtok enumerator {
-      reductionDebugger.debug("[p]: enumerator_list -> enumerator_list COMMAtok enumerator");
+      reductionOut("[p]: enumerator_list -> enumerator_list COMMAtok enumerator");
   }
   ;
 
 enumerator
   : identifier {
-      reductionDebugger.debug("[p]: struct_declaration -> identifier");
+      reductionOut("[p]: enumerator -> identifier");
   }
   | identifier EQUALtok constant_expression {
-      reductionDebugger.debug("[p]: struct_declaration -> identifier EQUALtok constant_expression");
+      reductionOut("[p]: enumerator -> identifier EQUALtok constant_expression");
   }
   ;
 
 declarator
   : direct_declarator {
-      reductionDebugger.debug("[p]: declarator -> direct_declarator");
+      reductionOut("[p]: declarator -> direct_declarator");
   }
   | pointer direct_declarator {
       // pointer mode
-      reductionDebugger.debug("[p]: declarator -> pointer direct_declarator");
+      reductionOut("[p]: declarator -> pointer direct_declarator");
   }
   ;
 
 direct_declarator
   : identifier {
-      reductionDebugger.debug("[p]: direct_declarator -> identifier");
+      reductionOut("[p]: direct_declarator -> identifier");
   }
   | OPEN_PARENtok declarator CLOSE_PARENtok {
       // e.g., (*a)[COLS]
-      reductionDebugger.debug("[p]: direct_declarator -> OPEN_PARENtok declarator CLOSE_PARENtok");
+      reductionOut("[p]: direct_declarator -> OPEN_PARENtok declarator CLOSE_PARENtok");
   }
   | direct_declarator OPEN_SQUAREtok CLOSE_SQUAREtok {
       // array mode - e.g., foo[]
-      reductionDebugger.debug("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok CLOSE_SQUAREtok");
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok CLOSE_SQUAREtok");
+      decl.setMode(DeclMode::Array);
+      decl.pushArraySize(1); // if there is initialization, warning: tentative array definition assumed to have one element
   }
   | direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok {
-      // array mode - e.g., type foo[size]
-      reductionDebugger.debug("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
+      // array mode - e.g., type foo[size], foo[s1][s2]
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
+      decl.setMode(DeclMode::Array);
+      decl.pushArraySize(yylval.ival);
   }
-  | direct_declarator OPEN_PARENtok CLOSE_PARENtok {
+  | direct_declarator OPEN_PARENtok CLOSE_PARENtok{
       // function mode - e.g., foo()
-      reductionDebugger.debug("[p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok");
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok");
+      decl.setMode(DeclMode::Function);
   }
-  | direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok {
+  | direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok{
       // function mode - e.g., foo(type a, type b)
-      reductionDebugger.debug("[p]: direct_declarator -> direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
+      decl.setMode(DeclMode::Function);
   }
-  | direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok {
+  | direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok{
       // function call - e.g., foo(x,y)
-      reductionDebugger.debug("[p]: direct_declarator -> direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok");
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok");
+      decl.setMode(DeclMode::FunctionCall);
   }
   ;
 
 pointer
   : UNARY_ASTERISKtok {
       // *
-      reductionDebugger.debug("[p]: pointer -> UNARY_ASTERISKtok");
+      reductionOut("[p]: pointer -> UNARY_ASTERISKtok");
+      decl.setMode(DeclMode::Pointer);
+      decl.incLevels();
   }
   | UNARY_ASTERISKtok type_qualifier_list {
       // * const/volatile
-      reductionDebugger.debug("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list");
+      reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list");
+      decl.setMode(DeclMode::Pointer);
+      decl.incLevels();
   }
   | UNARY_ASTERISKtok pointer {
       // ** ...
-      reductionDebugger.debug("[p]: pointer -> UNARY_ASTERISKtok pointer");
+      reductionOut("[p]: pointer -> UNARY_ASTERISKtok pointer");
+      decl.setMode(DeclMode::Pointer);
+      decl.incLevels();
   }
   | UNARY_ASTERISKtok type_qualifier_list pointer {
       // * const/volatile * ...
-      reductionDebugger.debug("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list pointer");
+      reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list pointer");
+      decl.setMode(DeclMode::Pointer);
+      decl.incLevels();
   }
   ;
 
 type_qualifier_list
   : type_qualifier {
-      reductionDebugger.debug("[p]: struct_declaration -> type_qualifier");
+      reductionOut("[p]: type_qualifier_list -> type_qualifier");
   }
   | type_qualifier_list type_qualifier {
-      reductionDebugger.debug("[p]: struct_declaration -> type_qualifier_list type_qualifier");
+      reductionOut("[p]: type_qualifier_list -> type_qualifier_list type_qualifier");
   }
   ;
 
 parameter_type_list
   : parameter_list {
-      reductionDebugger.debug("[p]: parameter_type_list -> parameter_list");
+      reductionOut("[p]: parameter_type_list -> parameter_list");
   }
   | parameter_list COMMAtok ELIPSIStok {
-      reductionDebugger.debug("[p]: parameter_type_list ->  parameter_list COMMAtok ELIPSIStok");
+      reductionOut("[p]: parameter_type_list ->  parameter_list COMMAtok ELIPSIStok");
   }
   ;
 
 parameter_list
   : parameter_declaration {
-      reductionDebugger.debug("[p]: parameter_list -> parameter_declaration");
+      reductionOut("[p]: parameter_list -> parameter_declaration");
   }
   | parameter_list COMMAtok parameter_declaration {
-      reductionDebugger.debug("[p]: parameter_list -> parameter_list COMMAtok parameter_declaration");
+      reductionOut("[p]: parameter_list -> parameter_list COMMAtok parameter_declaration");
   }
   ;
 
 parameter_declaration
   : declaration_specifiers declarator {
       // e.g., int x, int *x
-      reductionDebugger.debug("[p]: parameter_declaration -> declaration_specifiers declarator");
+      reductionOut("[p]: parameter_declaration -> declaration_specifiers declarator");
   }
   | declaration_specifiers {
       // e.g., int
-      reductionDebugger.debug("[p]: parameter_declaration -> declaration_specifiers");
+      reductionOut("[p]: parameter_declaration -> declaration_specifiers");
   }
   | declaration_specifiers abstract_declarator {
       // e.g., ?
-      reductionDebugger.debug("[p]: parameter_declaration -> declaration_specifiers abstract_declarator");
+      reductionOut("[p]: parameter_declaration -> declaration_specifiers abstract_declarator");
   }
   ;
 
 identifier_list
   : identifier {
-      reductionDebugger.debug("[p]: identifier_list -> identifier");
+      reductionOut("[p]: identifier_list -> identifier");
   }
   | identifier_list COMMAtok identifier {
-      reductionDebugger.debug("[p]: identifier_list -> ");
+      reductionOut("[p]: identifier_list -> ");
   }
   ;
 
 initializer
   : assignment_expression {
-      reductionDebugger.debug("[p]: initializer -> assignment_expression");
+      reductionOut("[p]: initializer -> assignment_expression");
   }
   | OPEN_CURLYtok initializer_list CLOSE_CURLYtok {
-      reductionDebugger.debug("[p]: initializer -> OPEN_CURLYtok initializer_list CLOSE_CURLYtok");
+      reductionOut("[p]: initializer -> OPEN_CURLYtok initializer_list CLOSE_CURLYtok");
   }
   | OPEN_CURLYtok initializer_list COMMAtok CLOSE_CURLYtok {
-      reductionDebugger.debug("[p]: initializer -> OPEN_CURLYtok initializer_list COMMAtok CLOSE_CURLYtok");
+      reductionOut("[p]: initializer -> OPEN_CURLYtok initializer_list COMMAtok CLOSE_CURLYtok");
   }
   ;
 
 initializer_list
   : initializer {
-      reductionDebugger.debug("[p]: initializer_list -> initializer");
+      reductionOut("[p]: initializer_list -> initializer");
   }
   | initializer_list COMMAtok initializer {
-      reductionDebugger.debug("[p]: initializer_list -> initializer_list COMMAtok initializer");
+      reductionOut("[p]: initializer_list -> initializer_list COMMAtok initializer");
   }
   ;
 
 type_name
   : specifier_qualifier_list {
-      reductionDebugger.debug("[p]: type_name -> specifier_qualifier_list");
+      reductionOut("[p]: type_name -> specifier_qualifier_list");
   }
   | specifier_qualifier_list abstract_declarator {
-      reductionDebugger.debug("[p]: type_name -> specifier_qualifier_list abstract_declarator");
+      reductionOut("[p]: type_name -> specifier_qualifier_list abstract_declarator");
   }
   ;
 
 abstract_declarator
   : pointer {
-      reductionDebugger.debug("[p]: abstract_declarator -> pointer");
+      reductionOut("[p]: abstract_declarator -> pointer");
   }
   | direct_abstract_declarator {
-      reductionDebugger.debug("[p]: abstract_declarator -> direct_abstract_declarator");
+      reductionOut("[p]: abstract_declarator -> direct_abstract_declarator");
   }
   | pointer direct_abstract_declarator {
-      reductionDebugger.debug("[p]: abstract_declarator -> pointer direct_abstract_declarator");
+      reductionOut("[p]: abstract_declarator -> pointer direct_abstract_declarator");
   }
   ;
 
 direct_abstract_declarator
   : OPEN_PARENtok abstract_declarator CLOSE_PARENtok {
-      reductionDebugger.debug("[p]: direct_abstract_declarator -> OPEN_PARENtok abstract_declarator CLOSE_PARENtok");
+      reductionOut("[p]: direct_abstract_declarator -> OPEN_PARENtok abstract_declarator CLOSE_PARENtok");
   }
   | OPEN_SQUAREtok CLOSE_SQUAREtok {
-      reductionDebugger.debug("[p]: direct_abstract_declarator -> OPEN_SQUAREtok CLOSE_SQUAREtok");
+      reductionOut("[p]: direct_abstract_declarator -> OPEN_SQUAREtok CLOSE_SQUAREtok");
   }
   | OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok {
-      reductionDebugger.debug("[p]: direct_abstract_declarator -> OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
+      reductionOut("[p]: direct_abstract_declarator -> OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
   }
   | direct_abstract_declarator OPEN_SQUAREtok CLOSE_SQUAREtok {
-      reductionDebugger.debug("[p]: direct_abstract_declarator -> direct_abstract_declarator OPEN_SQUAREtok CLOSE_SQUAREtok");
+      reductionOut("[p]: direct_abstract_declarator -> direct_abstract_declarator OPEN_SQUAREtok CLOSE_SQUAREtok");
   }
   | direct_abstract_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok {
-      reductionDebugger.debug("[p]: direct_abstract_declarator -> direct_abstract_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
+      reductionOut("[p]: direct_abstract_declarator -> direct_abstract_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
   }
   | OPEN_PARENtok CLOSE_PARENtok {
-      reductionDebugger.debug("[p]: direct_abstract_declarator -> OPEN_PARENtok CLOSE_PARENtok");
+      reductionOut("[p]: direct_abstract_declarator -> OPEN_PARENtok CLOSE_PARENtok");
   }
   | OPEN_PARENtok parameter_type_list CLOSE_PARENtok {
-      reductionDebugger.debug("[p]: direct_abstract_declarator -> OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
+      reductionOut("[p]: direct_abstract_declarator -> OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
   }
   | direct_abstract_declarator OPEN_PARENtok CLOSE_PARENtok {
-      reductionDebugger.debug("[p]: direct_abstract_declarator -> direct_abstract_declarator OPEN_PARENtok CLOSE_PARENtok");
+      reductionOut("[p]: direct_abstract_declarator -> direct_abstract_declarator OPEN_PARENtok CLOSE_PARENtok");
   }
   | direct_abstract_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok {
-      reductionDebugger.debug("[p]: direct_abstract_declarator -> direct_abstract_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
+      reductionOut("[p]: direct_abstract_declarator -> direct_abstract_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
   }
   ;
 
 statement
   : labeled_statement {
-      reductionDebugger.debug("[p]: statement -> labeled_statement");
+      reductionOut("[p]: statement -> labeled_statement");
   }
   | compound_statement {
-      reductionDebugger.debug("[p]: statement -> compound_statement");
+      reductionOut("[p]: statement -> compound_statement");
   }
   | expression_statement {
-      reductionDebugger.debug("[p]: statement -> expression_statement");
+      reductionOut("[p]: statement -> expression_statement");
   }
   | selection_statement {
-      reductionDebugger.debug("[p]: statement -> selection_statement");
+      reductionOut("[p]: statement -> selection_statement");
   }
   | iteration_statement {
-      reductionDebugger.debug("[p]: statement -> iteration_statement");
+      reductionOut("[p]: statement -> iteration_statement");
   }
   | jump_statement {
-      reductionDebugger.debug("[p]: statement -> jump_statement");
+      reductionOut("[p]: statement -> jump_statement");
   }
   ;
 
 labeled_statement
   : identifier COLONtok statement {
-      reductionDebugger.debug("[p]: labeled_statement -> identifier COLONtok statement");
+      reductionOut("[p]: labeled_statement -> identifier COLONtok statement");
   }
   | CASEtok constant_expression COLONtok statement {
-      reductionDebugger.debug("[p]: labeled_statement -> CASEtok constant_expression COLONtok statement");
+      reductionOut("[p]: labeled_statement -> CASEtok constant_expression COLONtok statement");
   }
   | DEFAULTtok COLONtok statement {
-      reductionDebugger.debug("[p]: labeled_statement -> DEFAULTtok COLONtok statement");
+      reductionOut("[p]: labeled_statement -> DEFAULTtok COLONtok statement");
   }
   ;
 
 expression_statement
   : SEMItok {
-      reductionDebugger.debug("[p]: expression_statement -> SEMItok");
+      reductionOut("[p]: expression_statement -> SEMItok");
   }
   | expression SEMItok {
-      reductionDebugger.debug("[p]: expression_statement -> expression SEMItok");
+      reductionOut("[p]: expression_statement -> expression SEMItok");
   }
   ;
 
 compound_statement
   : OPEN_CURLYtok enter_scope CLOSE_CURLYtok end_scope{
-      reductionDebugger.debug("[p]: compound_statement -> OPEN_CURLYtok CLOSE_CURLYtok");
+      reductionOut("[p]: compound_statement -> OPEN_CURLYtok CLOSE_CURLYtok");
   }
   | OPEN_CURLYtok enter_scope statement_list CLOSE_CURLYtok end_scope{
-      reductionDebugger.debug("[p]: compound_statement -> OPEN_CURLYtok statement_list CLOSE_CURLYtok");
+      reductionOut("[p]: compound_statement -> OPEN_CURLYtok statement_list CLOSE_CURLYtok");
   }
   | OPEN_CURLYtok enter_scope declaration_list CLOSE_CURLYtok end_scope{
-      reductionDebugger.debug("[p]: compound_statement -> OPEN_CURLYtok declaration_list CLOSE_CURLYtok");
+      reductionOut("[p]: compound_statement -> OPEN_CURLYtok declaration_list CLOSE_CURLYtok");
   }
   | OPEN_CURLYtok enter_scope declaration_list statement_list CLOSE_CURLYtok end_scope{
-      reductionDebugger.debug("[p]: compound_statement -> OPEN_CURLYtok declaration_list statement_list CLOSE_CURLYtok");
+      reductionOut("[p]: compound_statement -> OPEN_CURLYtok declaration_list statement_list CLOSE_CURLYtok");
   }
   ;
 
 statement_list
   : statement {
-      reductionDebugger.debug("[p]: statement_list -> statement");
+      reductionOut("[p]: statement_list -> statement");
   }
   | statement_list statement {
-      reductionDebugger.debug("[p]: statement_list -> statement_list statement");
+      reductionOut("[p]: statement_list -> statement_list statement");
   }
   ;
 
 selection_statement
   : IFtok OPEN_PARENtok expression CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: selection_statement -> IFtok OPEN_PARENtok expression CLOSE_PARENtok statement");
+      reductionOut("[p]: selection_statement -> IFtok OPEN_PARENtok expression CLOSE_PARENtok statement");
   }
   | IFtok OPEN_PARENtok expression CLOSE_PARENtok statement ELSEtok statement {
-      reductionDebugger.debug("[p]: selection_statement -> IFtok OPEN_PARENtok expression CLOSE_PARENtok statement ELSEtok statement");
+      reductionOut("[p]: selection_statement -> IFtok OPEN_PARENtok expression CLOSE_PARENtok statement ELSEtok statement");
   }
   | SWITCHtok OPEN_PARENtok expression CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: selection_statement -> SWITCHtok OPEN_PARENtok expression CLOSE_PARENtok statement");
+      reductionOut("[p]: selection_statement -> SWITCHtok OPEN_PARENtok expression CLOSE_PARENtok statement");
   }
   ;
 
 iteration_statement
   : WHILEtok OPEN_PARENtok expression CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: iteration_statement -> WHILEtok OPEN_PARENtok expression CLOSE_PARENtok statement");
+      reductionOut("[p]: iteration_statement -> WHILEtok OPEN_PARENtok expression CLOSE_PARENtok statement");
   }
   | DOtok statement WHILEtok OPEN_PARENtok expression CLOSE_PARENtok SEMItok {
-      reductionDebugger.debug("[p]: iteration_statement -> DOtok statement WHILEtok OPEN_PARENtok expression CLOSE_PARENtok SEMItok");
+      reductionOut("[p]: iteration_statement -> DOtok statement WHILEtok OPEN_PARENtok expression CLOSE_PARENtok SEMItok");
   }
   | FORtok OPEN_PARENtok SEMItok SEMItok CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok SEMItok CLOSE_PARENtok statement");
+      reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok SEMItok CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok SEMItok SEMItok expression CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok SEMItok expression CLOSE_PARENtok statement");
+      reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok SEMItok expression CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok SEMItok expression SEMItok CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok expression SEMItok CLOSE_PARENtok statement");
+      reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok expression SEMItok CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok SEMItok expression SEMItok expression CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok expression SEMItok expression CLOSE_PARENtok statement");
+      reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok expression SEMItok expression CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok expression SEMItok SEMItok CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok SEMItok CLOSE_PARENtok statement");
+      reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok SEMItok CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok expression SEMItok SEMItok expression CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok SEMItok expression CLOSE_PARENtok statement");
+      reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok SEMItok expression CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok expression SEMItok expression SEMItok CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok expression SEMItok CLOSE_PARENtok statement");
+      reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok expression SEMItok CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok expression SEMItok expression SEMItok expression CLOSE_PARENtok statement {
-      reductionDebugger.debug("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok expression SEMItok expression CLOSE_PARENtok statement");
+      reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok expression SEMItok expression CLOSE_PARENtok statement");
   }
   ;
 
 jump_statement
   : GOTOtok identifier SEMItok {
-      reductionDebugger.debug("[p]: jump_statement -> GOTOtok identifier SEMItok");
+      reductionOut("[p]: jump_statement -> GOTOtok identifier SEMItok");
   }
   | CONTINUEtok SEMItok {
-      reductionDebugger.debug("[p]: jump_statement -> CONTINUEtok SEMItok");
+      reductionOut("[p]: jump_statement -> CONTINUEtok SEMItok");
   }
   | BREAKtok SEMItok {
-      reductionDebugger.debug("[p]: jump_statement -> BREAKtok SEMItok");
+      reductionOut("[p]: jump_statement -> BREAKtok SEMItok");
   }
   | RETURNtok SEMItok {
-      reductionDebugger.debug("[p]: jump_statement ->  RETURNtok SEMItok");
+      reductionOut("[p]: jump_statement ->  RETURNtok SEMItok");
   }
   | RETURNtok expression SEMItok {
-      reductionDebugger.debug("[p]: jump_statement -> RETURNtok expression SEMItok");
+      reductionOut("[p]: jump_statement -> RETURNtok expression SEMItok");
   }
   ;
 
 expression
   : assignment_expression {
-      reductionDebugger.debug("[p]: expression -> assignment_expression");
+      reductionOut("[p]: expression -> assignment_expression");
   }
   | expression COMMAtok assignment_expression {
-      reductionDebugger.debug("[p]: expression -> expression COMMAtok assignment_expression");
+      reductionOut("[p]: expression -> expression COMMAtok assignment_expression");
   }
   ;
 
 assignment_expression
   : conditional_expression {
-      reductionDebugger.debug("[p]: assignment_expression -> conditional_expression");
+      reductionOut("[p]: assignment_expression -> conditional_expression");
   }
   | unary_expression assignment_operator assignment_expression {
-      reductionDebugger.debug("[p]: assignment_expression -> unary_expression assignment_operator assignment_expression");
+      reductionOut("[p]: assignment_expression -> unary_expression assignment_operator assignment_expression");
   }
   ;
 
 assignment_operator
   : EQUALtok {
-      reductionDebugger.debug("[p]: assignment_operator -> EQUALtok");
+      reductionOut("[p]: assignment_operator -> EQUALtok");
   }
   | MUL_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> MUL_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> MUL_ASSIGNtok");
   }
   | DIV_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> DIV_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> DIV_ASSIGNtok");
   }
   | MOD_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> MOD_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> MOD_ASSIGNtok");
   }
   | ADD_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> ADD_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> ADD_ASSIGNtok");
   }
   | SUB_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> SUB_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> SUB_ASSIGNtok");
   }
   | LEFT_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> LEFT_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> LEFT_ASSIGNtok");
   }
   | RIGHT_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> RIGHT_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> RIGHT_ASSIGNtok");
   }
   | AND_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> AND_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> AND_ASSIGNtok");
   }
   | XOR_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> XOR_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> XOR_ASSIGNtok");
   }
   | OR_ASSIGNtok {
-      reductionDebugger.debug("[p]: assignment_operator -> OR_ASSIGNtok");
+      reductionOut("[p]: assignment_operator -> OR_ASSIGNtok");
   }
   ;
 
 conditional_expression
   : logical_or_expression {
-      reductionDebugger.debug("[p]: conditional_expression -> logical_or_expression");
+      reductionOut("[p]: conditional_expression -> logical_or_expression");
   }
   | logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression {
-      reductionDebugger.debug("[p]: conditional_expression -> logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression");
+      reductionOut("[p]: conditional_expression -> logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression");
   }
   ;
 
 constant_expression
   : conditional_expression {
-      reductionDebugger.debug("[p]: constant_expression -> conditional_expression");
+      reductionOut("[p]: constant_expression -> conditional_expression");
   }
   ;
 
 logical_or_expression
   : logical_and_expression {
-      reductionDebugger.debug("[p]: logical_or_expression -> logical_and_expression");
+      reductionOut("[p]: logical_or_expression -> logical_and_expression");
   }
   | logical_or_expression OR_OPtok logical_and_expression {
-      reductionDebugger.debug("[p]: logical_or_expression -> logical_or_expression OR_OPtok logical_and_expression");
+      reductionOut("[p]: logical_or_expression -> logical_or_expression OR_OPtok logical_and_expression");
   }
   ;
 
 logical_and_expression
   : inclusive_or_expression {
-      reductionDebugger.debug("[p]: logical_and_expression -> inclusive_or_expression");
+      reductionOut("[p]: logical_and_expression -> inclusive_or_expression");
   }
   | logical_and_expression AND_OPtok inclusive_or_expression {
-      reductionDebugger.debug("[p]: logical_and_expression -> logical_and_expression AND_OPtok inclusive_or_expression");
+      reductionOut("[p]: logical_and_expression -> logical_and_expression AND_OPtok inclusive_or_expression");
   }
   ;
 
 inclusive_or_expression
   : exclusive_or_expression {
-      reductionDebugger.debug("[p]: inclusive_or_expression -> exclusive_or_expression");
+      reductionOut("[p]: inclusive_or_expression -> exclusive_or_expression");
   }
   | inclusive_or_expression PIPEtok exclusive_or_expression {
-      reductionDebugger.debug("[p]: inclusive_or_expression -> inclusive_or_expression PIPEtok exclusive_or_expression");
+      reductionOut("[p]: inclusive_or_expression -> inclusive_or_expression PIPEtok exclusive_or_expression");
   }
   ;
 
 exclusive_or_expression
   : and_expression {
-      reductionDebugger.debug("[p]: exclusive_or_expression -> and_expression");
+      reductionOut("[p]: exclusive_or_expression -> and_expression");
   }
   | exclusive_or_expression UP_CARROTtok and_expression {
-      reductionDebugger.debug("[p]: exclusive_or_expression -> exclusive_or_expression UP_CARROTtok and_expression");
+      reductionOut("[p]: exclusive_or_expression -> exclusive_or_expression UP_CARROTtok and_expression");
   }
   ;
 
 and_expression
   : equality_expression {
-      reductionDebugger.debug("[p]: and_expression -> equality_expression");
+      reductionOut("[p]: and_expression -> equality_expression");
   }
   | and_expression UNARY_ANDtok equality_expression {
-      reductionDebugger.debug("[p]: and_expression -> and_expression UNARY_ANDtok equality_expression");
+      reductionOut("[p]: and_expression -> and_expression UNARY_ANDtok equality_expression");
   }
   ;
 
 equality_expression
   : relational_expression {
-      reductionDebugger.debug("[p]: equality_expression -> relational_expression");
+      reductionOut("[p]: equality_expression -> relational_expression");
   }
   | equality_expression EQ_OPtok relational_expression {
-      reductionDebugger.debug("[p]: equality_expression -> equality_expression EQ_OPtok relational_expression");
+      reductionOut("[p]: equality_expression -> equality_expression EQ_OPtok relational_expression");
   }
   | equality_expression NE_OPtok relational_expression {
-      reductionDebugger.debug("[p]: equality_expression -> equality_expression NE_OPtok relational_expression");
+      reductionOut("[p]: equality_expression -> equality_expression NE_OPtok relational_expression");
   }
   ;
 
 relational_expression
   : shift_expression {
-      reductionDebugger.debug("[p]: relational_expression -> shift_expression");
+      reductionOut("[p]: relational_expression -> shift_expression");
   }
   | relational_expression LEFT_ANGLEtok shift_expression {
-      reductionDebugger.debug("[p]: relational_expression -> relational_expression LEFT_ANGLEtok shift_expression");
+      reductionOut("[p]: relational_expression -> relational_expression LEFT_ANGLEtok shift_expression");
   }
   | relational_expression RIGHT_ANGLEtok shift_expression {
-      reductionDebugger.debug("[p]: relational_expression -> relational_expression RIGHT_ANGLEtok shift_expression");
+      reductionOut("[p]: relational_expression -> relational_expression RIGHT_ANGLEtok shift_expression");
   }
   | relational_expression LE_OPtok shift_expression {
-      reductionDebugger.debug("[p]: relational_expression -> relational_expression LE_OPtok shift_expression");
+      reductionOut("[p]: relational_expression -> relational_expression LE_OPtok shift_expression");
   }
   | relational_expression GE_OPtok shift_expression {
-      reductionDebugger.debug("[p]: relational_expression -> relational_expression GE_OPtok shift_expression");
+      reductionOut("[p]: relational_expression -> relational_expression GE_OPtok shift_expression");
   }
   ;
 
 shift_expression
   : additive_expression {
-      reductionDebugger.debug("[p]: shift_expression -> additive_expression");
+      reductionOut("[p]: shift_expression -> additive_expression");
   }
   | shift_expression LEFT_OPtok additive_expression {
-      reductionDebugger.debug("[p]: shift_expression -> shift_expression LEFT_OPtok additive_expression");
+      reductionOut("[p]: shift_expression -> shift_expression LEFT_OPtok additive_expression");
   }
   | shift_expression RIGHT_OPtok additive_expression {
-      reductionDebugger.debug("[p]: shift_expression -> shift_expression RIGHT_OPtok additive_expression");
+      reductionOut("[p]: shift_expression -> shift_expression RIGHT_OPtok additive_expression");
   }
   ;
 
 additive_expression
   : multiplicative_expression {
-      reductionDebugger.debug("[p]: additive_expression -> multiplicative_expression");
+      reductionOut("[p]: additive_expression -> multiplicative_expression");
   }
   | additive_expression UNARY_PLUStok multiplicative_expression {
-      reductionDebugger.debug("[p]: additive_expression -> additive_expression UNARY_PLUStok multiplicative_expression");
+      reductionOut("[p]: additive_expression -> additive_expression UNARY_PLUStok multiplicative_expression");
   }
   | additive_expression UNARY_MINUStok multiplicative_expression {
-      reductionDebugger.debug("[p]: additive_expression -> additive_expression UNARY_MINUStok multiplicative_expression");
+      reductionOut("[p]: additive_expression -> additive_expression UNARY_MINUStok multiplicative_expression");
   }
   ;
 
 multiplicative_expression
   : cast_expression {
-      reductionDebugger.debug("[p]: multiplicative_expression -> cast_expression");
+      reductionOut("[p]: multiplicative_expression -> cast_expression");
   }
   | multiplicative_expression UNARY_ASTERISKtok cast_expression {
-      reductionDebugger.debug("[p]: multiplicative_expression -> multiplicative_expression UNARY_ASTERISKtok cast_expression");
+      reductionOut("[p]: multiplicative_expression -> multiplicative_expression UNARY_ASTERISKtok cast_expression");
   }
   | multiplicative_expression FORWARD_SLASHtok cast_expression {
-      reductionDebugger.debug("[p]: multiplicative_expression -> multiplicative_expression FORWARD_SLASHtok cast_expression");
+      reductionOut("[p]: multiplicative_expression -> multiplicative_expression FORWARD_SLASHtok cast_expression");
   }
   | multiplicative_expression PERCENTtok cast_expression {
-      reductionDebugger.debug("[p]: multiplicative_expression -> multiplicative_expression PERCENTtok cast_expression");
+      reductionOut("[p]: multiplicative_expression -> multiplicative_expression PERCENTtok cast_expression");
   }
   ;
 
 cast_expression
   : unary_expression {
-      reductionDebugger.debug("[p]: cast_expression -> unary_expression");
+      reductionOut("[p]: cast_expression -> unary_expression");
   }
   | OPEN_PARENtok type_name CLOSE_PARENtok cast_expression {
-      reductionDebugger.debug("[p]: cast_expression -> OPEN_PARENtok type_name CLOSE_PARENtok cast_expression");
+      reductionOut("[p]: cast_expression -> OPEN_PARENtok type_name CLOSE_PARENtok cast_expression");
   }
   ;
 
 unary_expression
   : postfix_expression {
-      reductionDebugger.debug("[p]: unary_expression -> postfix_expression");
+      reductionOut("[p]: unary_expression -> postfix_expression");
   }
   | INC_OPtok unary_expression {
-      reductionDebugger.debug("[p]: unary_expression -> INC_OPtok unary_expression");
+      reductionOut("[p]: unary_expression -> INC_OPtok unary_expression");
   }
   | DEC_OPtok unary_expression {
-      reductionDebugger.debug("[p]: unary_expression -> DEC_OPtok unary_expression");
+      reductionOut("[p]: unary_expression -> DEC_OPtok unary_expression");
   }
   | unary_operator cast_expression {
-      reductionDebugger.debug("[p]: unary_expression -> unary_operator cast_expression");
+      reductionOut("[p]: unary_expression -> unary_operator cast_expression");
   }
   | SIZEOFtok unary_expression {
-      reductionDebugger.debug("[p]: unary_expression -> SIZEOFtok unary_expression");
+      reductionOut("[p]: unary_expression -> SIZEOFtok unary_expression");
   }
   | SIZEOFtok OPEN_PARENtok type_name CLOSE_PARENtok {
-      reductionDebugger.debug("[p]: unary_expression -> SIZEOFtok OPEN_PARENtok type_name CLOSE_PARENtok");
+      reductionOut("[p]: unary_expression -> SIZEOFtok OPEN_PARENtok type_name CLOSE_PARENtok");
   }
   ;
 
 unary_operator
   : UNARY_ANDtok {
-      reductionDebugger.debug("[p]: unary_operator -> UNARY_ANDtok");
+      reductionOut("[p]: unary_operator -> UNARY_ANDtok");
   }
   | UNARY_ASTERISKtok {
-      reductionDebugger.debug("[p]: unary_operator -> UNARY_ASTERISKtok");
+      reductionOut("[p]: unary_operator -> UNARY_ASTERISKtok");
   }
   | UNARY_PLUStok {
-      reductionDebugger.debug("[p]: unary_operator -> UNARY_PLUStok");
+      reductionOut("[p]: unary_operator -> UNARY_PLUStok");
   }
   | UNARY_MINUStok {
-      reductionDebugger.debug("[p]: unary_operator -> UNARY_MINUStok");
+      reductionOut("[p]: unary_operator -> UNARY_MINUStok");
   }
   | UNARY_TILDEtok {
-      reductionDebugger.debug("[p]: unary_operator -> UNARY_TILDEtok");
+      reductionOut("[p]: unary_operator -> UNARY_TILDEtok");
   }
   | UNARY_BANGtok {
-      reductionDebugger.debug("[p]: unary_operator -> UNARY_BANGtok");
+      reductionOut("[p]: unary_operator -> UNARY_BANGtok");
   }
   ;
 
 postfix_expression
   : primary_expression {
-      reductionDebugger.debug("[p]: postfix_expression -> primary_expression");
+      reductionOut("[p]: postfix_expression -> primary_expression");
   }
   | postfix_expression OPEN_SQUAREtok expression CLOSE_SQUAREtok {
-      reductionDebugger.debug("[p]: postfix_expression -> postfix_expression OPEN_SQUAREtok expression CLOSE_SQUAREtok");
+      reductionOut("[p]: postfix_expression -> postfix_expression OPEN_SQUAREtok expression CLOSE_SQUAREtok");
   }
   | postfix_expression OPEN_PARENtok CLOSE_PARENtok {
-      reductionDebugger.debug("[p]: postfix_expression -> postfix_expression OPEN_PARENtok CLOSE_PARENtok");
+      reductionOut("[p]: postfix_expression -> postfix_expression OPEN_PARENtok CLOSE_PARENtok");
   }
   | postfix_expression OPEN_PARENtok argument_expression_list CLOSE_PARENtok {
-      reductionDebugger.debug("[p]: postfix_expression -> postfix_expression OPEN_PARENtok argument_expression_list CLOSE_PARENtok");
+      reductionOut("[p]: postfix_expression -> postfix_expression OPEN_PARENtok argument_expression_list CLOSE_PARENtok");
   }
   | postfix_expression PERIODtok identifier {
-      reductionDebugger.debug("[p]: postfix_expression -> postfix_expression PERIODtok identifier");
+      reductionOut("[p]: postfix_expression -> postfix_expression PERIODtok identifier");
   }
   | postfix_expression PTR_OPtok identifier {
-      reductionDebugger.debug("[p]: postfix_expression -> postfix_expression PTR_OPtok identifier");
+      reductionOut("[p]: postfix_expression -> postfix_expression PTR_OPtok identifier");
   }
   | postfix_expression INC_OPtok {
-      reductionDebugger.debug("[p]: postfix_expression -> postfix_expression INC_OPtok");
+      reductionOut("[p]: postfix_expression -> postfix_expression INC_OPtok");
   }
   | postfix_expression DEC_OPtok {
-      reductionDebugger.debug("[p]: postfix_expression -> postfix_expression DEC_OPtok");
+      reductionOut("[p]: postfix_expression -> postfix_expression DEC_OPtok");
   }
   ;
 
 primary_expression
   : identifier {
-      reductionDebugger.debug("[p]: primary_expression -> identifier");
+      reductionOut("[p]: primary_expression -> identifier");
   }
   | constant {
-      reductionDebugger.debug("[p]: primary_expression -> constant");
+      reductionOut("[p]: primary_expression -> constant");
   }
   | string {
-      reductionDebugger.debug("[p]: primary_expression -> string");
+      reductionOut("[p]: primary_expression -> string");
   }
   | OPEN_PARENtok expression CLOSE_PARENtok {
-      reductionDebugger.debug("[p]: primary_expression -> OPEN_PARENtok expression CLOSE_PARENtok");
+      reductionOut("[p]: primary_expression -> OPEN_PARENtok expression CLOSE_PARENtok");
   }
   ;
 
 argument_expression_list
   : assignment_expression {
-      reductionDebugger.debug("[p]: argument_expression_list -> assignment_expression");
+      reductionOut("[p]: argument_expression_list -> assignment_expression");
   }
   | argument_expression_list COMMAtok assignment_expression {
-      reductionDebugger.debug("[p]: argument_expression_list -> argument_expression_list COMMAtok assignment_expression");
+      reductionOut("[p]: argument_expression_list -> argument_expression_list COMMAtok assignment_expression");
   }
   ;
 
 constant
   : INTEGER_CONSTANTtok {
-      reductionDebugger.debug("[p]: constant -> INTEGER_CONSTANTtok");
+      reductionOut("[p]: constant -> INTEGER_CONSTANTtok");
   }
   | CHARACTER_CONSTANTtok {
-      reductionDebugger.debug("[p]: constant -> CHARACTER_CONSTANTtok");
+      reductionOut("[p]: constant -> CHARACTER_CONSTANTtok");
   }
   | FLOATING_CONSTANTtok {
-      reductionDebugger.debug("[p]: constant -> FLOATING_CONSTANTtok");
+      reductionOut("[p]: constant -> FLOATING_CONSTANTtok");
   }
   | ENUMERATION_CONSTANTtok {
-      reductionDebugger.debug("[p]: constant -> ENUMERATION_CONSTANTtok");
+      reductionOut("[p]: constant -> ENUMERATION_CONSTANTtok");
   }
   ;
 
 string
   : STRING_LITERALtok {
-      reductionDebugger.debug("[p]: string -> STRING_LITERALtok");
+      reductionOut("[p]: string -> STRING_LITERALtok");
   }
   ;
 
 identifier
   : IDENTIFIERtok {
-      reductionDebugger.debug("[p]: identifier -> IDENTIFIERtok");
+      reductionOut("[p]: identifier -> IDENTIFIERtok");
+      decl.pushID(std::string(yylval.sval));
   }
   ;
 
 %%
 /* user code ****************************************************************/
-void yyerror (char* s) {
-    fflush(stdout);
-    printf("%s on line %d - %s\n", s, yylineno, yytext);
+void error(const std::string& message) {
+    printf("%s %d:%d\n", message.c_str(), linenum, colnum);
+}
+void yyerror(char* message) {
+    printf("%s %d:%d\n", message, linenum, colnum);
+}
+
+// Simultaneous output to debugging and list_file
+void reductionOut(const char* reductionCStr) {
+    // Append the reduction to LIST_FILE
+    std::ofstream fout;
+    fout.open(LIST_FILE, std::ofstream::out | std::ofstream::app);
+    fout << reductionCStr << std::endl;
+    fout.close();
+
+    // Optional debugging output
+     reductionDebugger.debug(reductionCStr);
 }
