@@ -44,7 +44,7 @@ void yyerror(char* s);
   SymbolNode* symval;
  }
 
-%token IDENTIFIERtok
+%token <sval> IDENTIFIERtok
 %token INTEGER_CONSTANTtok FLOATING_CONSTANTtok CHARACTER_CONSTANTtok ENUMERATION_CONSTANTtok
 %token STRING_LITERALtok
 %token SIZEOFtok
