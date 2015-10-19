@@ -82,6 +82,15 @@ scomment "//".*
 {newlines}   {
                addLine(yyleng);
                zeroCol();
+
+               // Print the line of source code
+               std::ofstream fout;
+               fout.open(listFileName, std::ofstream::out | std::ofstream::app);
+               for(int i = 0; i < sourceLine.size(); ++i)
+                   fout << sourceLine[i] << " ";
+               fout << std::endl;
+               fout.close();
+
                sourceLine.clear();
              }
 {ws}         {  addCol(yyleng); }
@@ -100,394 +109,472 @@ scomment "//".*
 "sizeof"     {
                dumpNextSymbol("SIZEOFtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(SIZEOFtok);
              }
 "->"         {
                dumpNextSymbol("PTR_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(PTR_OPtok);
              }
 "++"         {
                dumpNextSymbol("INC_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(INC_OPtok);
              }
 "--"         {
                dumpNextSymbol("DEC_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(DEC_OPtok);
              }
 "<<"         {
                dumpNextSymbol("LEFT_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(LEFT_OPtok);
              }
 ">>"         {
                dumpNextSymbol("RIGHT_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(RIGHT_OPtok);
              }
 "<="         {
                dumpNextSymbol("LE_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(LE_OPtok);
              }
 ">="         {
                dumpNextSymbol("GE_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(GE_OPtok);
              }
 "=="         {
                dumpNextSymbol("EQ_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(EQ_OPtok);
              }
 "!="         {
                dumpNextSymbol("NE_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(NE_OPtok);
              }
 "&&"         {
                dumpNextSymbol("AND_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(AND_OPtok);
              }
 "||"         {
                dumpNextSymbol("OR_OPtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(OR_OPtok);
              }
 
 "*="         {
                dumpNextSymbol("MUL_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(MUL_ASSIGNtok);
              }
 "/="         {
                dumpNextSymbol("DIV_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(DIV_ASSIGNtok);
              }
 "%="         {
                dumpNextSymbol("MOD_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(MOD_ASSIGNtok);
              }
 "+="         {
                dumpNextSymbol("ADD_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(ADD_ASSIGNtok);
              }
 "-="         {
                dumpNextSymbol("SUB_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(SUB_ASSIGNtok);
              }
 "<<="        {
                dumpNextSymbol("LEFT_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(LEFT_ASSIGNtok);
              }
 ">>="        {
                dumpNextSymbol("RIGHT_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(RIGHT_ASSIGNtok);
              }
 "&="         {
                dumpNextSymbol("AND_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(AND_ASSIGNtok);
              }
 "^="         {
                dumpNextSymbol("XOR_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(XOR_ASSIGNtok);
              }
 "|="         {
                dumpNextSymbol("OR_ASSIGNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(OR_ASSIGNtok);
              }
 "("          {
                dumpNextSymbol("OPEN_PARENtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(OPEN_PARENtok);
              }
 ")"          {
                dumpNextSymbol("CLOSE_PARENtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(CLOSE_PARENtok);
              }
 ("{"|"<%")   {
                dumpNextSymbol("OPEN_CURLYtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(OPEN_CURLYtok);
              }
 ("}"|"%>")   {
                dumpNextSymbol("CLOSE_CURLYtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(CLOSE_CURLYtok);
              }
 ("["|"<:")   {
                dumpNextSymbol("OPEN_SQUAREtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(OPEN_SQUAREtok);
              }
 ("]"|":>")   {
                dumpNextSymbol("CLOSE_SQUAREtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(CLOSE_SQUAREtok);
              }
 
 "."          {
                dumpNextSymbol("PERIODtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(PERIODtok);
              }
 ","          {
                dumpNextSymbol("COMMAtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(COMMAtok);
              }
 ":"          {
                dumpNextSymbol("COLONtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(COLONtok);
              }
 ";"          {
                dumpNextSymbol("SEMItok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(SEMItok);
              }
 "="          {
                dumpNextSymbol("EQUALtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(EQUALtok);
              }
 "&"          {
                dumpNextSymbol("UNARY_ANDtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(UNARY_ANDtok);
              }
 "!"          {
                dumpNextSymbol("UNARY_BANGtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(UNARY_BANGtok);
              }
 "~"          {
                dumpNextSymbol("UNARY_TILDEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(UNARY_TILDEtok);
              }
 "*"          {
                dumpNextSymbol("UNARY_ASTERISKtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(UNARY_ASTERISKtok);
              }
 "/"          {
                dumpNextSymbol("FORWARD_SLASHtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(FORWARD_SLASHtok);
              }
 "+"          {
                dumpNextSymbol("UNARY_PLUStok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(UNARY_PLUStok);
              }
 "-"          {
                dumpNextSymbol("UNARY_MINUStok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(UNARY_MINUStok);
              }
 "%"          {
                dumpNextSymbol("PERCENTtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(PERCENTtok);
              }
 "<"          {
                dumpNextSymbol("LEFT_ANGLEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(LEFT_ANGLEtok);
              }
 ">"          {
                dumpNextSymbol("RIGHT_ANGLEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(RIGHT_ANGLEtok);
              }
 "^"          {
                dumpNextSymbol("UP_CARROTtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(UP_CARROTtok);
              }
 "|"          {
                dumpNextSymbol("PIPEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(PIPEtok);
              }
 "?"          {
                dumpNextSymbol("QUESTION_MARKtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(QUESTION_MARKtok);
              }
 
 "typedef"    {
                dumpNextSymbol("TYPEDEFtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(TYPEDEFtok);
              }
 "extern"     {
                dumpNextSymbol("EXTERNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(EXTERNtok);
              }
 "static"     {
                dumpNextSymbol("STATICtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(STATICtok);
              }
 "auto"       {
                dumpNextSymbol("AUTOtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(AUTOtok);
              }
 "register"   {
                dumpNextSymbol("REGISTERtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(REGISTERtok);
              }
 "char"       {
                dumpNextSymbol("CHARtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(CHARtok);
              }
 "short"      {
                dumpNextSymbol("SHORTtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(SHORTtok);
              }
 "int"        {
                dumpNextSymbol("INTtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(INTtok);
              }
 "long"       {
                dumpNextSymbol("LONGtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(LONGtok);
              }
 "signed"     {
                dumpNextSymbol("SIGNEDtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(SIGNEDtok);
              }
 "unsigned"   {
                dumpNextSymbol("UNSIGNEDtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(UNSIGNEDtok);
              }
 "float"      {
                dumpNextSymbol("FLOATtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(FLOATtok);
              }
 "double"     {
                dumpNextSymbol("DOUBLEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(DOUBLEtok);
              }
 "const"      {
                dumpNextSymbol("CONSTtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(CONSTtok);
              }
 "volatile"   {
                dumpNextSymbol("VOLATILEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(VOLATILEtok);
              }
 "void"       {
                dumpNextSymbol("VOIDtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(VOIDtok);
              }
 "struct"     {
                dumpNextSymbol("STRUCTtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(STRUCTtok);
              }
 "union"      {
                dumpNextSymbol("UNIONtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(UNIONtok);
              }
 "enum"       {
                dumpNextSymbol("ENUMtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(ENUMtok);
              }
 "..."        {
                dumpNextSymbol("ELIPSIStok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(ELIPSIStok);
              }
 "case"       {
                dumpNextSymbol("CASEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(CASEtok);
              }
 "default"    {
                dumpNextSymbol("DEFAULTtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(DEFAULTtok);
              }
 "if"         {
                dumpNextSymbol("IFtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(IFtok);
              }
 "else"       {
                dumpNextSymbol("ELSEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(ELSEtok);
              }
 "switch"     {
                dumpNextSymbol("SWITCHtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(SWITCHtok);
              }
 "while"      {
                dumpNextSymbol("WHILEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(WHILEtok);
              }
 "do"         {
                dumpNextSymbol("DOtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(DOtok);
              }
 "for"        {
                dumpNextSymbol("FORtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(FORtok);
              }
 "goto"       {
                dumpNextSymbol("GOTOtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(GOTOtok);
              }
 "continue"   {
                dumpNextSymbol("CONTINUEtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(CONTINUEtok);
              }
 "break"      {
                dumpNextSymbol("BREAKtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(BREAKtok);
              }
 "return"     {
                dumpNextSymbol("RETURNtok");
                addCol(yyleng);
+               sourceLine.push_back(yytext);
                return(RETURNtok);
              }
 
@@ -501,35 +588,41 @@ scomment "//".*
                 checkIDLength(yytext);
 
                 strcpy(yylval.sval, name.c_str()); // Pass the id's name to yacc
+                sourceLine.push_back(yytext);
                 return(IDENTIFIERtok);
              }
 {int_const}       {
                     dumpNextSymbol("INTEGER_CONSTANTtok");
                     yylval.ival = myatoi(yytext);
                     addCol(yyleng);
+                    sourceLine.push_back(yytext);
                     return(INTEGER_CONSTANTtok);
                   }
 {real_const}      {
                     dumpNextSymbol("FLOATING_CONSTANTtok");
                     yylval.dval = atof(yytext);
                     addCol(yyleng);
+                    sourceLine.push_back(yytext);
                     return(FLOATING_CONSTANTtok);
                   }
 {char_const}      {
                     dumpNextSymbol("CHARACTER_CONSTANTtok");
                     yylval.cval = *yytext;
                     addCol(yyleng);
+                    sourceLine.push_back(yytext);
                     return(CHARACTER_CONSTANTtok);
                   }
 {string_literal}  {
                     dumpNextSymbol("STRING_LITERALtok");
                     strcpy(yylval.sval, yytext);
                     addCol(yyleng);
+                    sourceLine.push_back(yytext);
                     return(STRING_LITERALtok);
                   }
 
 .                 {
                     addCol(yyleng);
+                    sourceLine.push_back(yytext);
                     sprintf(errormsg, "ERROR: illegal character: line %d, col %d", linenum, colnum);
                     yyerror(errormsg);
                     return(ERRORtok);
