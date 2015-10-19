@@ -73,11 +73,9 @@ scomment "//".*
 
 /* token rules and actions ***************************************************/
 %%
-<<<<<<< HEAD
 "!!S"        {  symTable.writeFile(); }
 =======
 {scomment}"!!S" {  symTable.writeFile(); }
->>>>>>> symbol
 {newlines}   {
                addLine(yyleng);
                zeroCol();
