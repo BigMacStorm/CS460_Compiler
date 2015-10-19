@@ -1,30 +1,29 @@
-# Compiles and links together the whole program
-# This can be modifed as needed
-
-CC	= cc
+CC  = g++
+CFLAGS = -c -g -Wall -std=c++11
 LEX	= flex
 YACC	= bison
-LIBS	= -L/usr/local/lib -lfl
+YFLAG = -d --debug --verbose
+LFLAG =
+LIBS = -ll -ly
+SRCS = driver.cpp lex.yy.c y.tab.c Debugger.cpp Spec.cpp SymbolNode.cpp SymbolTable.cpp
+OBJS = driver.o lex.yy.o y.tab.o Debugger.o Spec.o SymbolNode.o SymbolTable.o
 
-OBJS	= lex.yy.o comp.tab.o
-TESTOBJS	= driver.o lex.yy.o
-
-comp: $(OBJS)
+compiler: $(OBJS)
 	$(CC) -o $@ $(OBJS) $(LIBS)
 
-testscan: $(TESTOBJS) comp.tab.h
-	$(CC) -o $@ $(TESTOBJS) $(LIBS)
+y.tab.c: compiler.y
+	$(YACC) $(YFLAG) -o y.tab.c $<
 
-comp.tab.c: comp.y
-	$(YACC) -d $<
-
-lex.yy.c: comp.lex comp.tab.c
-	$(LEX) $<
+lex.yy.c: compiler.lex y.tab.c
+	$(LEX) $(LFLAG) $<
 
 clean:
-	-rm -f lex.yy.* comp.tab.* *.o comp testscan *~
+	-rm -f compiler lex.yy.* y.tab.* y.output *.o  *~
 
-.SUFFIXES: .c .o
+.SUFFIXES: .cpp .c .o
+
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@
 
 .c.o:
-	$(CC) -c $< -o $@
+	$(CC) $(CFLAGS) $< -o $@

@@ -2,10 +2,12 @@
 
 #include <stdio.h>
 #include <string.h>
-#include ""
+#include "comp.tab.h"
 
-extern int yyparse();
-extern int yylex();
+extern "C"{
+  int yyparse();
+  int yylex();
+}
 
 int main (int argc, char* argv[])
 {
