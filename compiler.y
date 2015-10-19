@@ -7,10 +7,12 @@ extern "C"{
 #include <stdio.h>
 #include <fstream>
 #include <string.h>
+#include <vector>
 #include "SymbolTable.h"
 #include "Debugger.h"
 #include "Declaration.h"
 #include "Spec.h"
+#include "SizedArray.h"
 
 extern Debugger warningDebugger;
 extern Debugger reductionDebugger;
@@ -39,10 +41,10 @@ Declaration decl; // holds info about a current declaration
   //char* sval;
   char sval[100]; // Changing this to an array fixed a strcpy segfault
   SymbolNode* symval;
-
+  Spec* spval;
   SpecName::TypeKind tkval;
+  SizedArr* sarrval;
  }
-
 
 // Tokens
 %token <sval> IDENTIFIERtok
@@ -72,12 +74,15 @@ Declaration decl; // holds info about a current declaration
 %token <tkval> STRUCTtok
 %token <tkval> UNIONtok
 %token ENUMtok ELIPSIStok RANGEtok
-%type <sval> identifier
-%type <tkval> struct_or_union
-
 %token CASEtok DEFAULTtok IFtok ELSEtok SWITCHtok WHILEtok DOtok FORtok GOTOtok CONTINUEtok BREAKtok RETURNtok
 
 %token ERRORtok
+
+// Nonterminals
+%type <sval> identifier
+%type <tkval> struct_or_union
+%type <sarrval> init_declarator_list
+%type <spval> declaration_specifiers
 
 %start translation_unit
 
@@ -148,6 +153,9 @@ declaration
   | declaration_specifiers init_declarator_list SEMItok{
       reductionOut("[p]: declaration -> declaration_specifiers init_declarator_list SEMItok");
       decl.clear();
+
+      for(int i = 0; i < ($2)->size; ++i)
+        (symTable.lookupSymbol(($2)->ids[i]))->setSpecifier($1);
   }
   ;
 
@@ -1149,3 +1157,6 @@ void reductionOut(const char* reductionCStr) {
     // Optional debugging output
      reductionDebugger.debug(reductionCStr);
 }
+
+
+

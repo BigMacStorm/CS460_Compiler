@@ -5,6 +5,7 @@ extern "C"{
   int yylex();
 }
 #include "SymbolTable.h"
+#include "SizedArray.h"
 #include "Debugger.h"
 #include "y.tab.h"
 #include <string.h>
@@ -32,6 +33,7 @@ unsigned long long htoi(char* text);
 int myatoi(char*);
 
 const char* LEX_FILE = "llog.txt";
+
 %}
 
 %option noyywrap
