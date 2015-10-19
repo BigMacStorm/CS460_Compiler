@@ -10,6 +10,12 @@ SymbolNode::SymbolNode(std::string name, Spec* specifier, int pos){
   this->specifier = specifier;
   this->pos = pos;
 }
+SymbolNode::SymbolNode(std::string name, Spec* specifier, std::string specname, int pos){
+  this->name = name;
+  this->specifier = specifier;
+  this->specname = specname;
+  this->pos = pos;
+}
 void SymbolNode::setName(std::string name){
   this->name = name;
 }

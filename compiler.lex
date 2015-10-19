@@ -474,9 +474,9 @@ scomment "//".*
 {id}         {
                 dumpNextSymbol();
                 std::string name(yytext);
-                yylval.sval = yytext;
-                SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
-                symTable.insertSymbol(name, symNode);
+                strcpy(yylval.sval, yytext);
+                // SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
+                // symTable.insertSymbol(name, symNode);
                 addCol(yyleng);
                 checkIDLength(yytext);
                 return(IDENTIFIERtok);
@@ -501,7 +501,7 @@ scomment "//".*
                   }
 {string_literal}  {
                     dumpNextSymbol();
-                    yylval.sval = yytext;
+                    strcpy(yylval.sval, yytext);
                     addCol(yyleng);
                     return(STRING_LITERALtok);
                   }

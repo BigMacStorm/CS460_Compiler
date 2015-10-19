@@ -17,6 +17,20 @@ void zoo(int a, int b){
   //!!S
 }
 
+struct s1{
+  long int x;
+  int y;
+  struct s11{
+    int x1;
+    int y1;
+  }str11;
+  //!!S
+}str1;
+
+union u1{
+  int x;
+};
+
 int main(){
   int *ip;
   int **ipp;
