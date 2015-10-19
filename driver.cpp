@@ -15,6 +15,7 @@ int main(int argc, char** argv){
   std::string logFile = "log.txt";
   std::string symTableLogFile = "symTableLog.txt";
   const std::string LIST_FILE = "list_file";
+  const std::string LEX_FILE = "list_file";
 
   std::vector<std::string> args(argv, argv+argc);
   for (int arg = 1; arg < args.size(); ++arg) {
@@ -37,6 +38,7 @@ int main(int argc, char** argv){
   std::remove(logFile.c_str());
   std::remove(symTableLogFile.c_str());
   std::remove(LIST_FILE.c_str());
+  std::remove(LEX_FILE.c_str());
 
   lexDebugger.setFileName(logFile);
   lexDebugger.setDebug(ldebug);

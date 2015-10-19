@@ -646,5 +646,12 @@ int myatoi(char* text){
 void dumpNextSymbol(const char* token){
   std::stringstream ss;
   ss << "//" << yytext << std::endl << token << std::endl;
+
+  // Append the reduction to LEX_FILE
+  std::ofstream fout;
+  fout.open(LEX_FILE, std::ofstream::out | std::ofstream::app);
+  fout << ss.str() << std::endl;
+  fout.close();
+
   lexSymbolDebugger.debug(ss.str());
 }
