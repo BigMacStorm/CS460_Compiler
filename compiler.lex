@@ -475,7 +475,7 @@ scomment "//".*
                 dumpNextSymbol();
                 std::string name(yytext);
                 yylval.sval = yytext;
-                SymbolNode * symNode = new SymbolNode(name, "", yylineno);
+                SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
                 symTable.insertSymbol(name, symNode);
                 addCol(yyleng);
                 checkIDLength(yytext);

@@ -5,6 +5,11 @@ SymbolNode::SymbolNode(std::string name, std::string specname, int pos){
   this->specname = specname;
   this->pos = pos;
 }
+SymbolNode::SymbolNode(std::string name, Spec* specifier, int pos){
+  this->name = name;
+  this->specifier = specifier;
+  this->pos = pos;
+}
 void SymbolNode::setName(std::string name){
   this->name = name;
 }
