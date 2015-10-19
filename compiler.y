@@ -24,7 +24,7 @@ extern char* yytext;
 extern std::string listFileName;
 
 void yyerror(const char* message);
-void error(std::string& message);
+void error(const std::string& message);
 void reductionOut(const char* reductionCStr);
 
 Declaration decl; // holds info about a current declaration
@@ -342,7 +342,7 @@ struct_or_union_specifier
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok");
 
       if(symTable.lookupTopTable($2))
-        error("error: redefinition\n"); // Redefinition; fatal error
+        error("error: redefinition"); // Redefinition; fatal error
       else
         symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
   }
@@ -355,7 +355,7 @@ struct_or_union_specifier
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier");
 
       if(symTable.lookupTopTable($2))
-        error("error: redefinition\n"); // Redefinition; fatal error
+        error("error: redefinition"); // Redefinition; fatal error
       else
         symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
   }
@@ -1053,7 +1053,7 @@ primary_expression
   : identifier {
       reductionOut("[p]: primary_expression -> identifier");
       if(!symTable.lookupSymbol($1)) {
-        error("error: identifier not found\n");
+        error("error: identifier not found");
       }
   }
   | constant {
@@ -1112,7 +1112,7 @@ void error(const std::string& message) {
     yyerror(message.c_str());
 }
 void yyerror(const char* message) {
-    printf("%s", message);
+    printf("%s\n", message);
 }
 
 // Simultaneous output to debugging and list_file
