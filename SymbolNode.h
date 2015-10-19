@@ -6,6 +6,7 @@ public:
   SymbolNode();
   SymbolNode(std::string, std::string, int = -1);
   SymbolNode(std::string, Spec* specifier, int = -1);
+  SymbolNode(std::string, Spec* specifier, std::string, int = -1);
 
   // setters
   void setName(std::string);

@@ -6,6 +6,9 @@ Declaration::~Declaration(){}
 void Declaration::pushID(std::string id){
   this->ids.push_back(id);
 }
+void Declaration::pushPos(int pos){
+  this->pos.push_back(pos);
+}
 void Declaration::pushKind(SpecName::TypeKind typekind){
   int size = this->kinds.size();
   if(size <= 0){
@@ -219,6 +222,7 @@ bool Declaration::complete(){
 
   }
   this->ids.clear();
+  this->pos.clear();
   this->arraySizes.clear();
   this->levels = 0;
   return complete;
@@ -232,6 +236,7 @@ void Declaration::clear(){
   this->levels = 0;
   this->argSize = 0;
 
+  this->pos.clear();
   this->ids.clear();
   this->kinds.clear();
   this->bases.clear();
@@ -265,11 +270,8 @@ bool Declaration::pushBasic(std::string name){
   if(base == NULL){
     return false;
   }
-  SymbolNode *val = symTable.lookupSymbol(name);
-  if(val != NULL){
-    val->setSpecName(base->toString());
-    val->setSpecifier(base);
-  }
+  // insert basic
+  SymbolNode *val = new SymbolNode(name,base,base->toString(),this->pos[0]);
   return symTable.insertSymbol(name, val);
 }
 
@@ -298,11 +300,7 @@ bool Declaration::pushArray(std::string name){
   // pointer
 
   // insert array
-  SymbolNode *val = symTable.lookupSymbol(name);
-  if(val != NULL){
-    val->setSpecName(array->toString());
-    val->setSpecifier(array);
-  }
+  SymbolNode *val = new SymbolNode(name,array,array->toString(),this->pos[0]);
   return symTable.insertSymbol(name, val);
 }
 bool Declaration::pushPointer(std::string name){
@@ -320,11 +318,7 @@ bool Declaration::pushPointer(std::string name){
   // typedef
 
   // insert pointer
-  SymbolNode *val = symTable.lookupSymbol(name);
-  if(val != NULL){
-    val->setSpecName(pointer->toString());
-    val->setSpecifier(pointer);
-  }
+  SymbolNode *val = new SymbolNode(name,pointer,pointer->toString(),this->pos[0]);
   return symTable.insertSymbol(name, val);
 }
 bool Declaration::pushFunction(std::string name){
@@ -412,11 +406,8 @@ bool Declaration::pushFunction(std::string name){
   } // end argment types
 
   // insert function
-  SymbolNode *val = symTable.lookupSymbol(name);
-  if(val != NULL){
-    val->setSpecName(function->toString());
-    val->setSpecifier(function);
-  }
+  SymbolNode *val = new SymbolNode(name, function, function->toString(), this->pos[0]);
+
   return symTable.insertSymbol(name, val);
 }
 

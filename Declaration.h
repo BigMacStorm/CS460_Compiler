@@ -7,7 +7,6 @@
 
 extern SymbolTable symTable;
 extern void error(const std::string& message);
-
 namespace DeclMode{
   enum Mode{
     NoMode, Basic, Pointer, Array, Enum, Struct, Union, Function, FunctionCall
@@ -21,6 +20,7 @@ class Declaration{
 
   // push info to declaration from parser
   void pushID(std::string id);
+  void pushPos(int pos);
   void pushSpec(std::string spec);
   void pushKind(SpecName::TypeKind);
   void pushBase(SpecName::BaseType);
@@ -65,9 +65,11 @@ class Declaration{
  private:
   DeclMode::Mode mode;
   Spec spec;
+  std::vector<std::string> ids; // identifiers
+  std::vector<int> pos; // identifier positions
+
   std::vector<SpecName::TypeKind> kinds;
   std::vector<SpecName::BaseType> bases; // for basic type
-  std::vector<std::string> ids; // multiple single line declarations
   std::vector<int> arraySizes; // for multi dimension
   int levels; // pointer deepness
   int argSize; // function argments

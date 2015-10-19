@@ -475,11 +475,17 @@ scomment "//".*
 {id}         {
                 dumpNextSymbol();
                 std::string name(yytext);
+<<<<<<< HEAD
 
                 // Node construction and insertion is done by the parser
                 //SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
                 //symTable.insertSymbol(name, symNode);
 
+=======
+                strcpy(yylval.sval, yytext);
+                // SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
+                // symTable.insertSymbol(name, symNode);
+>>>>>>> symbol
                 addCol(yyleng);
                 checkIDLength(yytext);
 
@@ -506,7 +512,10 @@ scomment "//".*
                   }
 {string_literal}  {
                     dumpNextSymbol();
+<<<<<<< HEAD
                     //yylval.sval = yytext;
+=======
+>>>>>>> symbol
                     strcpy(yylval.sval, yytext);
                     addCol(yyleng);
                     return(STRING_LITERALtok);

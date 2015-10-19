@@ -22,8 +22,8 @@ extern char* yytext;
 // File for writing source lines and reductions to
 const char* LIST_FILE = "list_file";
 
-void yyerror(char* message);
-void error(const std::string& message);
+void yyerror(const char* message);
+void error(std::string& message);
 void reductionOut(const char* reductionCStr);
 
 Declaration decl; // holds info about a current declaration
@@ -35,15 +35,23 @@ Declaration decl; // holds info about a current declaration
   int ival;
   double dval;
   long lval;
+<<<<<<< HEAD
   unsigned long long ullval;
   //char* sval;
   char sval[100]; // Changing this to an array fixed a strcpy segfault
+=======
+  char sval[100];
+  SpecName::TypeKind tkval;
+>>>>>>> symbol
   SymbolNode* symval;
 
   SpecName::TypeKind tkval;
  }
 
+<<<<<<< HEAD
 // Tokens
+=======
+>>>>>>> symbol
 %token <sval> IDENTIFIERtok
 %token INTEGER_CONSTANTtok FLOATING_CONSTANTtok CHARACTER_CONSTANTtok ENUMERATION_CONSTANTtok
 %token STRING_LITERALtok
@@ -65,9 +73,19 @@ Declaration decl; // holds info about a current declaration
 
 %token TYPEDEFtok EXTERNtok STATICtok AUTOtok REGISTERtok
 %token CHARtok SHORTtok INTtok LONGtok SIGNEDtok UNSIGNEDtok FLOATtok DOUBLEtok CONSTtok VOLATILEtok VOIDtok
+<<<<<<< HEAD
 %token <tkval> STRUCTtok
 %token <tkval> UNIONtok
 %token ENUMtok ELIPSIStok RANGEtok
+=======
+/*%token STRUCTtok UNIONtok ENUMtok ELIPSIStok RANGEtok*/
+
+%token <tkval> STRUCTtok
+%token <tkval> UNIONtok
+%token ENUMtok ELIPSIStok RANGEtok
+%type <sval> identifier
+%type <tkval> struct_or_union
+>>>>>>> symbol
 
 %token CASEtok DEFAULTtok IFtok ELSEtok SWITCHtok WHILEtok DOtok FORtok GOTOtok CONTINUEtok BREAKtok RETURNtok
 
@@ -345,12 +363,20 @@ struct_or_union_specifier
       else if(symTable.lookUpShadowedSymbol($2)) {
         shadowing = true;
         // Shadowing; warning
+<<<<<<< HEAD
         printf("warning: shadowing\n");  // Note: Make this message better
+=======
+        std::cout << "warning: shadowing\n";  // Note: Make this message better
+>>>>>>> symbol
       }
       */
 
       // Put the new declaration in the symbol table
+<<<<<<< HEAD
       symTable.insertSymbol($2, new SymbolNode($2, new Spec($1)));
+=======
+      symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
+>>>>>>> symbol
   }
   | struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
       // struct {...}
@@ -1099,6 +1125,10 @@ identifier
   : IDENTIFIERtok {
       reductionOut("[p]: identifier -> IDENTIFIERtok");
       decl.pushID(std::string(yylval.sval));
+<<<<<<< HEAD
+=======
+      decl.pushPos(linenum);
+>>>>>>> symbol
       strcpy($$, $1);
   }
   ;
@@ -1106,9 +1136,9 @@ identifier
 %%
 /* user code ****************************************************************/
 void error(const std::string& message) {
-    printf("%s %d:%d\n", message.c_str(), linenum, colnum);
+    yyerror(message.c_str());
 }
-void yyerror(char* message) {
+void yyerror(const char* message) {
     printf("%s %d:%d\n", message, linenum, colnum);
 }
 
