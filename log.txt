@@ -1,28 +1,64 @@
+[S]: A new symbol table is pushed on ===========================================
+[L]: Next symbol -> int
 [p]: type_specifier -> INTtok
+[L]: Next symbol -> main
+[S]: Symbol main is not found at top level
+[S]: Symbol main is not found at any parent level
+[S]: Symbol main is inserted at top level
 [p]: declaration_specifiers -> type_specifier
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
+[L]: Next symbol -> (
+[L]: Next symbol -> )
 [p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok
+[L]: Next symbol -> {
 [p]: declarator -> direct_declarator
+[S]: Symbol main is found at top level
+[S]: Symbol main is found at top level
+[S]: Symbol main is updated
+[S]: A new symbol table is pushed on ===========================================
+[L]: Next symbol -> int
 [p]: type_specifier -> INTtok
+[L]: Next symbol -> foo
+[S]: Symbol foo is not found at top level
+[S]: Symbol foo is not found at any parent level
+[S]: Symbol foo is inserted at top level
 [p]: declaration_specifiers -> type_specifier
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
+[L]: Next symbol -> (
+[L]: Next symbol -> )
 [p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok
+[L]: Next symbol -> ;
 [p]: declarator -> direct_declarator
 [p]: init_declarator -> declarator
 [p]: init_declarator_list -> init_declarator
+[S]: Symbol foo is found at top level
+[S]: Symbol foo is found at top level
+[S]: Symbol foo is updated
 [p]: declaration -> declaration_specifiers init_declarator_list SEMItok
 [p]: declaration_list -> declaration
+[L]: Next symbol -> int
 [p]: type_specifier -> INTtok
+[L]: Next symbol -> x
+[S]: Symbol x is not found at top level
+[S]: Symbol x is not found at any parent level
+[S]: Symbol x is inserted at top level
 [p]: declaration_specifiers -> type_specifier
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
+[L]: Next symbol -> =
 [p]: declarator -> direct_declarator
+[L]: Next symbol -> foo
+[S]: Symbol foo is found at top level
+[S]: Symbol foo is updated
 [p]: identifier -> IDENTIFIERtok
 [p]: primary_expression -> identifier
 [p]: postfix_expression -> primary_expression
+[L]: Next symbol -> (
+[L]: Next symbol -> )
 [p]: postfix_expression -> postfix_expression OPEN_PARENtok CLOSE_PARENtok
+[L]: Next symbol -> ;
 [p]: unary_expression -> postfix_expression
 [p]: cast_expression -> unary_expression
 [p]: multiplicative_expression -> cast_expression
@@ -40,11 +76,17 @@
 [p]: initializer -> assignment_expression
 [p]: init_declarator -> declarator EQUALtok initializer
 [p]: init_declarator_list -> init_declarator
+[S]: Symbol x is found at top level
+[S]: Symbol x is found at top level
+[S]: Symbol x is updated
 [p]: declaration -> declaration_specifiers init_declarator_list SEMItok
 [p]: declaration_list -> declaration_list declaration
+[L]: Next symbol -> return
+[L]: Next symbol -> 0
 [p]: constant -> INTEGER_CONSTANTtok
 [p]: primary_expression -> constant
 [p]: postfix_expression -> primary_expression
+[L]: Next symbol -> ;
 [p]: unary_expression -> postfix_expression
 [p]: cast_expression -> unary_expression
 [p]: multiplicative_expression -> cast_expression
@@ -63,24 +105,46 @@
 [p]: jump_statement -> RETURNtok expression SEMItok
 [p]: statement -> jump_statement
 [p]: statement_list -> statement
+[L]: Next symbol -> }
+[S]: The top symbol table is popped off ========================================
 [p]: compound_statement -> OPEN_CURLYtok declaration_list statement_list CLOSE_CURLYtok
 [p]: function_definition -> declaration_specifiers declarator compound_statement
 [p]: external_declaration -> function_definition
 [p]: translation_unit -> external_declaration
+[L]: Next symbol -> int
 [p]: type_specifier -> INTtok
+[L]: Next symbol -> foo
+[S]: Symbol foo is not found at top level
+[S]: Symbol foo is not found at any parent level
+[S]: Symbol foo is inserted at top level
 [p]: declaration_specifiers -> type_specifier
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
+[L]: Next symbol -> (
+[L]: Next symbol -> )
 [p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok
+[L]: Next symbol -> {
 [p]: declarator -> direct_declarator
+[S]: Symbol foo is found at top level
+[S]: Symbol foo is found at top level
+[S]: Symbol foo is updated
+[S]: A new symbol table is pushed on ===========================================
+[L]: Next symbol -> int
 [p]: type_specifier -> INTtok
+[L]: Next symbol -> y
+[S]: Symbol y is not found at top level
+[S]: Symbol y is not found at any parent level
+[S]: Symbol y is inserted at top level
 [p]: declaration_specifiers -> type_specifier
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
+[L]: Next symbol -> =
 [p]: declarator -> direct_declarator
+[L]: Next symbol -> 10
 [p]: constant -> INTEGER_CONSTANTtok
 [p]: primary_expression -> constant
 [p]: postfix_expression -> primary_expression
+[L]: Next symbol -> ;
 [p]: unary_expression -> postfix_expression
 [p]: cast_expression -> unary_expression
 [p]: multiplicative_expression -> cast_expression
@@ -98,17 +162,29 @@
 [p]: initializer -> assignment_expression
 [p]: init_declarator -> declarator EQUALtok initializer
 [p]: init_declarator_list -> init_declarator
+[S]: Symbol y is found at top level
+[S]: Symbol y is found at top level
+[S]: Symbol y is updated
 [p]: declaration -> declaration_specifiers init_declarator_list SEMItok
 [p]: declaration_list -> declaration
+[L]: Next symbol -> return
+[L]: Next symbol -> y
+[S]: Symbol y is found at top level
+[S]: Symbol y is updated
 [p]: identifier -> IDENTIFIERtok
 [p]: primary_expression -> identifier
 [p]: postfix_expression -> primary_expression
+[L]: Next symbol -> *
 [p]: unary_expression -> postfix_expression
 [p]: cast_expression -> unary_expression
 [p]: multiplicative_expression -> cast_expression
+[L]: Next symbol -> y
+[S]: Symbol y is found at top level
+[S]: Symbol y is updated
 [p]: identifier -> IDENTIFIERtok
 [p]: primary_expression -> identifier
 [p]: postfix_expression -> primary_expression
+[L]: Next symbol -> ;
 [p]: unary_expression -> postfix_expression
 [p]: cast_expression -> unary_expression
 [p]: multiplicative_expression -> multiplicative_expression UNARY_ASTERISKtok cast_expression
@@ -127,7 +203,10 @@
 [p]: jump_statement -> RETURNtok expression SEMItok
 [p]: statement -> jump_statement
 [p]: statement_list -> statement
+[L]: Next symbol -> }
+[S]: The top symbol table is popped off ========================================
 [p]: compound_statement -> OPEN_CURLYtok declaration_list statement_list CLOSE_CURLYtok
 [p]: function_definition -> declaration_specifiers declarator compound_statement
 [p]: external_declaration -> function_definition
 [p]: translation_unit -> translation_unit external_declaration
+[S]: The top symbol table is popped off ========================================

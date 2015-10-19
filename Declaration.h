@@ -29,10 +29,10 @@ class Declaration{
   void pushStorage(SpecName::Storage);
   void pushArraySize(int size);
   void incLevels();
+  void incArgSize();
 
   std::string getID(int idx) const;
   std::string getSpecStr(int idx) const;
-  void summary() const; // for debug
 
   Spec* getSpec();
 
@@ -56,6 +56,12 @@ class Declaration{
   bool pushPointer(std::string name);
   bool pushFunction(std::string name);
 
+  // debug
+  void showKinds() const;
+  void showSigns() const;
+  void showBases() const;
+  void showIDs() const;
+
  private:
   DeclMode::Mode mode;
   Spec spec;
@@ -64,6 +70,7 @@ class Declaration{
   std::vector<std::string> ids; // multiple single line declarations
   std::vector<int> arraySizes; // for multi dimension
   int levels; // pointer deepness
+  int argSize; // function argments
 
   std::vector<std::string> specs;
   std::vector<SpecName::Sign> signs;

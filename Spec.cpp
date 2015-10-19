@@ -156,6 +156,7 @@ TypeBasic::TypeBasic(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign
   this->sign = sign;
   this->baseType = SpecName::NoType;
 }
+TypeBasic::~TypeBasic(){}
 std::string TypeBasic::toString() const{
   std::stringstream ss;
   std::string temp;
@@ -294,22 +295,41 @@ TypeFunction::TypeFunction(SpecName::Storage sc,SpecName::Qualifier tq, SpecName
   this->storage = sc;
   this->qualifier = tq;
   this->sign = sign;
-  this->baseType = SpecName::NoType;
-  this->returnType = NULL;
 }
-void TypeFunction::insertArg(Spec*argType){
+std::string TypeFunction::toString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << this->returnType + "(";
+  for(int arg = 0; arg < this->argTypes.size(); arg++){
+    ss << this->argTypes[arg];
+    if(arg < this->argTypes.size()-1){
+      ss << ",";
+    }
+  }
+  ss << ")";
+  temp = this->getStorageClassStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  temp = this->getTypeQualifierStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  return ss.str();
+}
+void TypeFunction::insertArg(std::string argType){
   this->argTypes.push_back(argType);
 }
-void TypeFunction::setReturnType(Spec* returnType){
+void TypeFunction::setReturnType(std::string  returnType){
   this->returnType = returnType;
 }
-Spec* TypeFunction::getReturnType() const{
+std::string  TypeFunction::getReturnType() const{
   return this->returnType;
 }
 int TypeFunction::getArgSize() const{
   return this->argTypes.size();
 }
-Spec* TypeFunction::getArgType(int nth) const{
+std::string  TypeFunction::getArgType(int nth) const{
   return this->argTypes[nth];
 }
 // typename  ------------------------------------------------------------------

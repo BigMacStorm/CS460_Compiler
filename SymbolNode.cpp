@@ -8,7 +8,7 @@ SymbolNode::SymbolNode(std::string name, std::string specname, int pos){
 void SymbolNode::setName(std::string name){
   this->name = name;
 }
-void SymbolNode::setSpec(std::string specname){
+void SymbolNode::setSpecName(std::string specname){
   this->specname = specname;
 }
 void SymbolNode::setPosition(int pos){
@@ -17,9 +17,15 @@ void SymbolNode::setPosition(int pos){
 std::string SymbolNode::getName() const{
   return this->name;
 }
-std::string SymbolNode::getSpec() const{
+std::string SymbolNode::getSpecName() const{
   return this->specname;
 }
 int SymbolNode::getPos() const{
   return this->pos;
+}
+void SymbolNode::setSpecifier(Spec* specifier){
+  this->specifier = specifier;
+}
+Spec* SymbolNode::getSpecifier() const{
+  return this->specifier;
 }

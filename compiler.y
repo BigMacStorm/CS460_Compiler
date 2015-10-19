@@ -77,7 +77,7 @@ translation_unit
   ;
 
 external_declaration
-  : function_definition {
+  : function_definition{
     reductionOut("[p]: external_declaration -> function_definition");
   }
   | declaration  {
@@ -91,7 +91,8 @@ after compound_statement.
 *****************************************************************************/
 enter_scope
   : {
-      decl.clear();
+      decl.complete(); // for function definition
+      decl.clear(); // for function definition
       symTable.pushTable();
     }
 ;
@@ -100,16 +101,16 @@ end_scope
 ;
 
 function_definition
-  : enter_decl declarator end_decl compound_statement {
+  : declarator compound_statement {
       reductionOut("[p]: function_definition -> declarator compound_statement");
       }
-  | enter_decl declarator end_decl declaration_list compound_statement {
+  | declarator declaration_list compound_statement {
       reductionOut("[p]: function_definition -> declarator declaration_list compound_statement");
       }
-  | declaration_specifiers enter_decl declarator end_decl compound_statement {
+  | declaration_specifiers declarator compound_statement {
       reductionOut("[p]: function_definition -> declaration_specifiers declarator compound_statement");
     }
-  | declaration_specifiers enter_decl declarator end_decl declaration_list compound_statement {
+  | declaration_specifiers declarator declaration_list compound_statement {
        reductionOut("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement");
     }
   ;
@@ -134,19 +135,6 @@ declaration_list
   }
   ;
 
-/*** declarator productions ****************************************************
-A enter_decl is called before the first declarator is called and a end_declarator
-is called after the declarator is finished
-*****************************************************************************/
-enter_decl
-  : {
-      reductionOut("[p]: start new declarator creation *********************************************");
-    }
-end_decl
-  : {
-      reductionOut("[p]: end declarator creation ***************************************************");
-    }
-
 init_declarator_list
   : init_declarator {
       // a single variable declaration
@@ -161,11 +149,11 @@ init_declarator_list
   ;
 
 init_declarator
-  : enter_decl declarator end_decl{
+  : declarator{
       // declaration
       reductionOut("[p]: init_declarator -> declarator");
   }
-  | enter_decl declarator end_decl EQUALtok initializer {
+  | declarator EQUALtok initializer {
       // initialization
       reductionOut("[p]: init_declarator -> declarator EQUALtok initializer");
   }
@@ -257,6 +245,8 @@ type_specifier
   :
     VOIDtok {
     reductionOut("[p]: type_specifier -> VOIDtok");
+    decl.pushKind(SpecName::Basic);
+    decl.pushBase(SpecName::Void);
   }
   | CHARtok {
     reductionOut("[p]: type_specifier -> CHARtok");
@@ -290,11 +280,11 @@ type_specifier
   }
   | SIGNEDtok  {
     reductionOut("[p]: type_specifier -> SIGNEDtok");
-    decl.setSign(SpecName::Signed);
+    decl.pushSign(SpecName::Signed);
   }
   | UNSIGNEDtok  {
     reductionOut("[p]: type_specifier -> UNSIGNEDtok");
-    decl.setSign(SpecName::Unsigned);
+    decl.pushSign(SpecName::Unsigned);
   }
   | struct_or_union_specifier  {
     reductionOut("[p]: type_specifier -> struct_or_union_specifier");
@@ -443,6 +433,9 @@ declarator
 direct_declarator
   : identifier {
       reductionOut("[p]: direct_declarator -> identifier");
+      decl.pushKind(SpecName::NoKind);
+      decl.pushBase(SpecName::NoType);
+      decl.pushSign(SpecName::NoSign);
   }
   | OPEN_PARENtok declarator CLOSE_PARENtok {
       // e.g., (*a)[COLS]
@@ -525,9 +518,11 @@ parameter_type_list
 parameter_list
   : parameter_declaration {
       reductionOut("[p]: parameter_list -> parameter_declaration");
+      decl.incArgSize();
   }
   | parameter_list COMMAtok parameter_declaration {
       reductionOut("[p]: parameter_list -> parameter_list COMMAtok parameter_declaration");
+      decl.incArgSize();
   }
   ;
 

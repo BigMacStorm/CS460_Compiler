@@ -151,8 +151,8 @@ void SymbolTable::writeFile(){
 
       for(iter = this->symTables[level].begin(); iter != this->symTables[level].end(); ++iter){
         fout << "Symbol: " << iter->first << ", ";
-        fout << (*iter->second).getSpec() << ", ";
-        fout << (*iter->second).getPos() << ",";
+        fout << (*iter->second).getSpecName() << " ";
+        fout << "@" << (*iter->second).getPos();
         fout << "\n";
       }
       fout << "--------------------------------------------------" << std::endl;

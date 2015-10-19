@@ -10,15 +10,16 @@ extern double long edl[10];
 float f2d[20];
 int i3d[2][2][2];
 
-//typedef int twoint[2];
-//twoint j;
-
 int foo();
-int boo(int x, int y);
-int main(int argc, char* argv){
+unsigned int boo(float x, signed int y, long double z);
+void zoo(int a, int b){
+  int x, y;
+  //!!S
+}
+
+int main(){
   int *ip;
   int **ipp;
-  //int *ipp1d[10];
 
   int i1, i2[10], *i3;
 

@@ -1,5 +1,5 @@
 #include "Declaration.h"
-Declaration::Declaration():mode(DeclMode::NoMode), levels(0){}
+Declaration::Declaration():mode(DeclMode::NoMode), levels(0), argSize(0){}
 Declaration::~Declaration(){}
 
 // change states of declaration ***********************************************
@@ -7,7 +7,15 @@ void Declaration::pushID(std::string id){
   this->ids.push_back(id);
 }
 void Declaration::pushKind(SpecName::TypeKind typekind){
-  this->kinds.push_back(typekind);
+  int size = this->kinds.size();
+  if(size <= 0){
+    this->kinds.push_back(typekind);
+  }
+  else{
+    if(typekind != this->kinds[size-1]){
+      this->kinds.push_back(typekind);
+    }
+  }
 }
 void Declaration::pushBase(SpecName::BaseType basetype){
   this->bases.push_back(basetype);
@@ -26,6 +34,9 @@ void Declaration::pushArraySize(int size){
 }
 void Declaration::incLevels(){
   this->levels++;
+}
+void Declaration::incArgSize(){
+  this->argSize++;
 }
 void Declaration::setMode(DeclMode::Mode mode){
  this->mode = mode;
@@ -53,18 +64,6 @@ std::string Declaration::getID(int idx) const{
  std::string Declaration::getSpecStr(int idx) const{
    return this->specs[idx];
  }
-
- void Declaration::summary() const{
-    std::cout << "IDs:" << std::endl;
-    for(int id = 0;id < this->ids.size(); id++){
-      std::cout << id << ": " << this->ids[id] << std::endl;
-    }
-    std::cout << "Specs:" << std::endl;
-    for(int spec = 0; spec < this->specs.size(); spec++){
-      std::cout << spec << ": "<< this->specs[spec] << std::endl;
-    }
- }
-
  bool Declaration::isMode(DeclMode::Mode mode) const{
   return this->mode == mode;
  }
@@ -139,6 +138,7 @@ std::string Declaration::getID(int idx) const{
  }
  // sign ********************************************************************
  bool Declaration::setSign(SpecName::Sign sign){
+  //std::cout << "Set sign " << this->signs[sign] << std::endl;
   if(this->spec.getSign() != SpecName::NoSign){
     error("[P]: ERROR: Sign already exists");
     return false;
@@ -191,15 +191,17 @@ bool Declaration::checkSigned(SpecName::BaseType type) const{
 // push to symbol table ****************************************************
 bool Declaration::complete(){
   bool complete = false;
+  std::string name = this->ids[0];
+  //std::cout << "Identifier \'" << name << "\' is processed ..."<< std::endl;
   // default: basic mode (no mode)
   if(isMode(DeclMode::NoMode)){
-    complete = pushBasic(this->ids[0]);
+    complete = pushBasic(name);
   }
   else if(isMode(DeclMode::Array)){
-    complete = pushArray(this->ids[0]);
+    complete = pushArray(name);
   }
   else if(isMode(DeclMode::Pointer)){
-    complete = pushPointer(this->ids[0]);
+    complete = pushPointer(name);
   }
   else if(isMode(DeclMode::Enum)){
 
@@ -211,7 +213,7 @@ bool Declaration::complete(){
 
   }
   else if(isMode(DeclMode::Function)){
-    complete = pushFunction(this->ids[0]);
+    complete = pushFunction(name);
   }
   else if(isMode(DeclMode::FunctionCall)){
 
@@ -222,29 +224,51 @@ bool Declaration::complete(){
   return complete;
 }
 void Declaration::clear(){
+  //std::cout << "Declaration is correctly cleared" << std::endl;
   mode = DeclMode::NoMode;
   this->spec = Spec();
+
+  this->arraySizes.clear();
+  this->levels = 0;
+  this->argSize = 0;
+
   this->ids.clear();
   this->kinds.clear();
   this->bases.clear();
-  this->arraySizes.clear();
-  this->levels = 0;
+  this->signs.clear();
 }
 TypeBasic* Declaration::makeBasicType(){
-  TypeBasic *base = new TypeBasic(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
-  for(int n = 0; n < this->bases.size(); n++){
-    if(!setBaseType(base,this->bases[n])){
-      delete base;
-      base = NULL;
-    }
-  }
-  return base;
+    // set sign
+    int sign = 0;
+    while(sign < this->signs.size() && this->signs[sign] != 0){
+      if(!setSign(this->signs[sign])){
+        return NULL;
+      }
+      sign++;
+    } // end sign
+    TypeBasic *basetype = new TypeBasic(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
+
+    // set basetype
+    int base = 0;
+    while(base < this->bases.size() && this->bases[base] != 0){
+      if(!setBaseType(basetype,this->bases[base])){
+        delete basetype;
+        return NULL;
+      }
+      base++;
+    } // end basetype
+
+  return basetype;
 }
 bool Declaration::pushBasic(std::string name){
   TypeBasic *base = makeBasicType();
+  if(base == NULL){
+    return false;
+  }
   SymbolNode *val = symTable.lookupSymbol(name);
   if(val != NULL){
-    val->setSpec(base->toString());
+    val->setSpecName(base->toString());
+    val->setSpecifier(base);
   }
   return symTable.insertSymbol(name, val);
 }
@@ -258,16 +282,15 @@ bool Declaration::pushArray(std::string name){
     }
   }
 
-  TypeArray array = TypeArray(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
-
+  TypeArray *array = new TypeArray(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
   // basic type
   if(this->kinds[0] == SpecName::Basic){
     TypeBasic *base = makeBasicType();
     if(base == NULL){
       return false;
     }
-    array.setElemType(base->getTypeName());
-    array.setArraySizes(this->arraySizes);
+    array->setElemType(base->getTypeName());
+    array->setArraySizes(this->arraySizes);
   }
 
   // typedef
@@ -277,13 +300,14 @@ bool Declaration::pushArray(std::string name){
   // insert array
   SymbolNode *val = symTable.lookupSymbol(name);
   if(val != NULL){
-    val->setSpec(array.toString());
+    val->setSpecName(array->toString());
+    val->setSpecifier(array);
   }
   return symTable.insertSymbol(name, val);
 }
 bool Declaration::pushPointer(std::string name){
-  TypePointer pointer = TypePointer(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
-  pointer.setLevels(this->levels);
+  TypePointer *pointer = new TypePointer(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
+  pointer->setLevels(this->levels);
 
   // basic type
   if(this->kinds[0] == SpecName::Basic){
@@ -291,18 +315,131 @@ bool Declaration::pushPointer(std::string name){
     if(base == NULL){
       return false;
     }
-    pointer.setTargetType(base->getTypeName());
+    pointer->setTargetType(base->getTypeName());
   }
   // typedef
 
   // insert pointer
   SymbolNode *val = symTable.lookupSymbol(name);
   if(val != NULL){
-    val->setSpec(pointer.toString());
+    val->setSpecName(pointer->toString());
+    val->setSpecifier(pointer);
   }
   return symTable.insertSymbol(name, val);
 }
 bool Declaration::pushFunction(std::string name){
+  TypeFunction *function = new TypeFunction(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
 
-  return true;
+  int kind = 0;
+  int sign = 0;
+  int base = 0;
+  // return type
+  {
+    // ignore dummy values
+    if(this->bases[base] == 0){base++;}
+    if(this->signs[sign] == 0){sign++;}
+
+    while(this->kinds[kind] != 0){
+
+      // basic ---------------------------------------------------
+      if(this->kinds[kind] == SpecName::Basic){
+        // set sign
+        while(sign < this->signs.size() && this->signs[sign] != 0){
+          if(!setSign(this->signs[sign])){
+            return false;
+          }
+          sign++;
+        } // end sign
+        TypeBasic *basetype = new TypeBasic();
+        basetype->setSign(this->spec.getSign());
+
+        // set basetype
+        while(base < this->bases.size() && this->bases[base] != 0){
+          if(!setBaseType(basetype,this->bases[base])){
+            delete basetype;
+            basetype = NULL;
+            return false;
+          }
+          base++;
+        } // end basetype
+        function->setReturnType(basetype->getTypeName());
+      } // end basic ---------------------------------------------------
+
+      kind++;
+
+    } // end loop
+  } // end return type
+
+  // reset spec
+  this->spec = Spec();
+
+  // argment types
+  for( ; kind < this->kinds.size(); kind++){
+    // new kind
+    if(this->kinds[kind] != 0){
+      //std::cout << "Figuring out a new argment type ..." << std::endl;
+
+      // ignore dummy values
+      if(this->bases[base] == 0){base++;}
+      if(this->signs[sign] == 0){sign++;}
+
+      // basic ---------------------------------------------------
+      if(this->kinds[kind] == SpecName::Basic){
+        // set sign
+        while(sign < this->signs.size() && this->signs[sign] != 0){
+          if(!setSign(this->signs[sign])){
+            return false;
+          }
+          sign++;
+        } // end sign
+        TypeBasic *basetype = new TypeBasic();
+        basetype->setSign(this->spec.getSign());
+
+        // set base
+        while(base < this->bases.size() && this->bases[base] != 0){
+          if(!setBaseType(basetype,this->bases[base])){
+            delete basetype;
+            basetype = NULL;
+            return false;
+          }
+          base++;
+        } // end base
+        function->insertArg(basetype->getTypeName());
+      } // end basic ---------------------------------------------------
+
+    } // end kind
+    this->spec = Spec();
+  } // end argment types
+
+  // insert function
+  SymbolNode *val = symTable.lookupSymbol(name);
+  if(val != NULL){
+    val->setSpecName(function->toString());
+    val->setSpecifier(function);
+  }
+  return symTable.insertSymbol(name, val);
+}
+
+
+// debug ********************************************************************
+void Declaration::showIDs() const{
+   std::cout << "IDs:" << std::endl;
+   for(int id = 0;id < this->ids.size(); id++){
+     std::cout << id << ": " << this->ids[id] << std::endl;
+   }
+}
+void Declaration::showSigns() const{
+  for(int n = 0; n < this->signs.size(); n++){
+    std::cout << this->signs[n] << std::endl;
+  }
+}
+void Declaration::showKinds() const{
+  for(int n = 0; n < this->kinds.size(); n++){
+    std::cout << this->kinds[n] << std::endl;
+  }
+}
+void Declaration::showBases() const{
+  for(int n = 0; n < this->bases.size(); n++){
+    std::cout << this->bases[n] << std::endl;
+  }
 }

@@ -63,7 +63,6 @@ protected:
   SpecName::Storage storage;
   SpecName::Qualifier qualifier;
   SpecName::Sign sign;
-
   SpecName::BaseType baseType;
 };
 
@@ -71,6 +70,7 @@ protected:
 class TypeBasic: public Spec{
  public:
   TypeBasic(SpecName::Storage = SpecName::NoStorage, SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
+  ~TypeBasic();
   std::string toString() const;
   std::string getTypeName() const;
   std::string getBaseTypeStr() const;
@@ -114,15 +114,16 @@ class TypeArray: public Spec{
 class TypeFunction : public Spec{
 public:
     TypeFunction(SpecName::Storage = SpecName::NoStorage,SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
-    void insertArg(Spec*argType);
-    void setReturnType(Spec* returnType);
-    Spec* getReturnType() const;
+    std::string toString() const;
+    void insertArg(std::string argType);
+    void setReturnType(std::string returnType);
+    std::string getReturnType() const;
     int getArgSize() const;
-    Spec* getArgType(int nth) const;
+    std::string getArgType(int nth) const;
 
   private:
-    Spec* returnType;
-    std::vector<Spec*> argTypes;
+    std::string returnType;
+    std::vector<std::string> argTypes;
 };
 // TypeName -----------------------------------------------
 class TypeTypeName: public Spec{
