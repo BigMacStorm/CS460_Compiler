@@ -4,3 +4,8 @@ Declarations:
   typedef
   tricky types combinations
   invalid type handling
+
+Git rid of scope test case
+Endlines on error messages
+Clean script file
+Actual directions for running (can't run script)
