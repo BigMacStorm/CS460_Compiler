@@ -341,7 +341,7 @@ struct_or_union_specifier
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok");
 
       if(symTable.lookupTopTable($2))
-        yyerror("error: redefinition"); // Redefinition; fatal error
+        error("error: redefinition\n"); // Redefinition; fatal error
       else
         symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
   }
@@ -354,7 +354,7 @@ struct_or_union_specifier
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier");
 
       if(symTable.lookupTopTable($2))
-        yyerror("error: redefinition"); // Redefinition; fatal error
+        error("error: redefinition\n"); // Redefinition; fatal error
       else
         symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
   }
