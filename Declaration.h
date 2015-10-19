@@ -7,6 +7,7 @@
 
 extern SymbolTable symTable;
 extern void error(const std::string& message);
+
 namespace DeclMode{
   enum Mode{
     NoMode, Basic, Pointer, Array, Enum, Struct, Union, Function, FunctionCall, FunctionArg
@@ -60,11 +61,14 @@ class Declaration{
   bool pushPointer(std::string name);
   bool pushFunction(std::string name);
 
+  bool insertSymbol(std::string name, SymbolNode* val);
+
   // debug
   void showKinds() const;
   void showSigns() const;
   void showBases() const;
   void showIDs() const;
+  void showStorages() const;
 
  private:
   DeclMode::Mode mode;

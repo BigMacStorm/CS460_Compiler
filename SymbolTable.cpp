@@ -53,15 +53,15 @@ bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
   if(content == NULL){
     content = lookUpShadowedSymbol(key);
     if(content == NULL){
-      this->debugger->debug("[S]: Symbol "+key+" is inserted at top level");
+      this->debugger->debug("[S]: Symbol \'"+key+"\' is inserted at top level");
     }
     else{
-      this->debugger->debug("[S]: Symbol "+key+" shadows another in parent level");
+      this->debugger->debug("[S]: Symbol \'"+key+"\' shadows another in parent level");
     }
     return true;
   }
   else{
-    this->debugger->debug("[S]: Symbol "+key+" is updated");
+    this->debugger->debug("[S]: Redefinition of \'"+key+"\'");
     return false;
   }
 }

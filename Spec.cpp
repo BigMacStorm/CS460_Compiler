@@ -303,7 +303,7 @@ std::string TypeFunction::toString() const{
   for(int arg = 0; arg < this->argTypes.size(); arg++){
     ss << this->argTypes[arg];
     if(arg < this->argTypes.size()-1){
-      ss << ",";
+      ss << ", ";
     }
   }
   ss << ")";

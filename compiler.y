@@ -9,7 +9,9 @@ extern "C"{
 #include "SymbolTable.h"
 #include "Debugger.h"
 #include "Declaration.h"
+#include "Spec.h"
 
+extern Debugger warningDebugger;
 extern Debugger reductionDebugger;
 extern SymbolTable symTable;
 extern int linenum;
@@ -32,9 +34,12 @@ Declaration decl; // holds info about a current declaration
   int ival;
   double dval;
   long lval;
-  char sval[100];
-  SpecName::TypeKind tkval;
+  unsigned long long ullval;
+  //char* sval;
+  char sval[100]; // Changing this to an array fixed a strcpy segfault
   SymbolNode* symval;
+
+  SpecName::TypeKind tkval;
  }
 
 %token <sval> IDENTIFIERtok
@@ -98,8 +103,7 @@ after compound_statement.
 *****************************************************************************/
 enter_scope
   : {
-      decl.complete(); // for function definition
-      decl.clear(); // for function definition
+      decl.complete(); // complete function definition
       symTable.pushTable();
 
       // push argments if possible
@@ -110,6 +114,7 @@ enter_scope
           }
         decl.clearArgs();
       }
+      decl.clear(); // clear function definition
     }
 ;
 end_scope
@@ -1055,6 +1060,9 @@ postfix_expression
 primary_expression
   : identifier {
       reductionOut("[p]: primary_expression -> identifier");
+      if(!symTable.lookupSymbol($1)) {
+        error("error: identifier not found\n");
+      }
   }
   | constant {
       reductionOut("[p]: primary_expression -> constant");

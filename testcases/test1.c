@@ -12,24 +12,11 @@ int i3d[2][2][2];
 
 int foo();
 unsigned int boo(float x, long double z);
+
 void zoo(int a, register unsigned int b){
   int x, y;
   //!!S
 }
-
-struct s1{
-  long int x;
-  int y;
-  struct s11{
-    int x1;
-    int y1;
-  }str11;
-  //!!S
-}str1;
-
-union u1{
-  int x;
-};
 
 int main(){
   int *ip;

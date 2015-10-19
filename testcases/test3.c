@@ -11,11 +11,11 @@ int main(){
 
   // signed integer
   int i1 = 32767;
-  signed i2 = -32767;
+  //signed i2 = -32767;
   signed int i3 = 65534;
 
   // unsigned integer
-  unsigned i4 = 65534;
+  //unsigned i4 = 65534;
   unsigned int i5 = 65534;
 
   // short signed integer
@@ -58,6 +58,8 @@ int main(){
 
   // long double
   long double d2 = 1.79769e+308;
+
+  //!!S
 
   return 0;
 }
