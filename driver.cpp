@@ -1,5 +1,7 @@
 #include "SymbolTable.h"
 #include "Debugger.h"
+#include <sstream>
+#include <iostream>
 
 extern "C"{
   int yyparse();
@@ -10,15 +12,17 @@ Debugger lexDebugger;
 Debugger lexSymbolDebugger;
 Debugger reductionDebugger;
 
+extern std::string listFileName;
+
 int main(int argc, char** argv){
   bool sdebug = false, ldebug = false, pdebug = false;
   std::string logFile = "log.txt";
   std::string symTableLogFile = "symTableLog.txt";
-  const std::string LIST_FILE = "list_file";
+  //const std::string listFileName = "list_file";
   const std::string LEX_FILE = "list_file";
 
   std::vector<std::string> args(argv, argv+argc);
-  for (int arg = 1; arg < args.size(); ++arg) {
+  for (int arg = 1; arg < (int)args.size()-1; ++arg) {
        if (args[arg] == "-o"){
          logFile = args[arg+1];
        }
@@ -35,9 +39,15 @@ int main(int argc, char** argv){
        }
    }
 
+  std::stringstream sourceFileName(args[args.size()-1]);
+  getline(sourceFileName, listFileName, '.');
+  listFileName += ".list";
+
+  std::cout << listFileName << std::endl;
+
   std::remove(logFile.c_str());
   std::remove(symTableLogFile.c_str());
-  std::remove(LIST_FILE.c_str());
+  std::remove(listFileName.c_str());
   std::remove(LEX_FILE.c_str());
 
   lexDebugger.setFileName(logFile);

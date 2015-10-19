@@ -19,7 +19,8 @@ extern int colnum;
 extern char* yytext;
 
 // File for writing source lines and reductions to
-const char* LIST_FILE = "list_file";
+//const char* listFileName = "list_file";
+extern std::string listFileName;
 
 void yyerror(const char* message);
 void error(std::string& message);
@@ -334,30 +335,12 @@ type_qualifier
 
 struct_or_union_specifier
   : struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
-      // struct id{ ... }
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok");
 
-      bool redefinition = false;
-      bool shadowing = false;
-
-      if(symTable.lookupTopTable($2)) {
-        redefinition = true;
-        printf("Here\n");
-        // Redefinition; fatal error
-        yyerror("error: redefinition");  // Note: Make this message better
-      }
-
-      // Can't shadow struct / union types
-      /*
-      else if(symTable.lookUpShadowedSymbol($2)) {
-        shadowing = true;
-        // Shadowing; warning
-        std::cout << "warning: shadowing\n";  // Note: Make this message better
-      }
-      */
-
-      // Put the new declaration in the symbol table
-      symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
+      if(symTable.lookupTopTable($2))
+        error("error: redefinition\n"); // Redefinition; fatal error
+      else
+        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
   }
   | struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
       // struct {...}
@@ -366,6 +349,11 @@ struct_or_union_specifier
   | struct_or_union identifier {
       // forward declaration  struct id;
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier");
+
+      if(symTable.lookupTopTable($2))
+        error("error: redefinition\n"); // Redefinition; fatal error
+      else
+        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
   }
   ;
 
@@ -1125,9 +1113,9 @@ void yyerror(const char* message) {
 
 // Simultaneous output to debugging and list_file
 void reductionOut(const char* reductionCStr) {
-    // Append the reduction to LIST_FILE
+    // Append the reduction to listFileName
     std::ofstream fout;
-    fout.open(LIST_FILE, std::ofstream::out | std::ofstream::app);
+    fout.open(listFileName, std::ofstream::out | std::ofstream::app);
     fout << reductionCStr << std::endl;
     fout.close();
 
