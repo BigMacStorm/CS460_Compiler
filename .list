@@ -1,0 +1,30 @@
+[p]: type_specifier -> DOUBLEtok
+[p]: type_specifier -> DOUBLEtok
+[p]: declaration_specifiers -> type_specifier
+[p]: declaration_specifiers -> type_specifier declaration_specifiers
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: external_declaration -> declaration
+[p]: translation_unit -> external_declaration

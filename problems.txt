@@ -1,6 +1,3 @@
-Declarations:
-  struct/union - create scopes and insert elements
-  enum
-  typedef
-  tricky types combinations
-  invalid type handling
+struct/union/enum/typedef
+float conversion
+long int long int
