@@ -107,8 +107,7 @@ after compound_statement.
 *****************************************************************************/
 enter_scope
   : {
-      decl.complete(); // for function definition
-      decl.clear(); // for function definition
+      decl.complete(); // complete function definition
       symTable.pushTable();
 
       // push argments if possible
@@ -119,6 +118,7 @@ enter_scope
           }
         decl.clearArgs();
       }
+      decl.clear(); // clear function definition
     }
 ;
 end_scope

@@ -80,14 +80,15 @@ int Declaration::getArgSize() const{
 // base type *****************************************************************
  bool Declaration::setBaseType(TypeBasic *base, SpecName::BaseType basetype){
   SpecName::BaseType currentBaseType = base->getBaseType();
+  //std::cout << "?: "<< currentBaseType << "->" << basetype << std::endl;
 
   // sign check (no double and float)
   if(base->isSign(SpecName::Signed) || base->isSign(SpecName::Unsigned)){
     if(checkSigned(basetype)){
-      base->setBaseType(basetype);
-      return true;
     }
-    return false;
+    else{
+      return false;
+    }
   }
 
   // no type
@@ -99,8 +100,10 @@ int Declaration::getArgSize() const{
 
   // int check
   if(basetype == SpecName::Int){
-    if(currentBaseType == SpecName::Short || currentBaseType == SpecName::Long || currentBaseType == SpecName::LLong){
-        // keep current type
+    if(currentBaseType == SpecName::Short ||
+       currentBaseType == SpecName::Long  ||
+       currentBaseType == SpecName::LLong){
+        // no change
         return true;
     }
     error("[P]: ERROR: \'"+base->getBaseTypeStr()+" "+base->basetToStr(basetype)+"\' is invalid");
@@ -170,7 +173,7 @@ bool Declaration::checkSigned(SpecName::BaseType type) const{
  bool Declaration::setStorage(SpecName::Storage storage){
   // double storage
   if(this->spec.getStorage() != SpecName::NoStorage){
-    error("[P]: ERROR: Sign already exists");
+    error("[P]: ERROR: Storage already exists");
     return false;
   }
   // function declarator
@@ -211,6 +214,7 @@ bool Declaration::complete(){
   bool complete = false;
   std::string name = this->ids[0];
   //std::cout << "Identifier \'" << name << "\' is processed ..."<< std::endl;
+
   // default: basic mode (no mode)
   if(isMode(DeclMode::NoMode)){
     complete = pushBasic(name);
@@ -256,6 +260,8 @@ void Declaration::clear(){
   this->bases.clear();
   this->signs.clear();
   this->storages.clear();
+
+  clearArgs();
 }
 void Declaration::clearArgs(){
   this->argSize = 0;
@@ -270,20 +276,6 @@ TypeBasic* Declaration::makeBasicType(){
       }
       sign++;
     } // end sign
-
-    // set storage
-    int storage = 0;
-    while(storage < this->storages.size() && this->storages[storage] != 0){
-      if(!setStorage(this->storages[storage])){
-        return NULL;
-      }
-      storage++;
-    } // end storage
-
-    // local variable has auto by default
-    if(this->spec.getStorage() == SpecName::NoStorage && symTable.getLevel() > 1){
-      this->spec.setStorage(SpecName::Auto);
-    }
 
     TypeBasic *basetype = new TypeBasic(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
 
@@ -300,13 +292,33 @@ TypeBasic* Declaration::makeBasicType(){
   return basetype;
 }
 bool Declaration::pushBasic(std::string name){
+  // set storage
+  int storage = 0;
+  while(storage < this->storages.size() && this->storages[storage] != 0){
+    if(!setStorage(this->storages[storage])){
+      return false;
+    }
+    storage++;
+  } // end storage
+
+  // local variable has auto by default
+  if(this->spec.getStorage() == SpecName::NoStorage && symTable.getLevel() > 1){
+    this->spec.setStorage(SpecName::Auto);
+  }
+
   TypeBasic *base = makeBasicType();
   if(base == NULL){
     return false;
   }
+
+  // no void
+  if(base->getBaseType() == SpecName::Void){
+    error("[P]: ERROR: variable has incomplete type \'void\'");
+  }
+
   // insert basic
   SymbolNode *val = new SymbolNode(name,base,base->toString(),this->pos[0]);
-  return symTable.insertSymbol(name, val);
+  return insertSymbol(name,val);
 }
 
 bool Declaration::pushArray(std::string name){
@@ -317,6 +329,14 @@ bool Declaration::pushArray(std::string name){
       return false;
     }
   }
+  // set storage
+  int storage = 0;
+  while(storage < this->storages.size() && this->storages[storage] != 0){
+    if(!setStorage(this->storages[storage])){
+      return false;
+    }
+    storage++;
+  } // end storage
 
   // local variable has auto by default
   if(this->spec.getStorage() == SpecName::NoStorage && symTable.getLevel() > 1){
@@ -324,6 +344,7 @@ bool Declaration::pushArray(std::string name){
   }
 
   TypeArray *array = new TypeArray(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
+
   // basic type
   if(this->kinds[0] == SpecName::Basic){
     TypeBasic *base = makeBasicType();
@@ -340,7 +361,7 @@ bool Declaration::pushArray(std::string name){
 
   // insert array
   SymbolNode *val = new SymbolNode(name,array,array->toString(),this->pos[0]);
-  return symTable.insertSymbol(name, val);
+  return insertSymbol(name, val);
 }
 bool Declaration::pushPointer(std::string name){
 
@@ -364,7 +385,7 @@ bool Declaration::pushPointer(std::string name){
 
   // insert pointer
   SymbolNode *val = new SymbolNode(name,pointer,pointer->toString(),this->pos[0]);
-  return symTable.insertSymbol(name, val);
+  return insertSymbol(name, val);
 }
 bool Declaration::pushFunction(std::string name){
   TypeFunction *function = new TypeFunction(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
@@ -378,10 +399,6 @@ bool Declaration::pushFunction(std::string name){
 
   // return type  ===========================================================
   {
-    // ignore dummy values
-    if(this->bases[base] == 0){base++;}
-    if(this->signs[sign] == 0){sign++;}
-
     while(this->kinds[kind] != 0){
 
       // basic ---------------------------------------------------
@@ -493,12 +510,21 @@ bool Declaration::pushFunction(std::string name){
 
   // insert function
   SymbolNode *val = new SymbolNode(name, function, function->toString(), this->pos[0]);
-  return symTable.insertSymbol(name, val);
+  return insertSymbol(name, val);
 }
 
+bool Declaration::insertSymbol(std::string name, SymbolNode* val){
+  if(symTable.lookupTopTable(name)){
+    error("[S]: ERROR: Redefinition of \'"+name+"\'");
+  }
+  else if(symTable.lookUpShadowedSymbol(name)) {
+    std::cout << "[S]: WARNING: Symbol \'"+name+"\' shadows another in parent level\n";
+  }
+
+  return symTable.insertSymbol(name, val);
+}
 // debug ********************************************************************
 void Declaration::showIDs() const{
-   std::cout << "IDs:" << std::endl;
    for(int id = 0;id < this->ids.size(); id++){
      std::cout << id << ": " << this->ids[id] << std::endl;
    }
@@ -516,5 +542,10 @@ void Declaration::showKinds() const{
 void Declaration::showBases() const{
   for(int n = 0; n < this->bases.size(); n++){
     std::cout << this->bases[n] << std::endl;
+  }
+}
+void Declaration::showStorages() const{
+  for(int n = 0; n < this->storages.size(); n++){
+    std::cout << this->storages[n] << std::endl;
   }
 }
