@@ -101,6 +101,15 @@ enter_scope
       decl.complete(); // for function definition
       decl.clear(); // for function definition
       symTable.pushTable();
+
+      // push argments if possible
+      std::vector<SymbolNode*> args = decl.getArgSymbolNodes();
+      if(args.size() > 0){
+        for(int arg = 0; arg < args.size(); arg++){
+          symTable.insertSymbol(args[arg]->getName(),args[arg]);
+          }
+        decl.clearArgs();
+      }
     }
 ;
 end_scope
@@ -219,23 +228,23 @@ typedef specifier
 storage_class_specifier
   : AUTOtok {
     reductionOut("[p]: storage_class_specifier -> AUTOtok");
-    decl.setStorage(SpecName::Auto);
+    decl.pushStorage(SpecName::Auto);
   }
   | REGISTERtok {
     reductionOut("[p]: storage_class_specifier -> REGISTERtok");
-    decl.setStorage(SpecName::Register);
+    decl.pushStorage(SpecName::Register);
   }
   | STATICtok {
     reductionOut("[p]: storage_class_specifier -> STATICtok");
-    decl.setStorage(SpecName::Static);
+    decl.pushStorage(SpecName::Static);
   }
   | EXTERNtok {
     reductionOut("[p]: storage_class_specifier -> EXTERNtok");
-    decl.setStorage(SpecName::Extern);
+    decl.pushStorage(SpecName::Extern);
   }
   | TYPEDEFtok {
     reductionOut("[p]: storage_class_specifier -> TYPEDEFtok");
-    decl.setStorage(SpecName::Typedef);
+    decl.pushStorage(SpecName::Typedef);
   }
   ;
 
@@ -467,6 +476,7 @@ direct_declarator
       decl.pushKind(SpecName::NoKind);
       decl.pushBase(SpecName::NoType);
       decl.pushSign(SpecName::NoSign);
+      decl.pushStorage(SpecName::NoStorage);
   }
   | OPEN_PARENtok declarator CLOSE_PARENtok {
       // e.g., (*a)[COLS]
@@ -553,7 +563,6 @@ parameter_list
   }
   | parameter_list COMMAtok parameter_declaration {
       reductionOut("[p]: parameter_list -> parameter_list COMMAtok parameter_declaration");
-      decl.incArgSize();
   }
   ;
 

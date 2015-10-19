@@ -11,8 +11,8 @@ float f2d[20];
 int i3d[2][2][2];
 
 int foo();
-unsigned int boo(float x, signed int y, long double z);
-void zoo(int a, int b){
+unsigned int boo(float x, long double z);
+void zoo(int a, register unsigned int b){
   int x, y;
   //!!S
 }

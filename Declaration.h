@@ -9,7 +9,7 @@ extern SymbolTable symTable;
 extern void error(const std::string& message);
 namespace DeclMode{
   enum Mode{
-    NoMode, Basic, Pointer, Array, Enum, Struct, Union, Function, FunctionCall
+    NoMode, Basic, Pointer, Array, Enum, Struct, Union, Function, FunctionCall, FunctionArg
   };
 };
 
@@ -33,6 +33,8 @@ class Declaration{
 
   std::string getID(int idx) const;
   std::string getSpecStr(int idx) const;
+  int getArgSize() const;
+  std::vector<SymbolNode*> getArgSymbolNodes() const;
 
   Spec* getSpec();
 
@@ -48,8 +50,10 @@ class Declaration{
   void setMode(DeclMode::Mode mode);
   bool isMode(DeclMode::Mode mode) const;
 
+  void clearArgs();
   void clear();
   bool complete();
+
   TypeBasic* makeBasicType();
   bool pushBasic(std::string name);
   bool pushArray(std::string name);
@@ -73,10 +77,12 @@ class Declaration{
   std::vector<int> arraySizes; // for multi dimension
   int levels; // pointer deepness
   int argSize; // function argments
+  std::vector<SymbolNode*> argSymbolNodes;
 
   std::vector<std::string> specs;
   std::vector<SpecName::Sign> signs;
   std::vector<SpecName::Qualifier> qualifiers;
   std::vector<SpecName::Storage> storages;
+
 };
 #endif

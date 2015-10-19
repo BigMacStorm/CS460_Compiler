@@ -452,13 +452,10 @@
 [p]: translation_unit -> translation_unit external_declaration
 [L]: Next symbol -> unsigned
 [p]: type_specifier -> UNSIGNEDtok
-[L]: Next symbol -> signed
-[p]: type_specifier -> SIGNEDtok
 [L]: Next symbol -> int
 [p]: type_specifier -> INTtok
 [L]: Next symbol -> boo
 [p]: declaration_specifiers -> type_specifier
-[p]: declaration_specifiers -> type_specifier declaration_specifiers
 [p]: declaration_specifiers -> type_specifier declaration_specifiers
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
@@ -473,19 +470,6 @@
 [p]: declarator -> direct_declarator
 [p]: parameter_declaration -> declaration_specifiers declarator
 [p]: parameter_list -> parameter_declaration
-[L]: Next symbol -> signed
-[p]: type_specifier -> SIGNEDtok
-[L]: Next symbol -> int
-[p]: type_specifier -> INTtok
-[L]: Next symbol -> y
-[p]: declaration_specifiers -> type_specifier
-[p]: declaration_specifiers -> type_specifier declaration_specifiers
-[p]: identifier -> IDENTIFIERtok
-[p]: direct_declarator -> identifier
-[L]: Next symbol -> ,
-[p]: declarator -> direct_declarator
-[p]: parameter_declaration -> declaration_specifiers declarator
-[p]: parameter_list -> parameter_list COMMAtok parameter_declaration
 [L]: Next symbol -> long
 [p]: type_specifier -> LONGtok
 [L]: Next symbol -> double
@@ -505,6 +489,9 @@
 [p]: declarator -> direct_declarator
 [p]: init_declarator -> declarator
 [p]: init_declarator_list -> init_declarator
+[S]: Symbol boo is not found at top level
+[S]: Symbol boo is not found at any parent level
+[S]: Symbol boo is inserted at top level
 [p]: declaration -> declaration_specifiers init_declarator_list SEMItok
 [p]: external_declaration -> declaration
 [p]: translation_unit -> translation_unit external_declaration
@@ -525,10 +512,16 @@
 [p]: declarator -> direct_declarator
 [p]: parameter_declaration -> declaration_specifiers declarator
 [p]: parameter_list -> parameter_declaration
+[L]: Next symbol -> register
+[p]: storage_class_specifier -> REGISTERtok
+[L]: Next symbol -> unsigned
+[p]: type_specifier -> UNSIGNEDtok
 [L]: Next symbol -> int
 [p]: type_specifier -> INTtok
 [L]: Next symbol -> b
 [p]: declaration_specifiers -> type_specifier
+[p]: declaration_specifiers -> type_specifier declaration_specifiers
+[p]: declaration_specifiers -> storage_class_specifier declaration_specifiers
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
 [L]: Next symbol -> )
@@ -543,6 +536,18 @@
 [S]: Symbol zoo is not found at any parent level
 [S]: Symbol zoo is inserted at top level
 [S]: A new symbol table is pushed on ===========================================
+[S]: Symbol x is not found at top level
+[S]: Symbol x is not found at any parent level
+[S]: Symbol x is inserted at top level
+[S]: Symbol z is not found at top level
+[S]: Symbol z is not found at any parent level
+[S]: Symbol z is inserted at top level
+[S]: Symbol a is not found at top level
+[S]: Symbol a is not found at any parent level
+[S]: Symbol a is inserted at top level
+[S]: Symbol b is not found at top level
+[S]: Symbol b is not found at any parent level
+[S]: Symbol b is inserted at top level
 [L]: Next symbol -> int
 [p]: type_specifier -> INTtok
 [L]: Next symbol -> x
@@ -553,9 +558,8 @@
 [p]: declarator -> direct_declarator
 [p]: init_declarator -> declarator
 [p]: init_declarator_list -> init_declarator
-[S]: Symbol x is not found at top level
-[S]: Symbol x is not found at any parent level
-[S]: Symbol x is inserted at top level
+[S]: Symbol x is found at top level
+[S]: Symbol x is updated
 [L]: Next symbol -> y
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
