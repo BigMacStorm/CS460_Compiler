@@ -12,7 +12,6 @@ signed long double c;
 // storage
 auto int x = 0;
 register int y = 0;
-typedef int xx;
 
 int main(){
 
