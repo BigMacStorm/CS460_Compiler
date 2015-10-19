@@ -1075,6 +1075,9 @@ postfix_expression
 primary_expression
   : identifier {
       reductionOut("[p]: primary_expression -> identifier");
+      if(!symTable.lookupSymbol($1)) {
+        error("error: identifier not found\n");
+      }
   }
   | constant {
       reductionOut("[p]: primary_expression -> constant");
