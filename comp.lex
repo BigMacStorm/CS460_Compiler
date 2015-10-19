@@ -15,6 +15,7 @@
 	void printLine();
 %}
 
+
 %option noyywrap
 %option yylineno
 
@@ -64,7 +65,7 @@ scomment "//".*
                     printf("comment start");
                     BEGIN(COMMENT);
                 }
-<COMMENT>\n     {   addLine(yylex); }
+<COMMENT>\n     {   addLine(yyleng); }
 <COMMENT>.      ;
 <COMMENT>"*/"   {
                     //end comment block
@@ -384,7 +385,7 @@ void addLine(int matchedLine)
 
 void zeroCol()
 {
-	colnum = colnum = 1;
+	colnum = 1;
 }
 
 void printToStderr(char* errormsg)
