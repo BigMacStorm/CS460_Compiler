@@ -1,22 +1,26 @@
 Symbol Tables
 ====================================================
 [Symbol table #1]
-Symbol: x, int @16
-Symbol: y, int @16
+Symbol: a, unsigned int auto @15
+Symbol: b, int register @15
+Symbol: x, int auto @16
+Symbol: y, int auto @16
+Symbol: z, long double auto @14
 --------------------------------------------------
 [Symbol table #0]
+Symbol: boo, unsigned int(float,long double) @14
 Symbol: cd, double const @2
 Symbol: cvi, int const volatile @4
-Symbol: edl, long double[10] extern @9
+Symbol: edl, long double[10] @9
 Symbol: f2d, float[20] @10
 Symbol: foo, int() @13
 Symbol: i3d, int[2][2][2] @11
-Symbol: lscui, unsigned int[1] static const @8
+Symbol: lscui, unsigned int[1] const @8
 Symbol: scvf, float static const volatile @5
 Symbol: scvsll, signed int static const volatile @6
 Symbol: si, signed int @1
 Symbol: vd, double volatile @3
-Symbol: zoo, void(int,int) @15
+Symbol: zoo, void(unsigned int,int) @15
 --------------------------------------------------
 ====================================================
 
@@ -24,19 +28,20 @@ Symbol: zoo, void(int,int) @15
 Symbol Tables
 ====================================================
 [Symbol table #0]
+Symbol: boo, unsigned int(float,long double) @14
 Symbol: cd, double const @2
 Symbol: cvi, int const volatile @4
-Symbol: edl, long double[10] extern @9
+Symbol: edl, long double[10] @9
 Symbol: f2d, float[20] @10
 Symbol: foo, int() @13
 Symbol: i3d, int[2][2][2] @11
-Symbol: lscui, unsigned int[1] static const @8
+Symbol: lscui, unsigned int[1] const @8
 Symbol: s11, Struct/Union @-1
 Symbol: scvf, float static const volatile @5
 Symbol: scvsll, signed int static const volatile @6
 Symbol: si, signed int @1
 Symbol: vd, double volatile @3
-Symbol: zoo, void(int,int) @15
+Symbol: zoo, void(unsigned int,int) @15
 --------------------------------------------------
 ====================================================
 
@@ -44,20 +49,21 @@ Symbol: zoo, void(int,int) @15
 Symbol Tables
 ====================================================
 [Symbol table #1]
-Symbol: i1, int @38
-Symbol: i2, int[10] @38
-Symbol: i3, int* @38
-Symbol: ip, int* @35
-Symbol: ipp, int** @36
+Symbol: i1, int auto @38
+Symbol: i2, int[10] auto @38
+Symbol: i3, int* auto @38
+Symbol: ip, int* auto @35
+Symbol: ipp, int** auto @36
 --------------------------------------------------
 [Symbol table #0]
+Symbol: boo, unsigned int(float,long double) @14
 Symbol: cd, double const @2
 Symbol: cvi, int const volatile @4
-Symbol: edl, long double[10] extern @9
+Symbol: edl, long double[10] @9
 Symbol: f2d, float[20] @10
 Symbol: foo, int() @13
 Symbol: i3d, int[2][2][2] @11
-Symbol: lscui, unsigned int[1] static const @8
+Symbol: lscui, unsigned int[1] const @8
 Symbol: main, int() @34
 Symbol: s1, Struct/Union @-1
 Symbol: s11, Struct/Union @-1
@@ -66,7 +72,7 @@ Symbol: scvsll, signed int static const volatile @6
 Symbol: si, signed int @1
 Symbol: u1, Struct/Union @-1
 Symbol: vd, double volatile @3
-Symbol: zoo, void(int,int) @15
+Symbol: zoo, void(unsigned int,int) @15
 --------------------------------------------------
 ====================================================
 

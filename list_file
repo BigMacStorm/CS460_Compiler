@@ -334,10 +334,8 @@
 [p]: external_declaration -> declaration
 [p]: translation_unit -> translation_unit external_declaration
 [p]: type_specifier -> UNSIGNEDtok
-[p]: type_specifier -> SIGNEDtok
 [p]: type_specifier -> INTtok
 [p]: declaration_specifiers -> type_specifier
-[p]: declaration_specifiers -> type_specifier declaration_specifiers
 [p]: declaration_specifiers -> type_specifier declaration_specifiers
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
@@ -348,15 +346,6 @@
 [p]: declarator -> direct_declarator
 [p]: parameter_declaration -> declaration_specifiers declarator
 [p]: parameter_list -> parameter_declaration
-[p]: type_specifier -> SIGNEDtok
-[p]: type_specifier -> INTtok
-[p]: declaration_specifiers -> type_specifier
-[p]: declaration_specifiers -> type_specifier declaration_specifiers
-[p]: identifier -> IDENTIFIERtok
-[p]: direct_declarator -> identifier
-[p]: declarator -> direct_declarator
-[p]: parameter_declaration -> declaration_specifiers declarator
-[p]: parameter_list -> parameter_list COMMAtok parameter_declaration
 [p]: type_specifier -> LONGtok
 [p]: type_specifier -> DOUBLEtok
 [p]: declaration_specifiers -> type_specifier
@@ -385,8 +374,12 @@
 [p]: declarator -> direct_declarator
 [p]: parameter_declaration -> declaration_specifiers declarator
 [p]: parameter_list -> parameter_declaration
+[p]: storage_class_specifier -> REGISTERtok
+[p]: type_specifier -> UNSIGNEDtok
 [p]: type_specifier -> INTtok
 [p]: declaration_specifiers -> type_specifier
+[p]: declaration_specifiers -> type_specifier declaration_specifiers
+[p]: declaration_specifiers -> storage_class_specifier declaration_specifiers
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
 [p]: declarator -> direct_declarator
