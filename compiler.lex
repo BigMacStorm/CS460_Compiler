@@ -13,7 +13,6 @@ extern "C"{
 
 extern SymbolTable symTable;
 extern void yyerror(const char* s);
-extern Debugger lexDebugger;
 extern Debugger lexSymbolDebugger;
 unsigned int linenum = 1;
 unsigned int colnum = 1;
@@ -633,8 +632,8 @@ scomment "//".*
 bool checkOverflow (unsigned long long val){
   std::stringstream ss;
   if (val > 4294967295){
-        ss << "[L]: WARNING: Integer overflow" << ", line " << linenum << " col " << colnum;
-        lexDebugger.debug(ss.str());
+        ss << "[L]: ERROR: Integer overflow" << ", line " << linenum << " col " << colnum;
+        std::cout << ss.str() << std::endl;
         return true;
   }
   return false;
@@ -645,8 +644,8 @@ void checkIDLength(char* charInput){
     std::stringstream ss;
 
     if (len >= 32){
-        ss << "[L]: WARNING: Very long ID " << charInput << ", line " << linenum << " col " << colnum;
-        lexDebugger.debug(ss.str());
+        ss << "[L]: ERROR: Very long ID " << charInput << ", line " << linenum << " col " << colnum;
+        std::cout << ss.str() << std::endl;
     }
 }
 
@@ -683,7 +682,7 @@ unsigned long long btoi(char* text){
     }else{
       isValid = false;
       ss << "[L]: ERROR: invalid digit \'" << *text << "\' in binary constant, line " << linenum << " col " << colnum;
-      lexDebugger.debug(ss.str());
+      std::cout << ss.str() << std::endl;
     }
   }
   return val;
@@ -702,7 +701,7 @@ unsigned long long htoi(char* text){
     }else{
       isValid = false;
       ss << "[L]: ERROR: invalid digit \'" << *text << "\' in octal constant, line " << linenum << " col " << colnum;
-      lexDebugger.debug(ss.str());
+      std::cout << ss.str() << std::endl;
     }
   }
   return val;
@@ -719,7 +718,7 @@ unsigned long long otoi(char* text){
     }else{
       isValid = false;
       ss << "[L]: ERROR: invalid digit \'" << *text << "\' in hexadecimal constant, line " << linenum << " col " << colnum;
-      lexDebugger.debug(ss.str());
+      std::cout << ss.str() << std::endl;
     }
   }
   return val;
@@ -735,7 +734,8 @@ int myatoi(char* text){
   }else{
     val = atoll(text);
   }
-  return val;
+
+  return checkOverflow(val);
 }
 
 void dumpNextSymbol(const char* token){
