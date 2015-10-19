@@ -7,6 +7,7 @@ extern "C"{
 #include "SymbolTable.h"
 #include "Debugger.h"
 #include "y.tab.h"
+#include <string.h>
 
 extern SymbolTable symTable;
 extern void yyerror(char* s);
@@ -474,11 +475,15 @@ scomment "//".*
 {id}         {
                 dumpNextSymbol();
                 std::string name(yytext);
-                yylval.sval = yytext;
-                SymbolNode * symNode = new SymbolNode(name, "", yylineno);
-                symTable.insertSymbol(name, symNode);
+
+                // Node construction and insertion is done by the parser
+                //SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
+                //symTable.insertSymbol(name, symNode);
+
                 addCol(yyleng);
                 checkIDLength(yytext);
+
+                strcpy(yylval.sval, name.c_str()); // Pass the id's name to yacc
                 return(IDENTIFIERtok);
              }
 {int_const}       {
@@ -501,7 +506,10 @@ scomment "//".*
                   }
 {string_literal}  {
                     dumpNextSymbol();
-                    yylval.sval = yytext;
+
+                    //yylval.sval = yytext;
+                    strcpy(yylval.sval, yytext); // Because c strings
+
                     addCol(yyleng);
                     return(STRING_LITERALtok);
                   }
