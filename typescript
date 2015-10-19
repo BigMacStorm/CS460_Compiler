@@ -1,11 +1,11 @@
-Script started on Mon 19 Oct 2015 05:21:36 AM PDT
+Script started on Mon 19 Oct 2015 08:49:00 AM PDT
 ]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ls
-[0m[01;34mcalculator[0m    Debugger.cpp     ff             [01;34mreferences[0m       SymbolTable.h
-[01;34mclang[0m         Debugger.h       lexDriver.c    Spec.cpp         [01;34mtestcases[0m
-[01;32mcompiler.lex[0m  Declaration.cpp  Makefile       Spec.h           todo.txt
-compiler.y    Declaration.h    problems.txt   SymbolNode.cpp   typescript
-comp.lex      driver.cpp       README         SymbolNode.h
-comp.y        [01;34mfailcases[0m        redefshadow.c  SymbolTable.cpp
+[0m[01;34mcalculator[0m    Debugger.cpp     [01;34mfailcases[0m     README          SymbolTable.cpp
+[01;34mclang[0m         Debugger.h       ff            [01;34mreferences[0m      SymbolTable.h
+[01;32mcompiler.lex[0m  Declaration.cpp  lexDriver.c   Spec.cpp        [01;34mtestcases[0m
+compiler.y    Declaration.h    llog.txt      Spec.h          todo.txt
+comp.lex      directions.txt   Makefile      SymbolNode.cpp  typescript
+comp.y        driver.cpp       problems.txt  SymbolNode.h
 ]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ make clean
 rm -f compiler lex.yy.* y.tab.* y.output *.o  *~
 ]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ make
@@ -108,24 +108,20 @@ Declaration.cpp:548:42: warning: comparison between signed and unsigned integer 
    for(int n = 0; n < this->storages.size(); n++){
                                           ^
 g++ -o compiler driver.o lex.yy.o y.tab.o Debugger.o Spec.o SymbolNode.o SymbolTable.o Declaration.o -ll -ly
-]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler int.c < testcases/int.c
-int.list
-]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler int.c < testcases/int.c[1P[1P[1P[1@s[1@c[1@o[1@p[1@e[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P.c[1P.c[1P.cs.cc.co.cp.ce.c
-scope.list
-Error: invalid base type
-[S]: ERROR: Redefinition of 'z'[S]: WARNING: Symbol 'x' shadows another in parent level
-[S]: ERROR: Redefinition of 'w'Error: invalid base type
-[S]: WARNING: Symbol 'a' shadows another in parent level
-[S]: ERROR: Redefinition of 'foo']0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ 
-]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler scope.c < testcases/scope.c[1P[1P[1P[1P[1P[1@t[1@e[1@s[1@t[1@1[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P.c[1P.c[1P.c[1P.c[1P.ct.ce.cs.ct.c1.c
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./comp[K[K[K[K[K[K./compiler test1.c < test1.c
 test1.list
-]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test1.c < testcases/test1.c[C[1P[1@2[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P.c2.c
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test1.c < test1.c[1P.c2.c[C[1P[1@2
 test2.list
-]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test2.c < testcases/test2.c[1P[1@3[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P.c3.c
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test2.c < test2.c[1P.c3.c[1P[1@3
 test3.list
-]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test3.c < testcases/test3.c[1P[1@4[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P.c4.c
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test3.c < test3.c[1P.c4.c[1P[1@4
 test4.list
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test4.c < test4.c[1P.c5.c[1P[1@5
+test5.list
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test5.c < test5.c[1P.c6.c[1P[1@6
+test6.list
+error: identifier not found
 ]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ exit
 exit
 
-Script done on Mon 19 Oct 2015 05:23:53 AM PDT
+Script done on Mon 19 Oct 2015 08:51:05 AM PDT
