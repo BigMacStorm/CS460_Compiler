@@ -1,7 +1,7 @@
 #include "SymbolTable.h"
 SymbolTable* SymbolTable::instance = NULL;
 
-SymbolTable::SymbolTable(){
+SymbolTable::SymbolTable(): levels(0){
   this->debugger = new Debugger();
 }
 SymbolTable::~SymbolTable(){
@@ -14,30 +14,42 @@ SymbolTable* SymbolTable::getInstance(){
   }
   return SymbolTable::instance;
 }
+int SymbolTable::getLevel() const{
+  return this->levels;
+}
 void SymbolTable::pushTable(std::map<std::string,SymbolNode*> newSymTable){
-  this->symTables.push(newSymTable);
+  this->levels++;
+  this->symTables.push_back(newSymTable);
+  this->debugger->debug("[S]: A new symbol table is pushed on ===========================================");
 }
 
 void SymbolTable::pushTable(){
   std::map<std::string,SymbolNode*> newSymTable;
-  this->symTables.push(newSymTable);
-  this->debugger->debug("[S]: A new symbol table is pushed on ===============");
+  this->levels++;
+  this->symTables.push_back(newSymTable);
+  this->debugger->debug("[S]: A new symbol table is pushed on ===========================================");
 }
 
 void SymbolTable::popTable(){
-  this->symTables.pop();
-  this->debugger->debug("[S]: The top symbol table is popped off ============");
+  this->levels--;
+  this->symTables.pop_back();
+  this->debugger->debug("[S]: The top symbol table is popped off ========================================");
 }
-
+bool SymbolTable::empty() const{
+  if(this->levels <= 0){
+    this->debugger->debug("[S]: No Symbol Table");
+    return true;
+  }
+  return false;
+}
 bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
-  SymbolNode* content;
-
-  if(this->symTables.empty()){
+  if(empty()){
     return false;
   }
+  // declarations/initializations
+  SymbolNode* content = lookupTopTable(key);
 
-  content = lookupTopTable(key);
-  this->symTables.top()[key] = val;
+  this->symTables[this->levels-1][key] = val;
   if(content == NULL){
     content = lookUpShadowedSymbol(key);
     if(content == NULL){
@@ -59,15 +71,15 @@ SymbolNode* SymbolTable::lookupTopTable(const std::string& key)
 otherwise, it returns NULL.
 */
 {
-  // declarations/initializations
-  std::map<std::string,SymbolNode*> currentSymTable = this->symTables.top();
-  SymbolNode * val = NULL;
-
-  if(this->symTables.empty()){
+  if(empty()){
     return NULL;
   }
-  if(currentSymTable.find(key) != currentSymTable.end()){
-      val = currentSymTable[key];
+
+  // declarations/initializations
+  SymbolNode * val = NULL;
+
+  if(this->symTables[this->levels-1].find(key) != this->symTables[this->levels-1].end()){
+      val = this->symTables[this->levels-1][key];
     }
   if(val != NULL){
     this->debugger->debug("[S]: Symbol "+key+" is found at top level");
@@ -82,35 +94,21 @@ SymbolNode* SymbolTable::lookUpShadowedSymbol(const std::string& key)
 it finds; otherwise, it returns NULL.
 */
 {
+  if(empty()){
+    return NULL;
+  }
+
   // declarations/initializations
-  std::stack< std::map<std::string,SymbolNode*> > tmpSymTables;
-  std::map<std::string,SymbolNode*> currentSymTable;
   SymbolNode* val = NULL;
   bool found = false;
   int level = 2;
 
-  if(this->symTables.empty()){
-    return NULL;
-  }
-
-  // pop off the top level
-  currentSymTable = this->symTables.top();
-  this->symTables.pop();
-  tmpSymTables.push(currentSymTable);
-
-  while(!found && !this->symTables.empty()){
-    currentSymTable = this->symTables.top();
-    if(currentSymTable.find(key) != currentSymTable.end()){
-      val = currentSymTable[key];
+  //ignore the top level
+  for(int level = this->levels - 2; level >= 0; --level){
+    if(symTables[level].find(key) != symTables[level].end()){
+      val = symTables[level][key];
       found = true;
     }
-    tmpSymTables.push(currentSymTable);
-    this->symTables.pop();
-    level++;
-  }
-  while(!tmpSymTables.empty()){
-    this->symTables.push(tmpSymTables.top());
-    tmpSymTables.pop();
   }
 
   if(found){
@@ -134,18 +132,13 @@ if the key is found; otherwise, it returns NULL.
   return val;
 }
 void SymbolTable::writeFile(){
-
-  // declarations/initializations
-  std::ofstream fout;
-  std::stack< std::map<std::string,SymbolNode*> > tmpSymTables;
-  std::map<std::string,SymbolNode*> currentSymTable;
-  std::map<std::string,SymbolNode*>::iterator iter;
-  Spec* spec;
-  int level;
-
-  if(this->symTables.empty()){
+  if(empty()){
     return;
   }
+  // declarations/initializations
+  std::ofstream fout;
+  std::map<std::string,SymbolNode*>::iterator iter;
+  int level;
 
   fout.open(filename.c_str(), std::ofstream::app);
   fout << "Symbol Tables\n"
@@ -153,31 +146,19 @@ void SymbolTable::writeFile(){
   level = 1;
 
   // dump symbol tables
-  while(!this->symTables.empty()){
-    currentSymTable = this->symTables.top();
-    fout << "[Symbol table #" << level << "]"<< std::endl;
+  for(int level = this->levels - 1; level >= 0; --level){
+      fout << "[Symbol table #" << level << "]"<< std::endl;
 
-    for(iter = currentSymTable.begin(); iter != currentSymTable.end(); ++iter){
-      spec = (*iter->second).getSpec();
-      fout << "Symbol: " << iter->first << "; ";
-      if(spec != NULL){
-        fout << spec->getSpecStr();
+      for(iter = this->symTables[level].begin(); iter != this->symTables[level].end(); ++iter){
+        fout << "Symbol: " << iter->first << ", ";
+        fout << (*iter->second).getSpecName() << " ";
+        fout << "@" << (*iter->second).getPos();
+        fout << "\n";
       }
-      fout << "Position: " << (*iter->second).getPos() << ";";
-      fout << "\n";
+      fout << "--------------------------------------------------" << std::endl;
     }
-    fout << "--------------------------------------------------" << std::endl;
+    fout << "====================================================\n\n" << std::endl;
 
-    tmpSymTables.push(currentSymTable);
-    this->symTables.pop();
-    level++;
-  }
-  fout << "====================================================\n\n" << std::endl;
-
-  while(!tmpSymTables.empty()){
-    this->symTables.push(tmpSymTables.top());
-    tmpSymTables.pop();
-  }
   fout.close();
 }
 Debugger* SymbolTable::getDebugger() const{

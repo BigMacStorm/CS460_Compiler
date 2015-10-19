@@ -7,6 +7,7 @@ extern "C"{
 #include "SymbolTable.h"
 #include "Debugger.h"
 #include "y.tab.h"
+#include <string.h>
 
 extern SymbolTable symTable;
 extern void yyerror(char* s);
@@ -28,7 +29,7 @@ void dumpNextSymbol();
 unsigned long long btoi(char*);
 unsigned long long otoi(char* text);
 unsigned long long htoi(char* text);
-unsigned long long myatoi(char*);
+int myatoi(char*);
 %}
 
 %option noyywrap
@@ -485,15 +486,18 @@ scomment "//".*
 {id}         {
                 dumpNextSymbol();
                 std::string name(yytext);
-                SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
-                symTable.insertSymbol(name, symNode);
+                strcpy(yylval.sval, yytext);
+                // SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
+                // symTable.insertSymbol(name, symNode);
                 addCol(yyleng);
                 checkIDLength(yytext);
+
+                strcpy(yylval.sval, name.c_str()); // Pass the id's name to yacc
                 return(IDENTIFIERtok);
              }
 {int_const}       {
                     dumpNextSymbol();
-                    yylval.ullval = myatoi(yytext);
+                    yylval.ival = myatoi(yytext);
                     addCol(yyleng);
                     return(INTEGER_CONSTANTtok);
                   }
@@ -511,7 +515,7 @@ scomment "//".*
                   }
 {string_literal}  {
                     dumpNextSymbol();
-                    yylval.sval = yytext;
+                    strcpy(yylval.sval, yytext);
                     addCol(yyleng);
                     return(STRING_LITERALtok);
                   }
@@ -619,9 +623,8 @@ unsigned long long otoi(char* text){
   }
   return val;
 }
-unsigned long long myatoi(char* text){
+int myatoi(char* text){
   unsigned long long val = 0;
-
   if(text[0] == '0' && (text[1] == 'b' || text[1] == 'B')){
     val = btoi(text+2);
   }else if(text[0] == '0' && (text[1] == 'x' || text[1] == 'X')){
@@ -636,6 +639,6 @@ unsigned long long myatoi(char* text){
 
 void dumpNextSymbol(){
   std::stringstream ss;
-  ss << "[L] Next symbol -> " << yytext;
+  ss << "[L]: Next symbol -> " << yytext;
   lexSymbolDebugger.debug(ss.str());
 }

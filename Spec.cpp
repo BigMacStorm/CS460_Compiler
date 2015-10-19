@@ -5,8 +5,9 @@ Spec::Spec(SpecName::TypeKind tk, SpecName::Storage sc,
   this->storage = sc;
   this->qualifier = tq;
   this->sign = sign;
+  this->baseType = SpecName::NoType;
 }
-
+Spec::~Spec(){}
 SpecName::TypeKind Spec::getTypeKind() const{
   return this->typekind;
 }
@@ -19,7 +20,6 @@ SpecName::Qualifier Spec::getQualifier() const{
 SpecName::Sign Spec::getSign() const{
   return this->sign;
 }
-
 void Spec::setTypeKind(SpecName::TypeKind typekind){
   this->typekind = typekind;
 }
@@ -45,17 +45,20 @@ bool Spec::isTypeQualifier(SpecName::Qualifier type) const {
 bool Spec::isSign(SpecName::Sign type) const {
   return this->sign == type;
 }
-
-std::string Spec::getSpecStr() const{
+std::string Spec::toString() const{
   std::stringstream ss;
-  ss << "TypeKind: "<< getTypeKindStr() << "| "
-     << "StorageClass: "<< getStorageClassStr() << "| "
-     << "TypeQualifier: "<< getTypeQualifierStr() << "| ";
+  ss << "TypeKind: "<< this->getTypeKindStr()
+     << " Storage: "<< this->getStorageClassStr()
+     << " Qualifier: "<< this->getTypeQualifierStr()
+     << " Sign: "<< this->getSignStr();
   return ss.str();
 }
 std::string Spec::getTypeKindStr() const{
   std::string result;
-  if(this->typekind == SpecName::Basic){
+  if(this->typekind == SpecName::NoKind){
+    // none
+  }
+  else if(this->typekind == SpecName::Basic){
     result = "basic";
   }
   else if(this->typekind == SpecName::Pointer){
@@ -86,7 +89,10 @@ std::string Spec::getTypeKindStr() const{
 }
 std::string Spec::getStorageClassStr() const{
   std::string result;
-  if(this->storage == SpecName::Extern){
+  if(this->storage == SpecName::NoStorage){
+    // none
+  }
+  else if(this->storage == SpecName::Extern){
     result = "extern";
   }
   else if(this->storage == SpecName::Static){
@@ -101,6 +107,7 @@ std::string Spec::getStorageClassStr() const{
   else if(this->storage == SpecName::Typedef){
     result = "typedef";
   }
+  else if(this->storage == SpecName::NoStorage){}
   else{
     std::cout << "Error: invalid storage class" << std::endl;
   }
@@ -108,7 +115,10 @@ std::string Spec::getStorageClassStr() const{
 }
 std::string Spec::getTypeQualifierStr() const{
   std::string result;
-  if(this->qualifier == SpecName::Const){
+  if(this->qualifier == SpecName::NoQualifier){
+    // none
+  }
+  else if(this->qualifier == SpecName::Const){
     result = "const";
   }
   else if(this->qualifier == SpecName::Volatile){
@@ -122,71 +132,112 @@ std::string Spec::getTypeQualifierStr() const{
   }
   return result;
 }
+std::string Spec::getSignStr() const{
+  std::string result;
+  if(this->sign == SpecName::NoSign){
+    // none
+  }
+  else if(this->sign == SpecName::Signed){
+    result = "signed";
+  }
+  else if(this->sign == SpecName::Unsigned){
+    result = "unsigned";
+  }
+  else{
+    std::cout << "Error: invalid sign" << std::endl;
+  }
+  return result;
+}
 // Basic -------------------------------------------------------------------
-TypeBasic::TypeBasic(SpecName::BaseType baseType){
+TypeBasic::TypeBasic(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
   this->typekind = SpecName::Basic;
-  this->baseType = baseType;
+  this->storage = sc;
+  this->qualifier = tq;
+  this->sign = sign;
+  this->baseType = SpecName::NoType;
+}
+TypeBasic::~TypeBasic(){}
+std::string TypeBasic::toString() const{
+  std::stringstream ss;
+  std::string temp;
+  temp = this->getTypeName();
+  if(!temp.empty()){
+    ss << temp;
+  }
+  temp = this->getStorageClassStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  temp = this->getTypeQualifierStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  return ss.str();
+}
+std::string TypeBasic::basetToStr(SpecName::BaseType basetype) const{
+  std::string result;
+  if(basetype == SpecName::Void){
+    result = "void";
+  }
+  else if(basetype == SpecName::Char){
+    result = "char";
+  }
+  else if(basetype == SpecName::Int){
+    result = "int";
+  }
+  else if(basetype == SpecName::Short){
+    result = "short";
+  }
+  else if(basetype == SpecName::Long){
+    result = "long";
+  }
+  else if(basetype == SpecName::LLong){
+    result = "long long";
+  }
+  else if(basetype == SpecName::Float){
+    result = "float";
+  }
+  else if(basetype == SpecName::Double){
+    result = "double";
+  }
+  else if(basetype == SpecName::LDouble){
+    result = "long double";
+  }
+  else{
+    std::cout << "Error: invalid base type" << std::endl;
+  }
+  return result;
+}
+std::string TypeBasic::getBaseTypeStr() const{
+  return basetToStr(this->baseType);
+}
+std::string TypeBasic::getTypeName() const{
+  std::string result = basetToStr(this->baseType);
+  std::string temp = this->getSignStr();
+  if(!temp.empty()){
+    result = temp + " " + result;
+  }
+  return result;
+}
+SpecName::BaseType TypeBasic::getBaseType() const{
+  return this->baseType;
 }
 void TypeBasic::setBaseType(SpecName::BaseType baseType){
   this->baseType = baseType;
 }
-std::string TypeBasic::getTypeKindStr() const{
-  std::string result;
-  if(this->baseType == SpecName::Void){
-    result = "void";
-  }
-  else if(this->baseType == SpecName::Char){
-    result = "char";
-  }
-  else if(this->baseType == SpecName::UChar){
-    result = "unsigned char";
-  }
-  else if(this->baseType == SpecName::SChar){
-    result = "signed char";
-  }
-  else if(this->baseType == SpecName::Int){
-    result = "int";
-  }
-  else if(this->baseType == SpecName::UInt){
-    result = "unsigned int";
-  }
-  else if(this->baseType == SpecName::Short){
-    result = "short";
-  }
-  else if(this->baseType == SpecName::UShort){
-    result = "unsigned short";
-  }
-  else if(this->baseType == SpecName::Long){
-    result = "long";
-  }
-  else if(this->baseType == SpecName::ULong){
-    result = "unsigned long";
-  }
-  else if(this->baseType == SpecName::LLong){
-    result = "long long";
-  }
-  else if(this->baseType == SpecName::ULLong){
-    result = "unsigned long long";
-  }
-  else if(this->baseType == SpecName::Float){
-    result = "float";
-  }
-  else if(this->baseType == SpecName::Double){
-    result = "double";
-  }
-  else if(this->baseType == SpecName::LDouble){
-    result = "long double";
-  }
-  else{
-    std::cout << "Error: invalid type kind" << std::endl;
-  }
-  return result;
+bool TypeBasic::isBase(SpecName::BaseType baseType){
+  return this->baseType == baseType;
 }
 
 // enum  ------------------------------------------------------------------
-TypeEnum::TypeEnum(): nextNumber(0){
+TypeEnum::TypeEnum(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
   this->typekind = SpecName::Enum;
-};
+  this->storage = sc;
+  this->qualifier = tq;
+  this->sign = sign;
+  this->baseType = SpecName::NoType;
+  this->nextNumber = 0;
+}
 int TypeEnum::getSize() const{
   return constants.size();
 }
@@ -199,54 +250,144 @@ int TypeEnum::getNextNumber() const{
 }
 
 // array -----------------------------------------------
-TypeArray::TypeArray(Spec*elemType, int size){
+TypeArray::TypeArray(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
   this->typekind = SpecName::Array;
-  this->elemType = elemType;
-  this->size = size;
+  this->storage = sc;
+  this->qualifier = tq;
+  this->sign = sign;
 }
-Spec* TypeArray::getElemType() const{
+std::string TypeArray::toString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << this->elemType;
+  for(int dim = 0; dim < this->arraySizes.size(); dim++){
+    ss << "[" << this->arraySizes[dim] << "]";
+  }
+  temp = this->getStorageClassStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  temp = this->getTypeQualifierStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  return ss.str();
+}
+void TypeArray::setElemType(std::string elemType){
+  this->elemType = elemType;
+}
+void TypeArray::setArraySizes(std::vector<int>& arraySizes){
+  this->arraySizes = arraySizes;
+}
+std::string TypeArray::getElemType() const{
   return this->elemType;
 }
-int TypeArray::getSize() const{
-  return this->size;
+int TypeArray::getSize(int dim) const{
+  return this->arraySizes[dim];
+}
+int TypeArray::getDim() const{
+  return this->arraySizes.size();
 }
 
 // function ------------------------------------------------------------------
-TypeFunction::TypeFunction(Spec*returnType){
+TypeFunction::TypeFunction(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
   this->typekind = SpecName::Function;
-  this->returnType = returnType;
+  this->storage = sc;
+  this->qualifier = tq;
+  this->sign = sign;
 }
-void TypeFunction::insertArg(Spec*argType){
+std::string TypeFunction::toString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << this->returnType + "(";
+  for(int arg = 0; arg < this->argTypes.size(); arg++){
+    ss << this->argTypes[arg];
+    if(arg < this->argTypes.size()-1){
+      ss << ",";
+    }
+  }
+  ss << ")";
+  temp = this->getStorageClassStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  temp = this->getTypeQualifierStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  return ss.str();
+}
+void TypeFunction::insertArg(std::string argType){
   this->argTypes.push_back(argType);
 }
-Spec* TypeFunction::getReturnType() const{
+void TypeFunction::setReturnType(std::string  returnType){
+  this->returnType = returnType;
+}
+std::string  TypeFunction::getReturnType() const{
   return this->returnType;
 }
 int TypeFunction::getArgSize() const{
   return this->argTypes.size();
 }
-Spec* TypeFunction::getArgType(int nth) const{
+std::string  TypeFunction::getArgType(int nth) const{
   return this->argTypes[nth];
 }
-// typedef  ------------------------------------------------------------------
-TypeTypeName::TypeTypeName(Spec*baseType){
+// typename  ------------------------------------------------------------------
+TypeTypeName::TypeTypeName(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
   this->typekind = SpecName::TypeName;
- this->baseType = baseType;
+  this->storage = sc;
+  this->qualifier = tq;
+  this->sign = sign;
+  this->baseSpec = NULL;
 }
-Spec* TypeTypeName::getBaseType() const{
-  return this->baseType;
+Spec* TypeTypeName::getBaseSpec() const{
+  return this->baseSpec;
 }
 // pointer ------------------------------------------------------------------
-TypePointer::TypePointer (Spec*baseType){
+TypePointer::TypePointer(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
   this->typekind = SpecName::Pointer;
- this->baseType = baseType;
+  this->storage = sc;
+  this->qualifier = tq;
+  this->sign = sign;
 }
-Spec* TypePointer::getBaseType() const{
-  return this->baseType;
+std::string TypePointer::toString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << this->targetType;
+  for(int level = 0; level < this->levels; level++){
+    ss << "*";
+  }
+  temp = this->getStorageClassStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  temp = this->getTypeQualifierStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  return ss.str();
+}
+std::string TypePointer::getTargetType() const{
+  return this->targetType;
+}
+int TypePointer::getLevels() const{
+  return this->levels;
+}
+void TypePointer::setTargetType(std::string targetType){
+  this->targetType = targetType;
+}
+void TypePointer::setLevels(int levels){
+  this->levels = levels;
+}
+void TypePointer::incLevel(){
+  this->levels++;
 }
 // Struct -------------------------------------------------------------------
-TypeStruct::TypeStruct(){
+TypeStruct::TypeStruct(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
   this->typekind = SpecName::Struct;
+  this->storage = sc;
+  this->qualifier = tq;
+  this->sign = sign;
 }
 void TypeStruct::addMember(std::string name, Spec* type){
     this->members[name] = type;
@@ -258,8 +399,11 @@ Spec* TypeStruct::findMember(std::string name){
     return NULL;
 }
 // Union ------------------------------------------------------------------
-TypeUnion::TypeUnion(){
+TypeUnion::TypeUnion(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
   this->typekind = SpecName::Union;
+  this->storage = sc;
+  this->qualifier = tq;
+  this->sign = sign;
 }
 void TypeUnion::addMember(std::string name, Spec* type){
     this->members[name] = type;
