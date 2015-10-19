@@ -1,0 +1,145 @@
+Script started on Mon 19 Oct 2015 04:07:59 AM PDT
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ls
+[0m[01;34mcalculator[0m    Debugger.o       lexDriver.c       [01;34mreferences[0m       SymbolTable.o
+[01;34mclang[0m         Declaration.cpp  lex.yy.c          Spec.cpp         [01;34mtestcases[0m
+[01;32mcompiler[0m      Declaration.h    lex.yy.o          Spec.h           todo.txt
+[01;32mcompiler.lex[0m  Declaration.o    llog.txt          Spec.o           typescript
+compiler.y    driver.cpp       Makefile          SymbolNode.cpp   y.output
+comp.lex      driver.o         problems.txt      SymbolNode.h     y.tab.c
+comp.y        [01;34mfailcases[0m        README            SymbolNode.o     y.tab.h
+Debugger.cpp  ff               redefshadow.c     SymbolTable.cpp  y.tab.o
+Debugger.h    int.list         redefshadow.list  SymbolTable.h
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ make clean
+rm -f compiler lex.yy.* y.tab.* y.output *.o  *~
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ make
+g++ -c -g -Wall -std=c++11 driver.cpp -o driver.o
+bison -d --debug --verbose -o y.tab.c compiler.y
+compiler.y: warning: 1 shift/reduce conflict [-Wconflicts-sr]
+flex  compiler.lex
+g++ -c -g -Wall -std=c++11 lex.yy.c -o lex.yy.o
+compiler.lex: In function ‘int yylex()’:
+compiler.lex:89:51: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+                for(int i = 0; i < sourceLine.size(); ++i)
+                                                   ^
+lex.yy.c: At global scope:
+lex.yy.c:2257:17: warning: ‘void yyunput(int, char*)’ defined but not used [-Wunused-function]
+     static void yyunput (int c, register char * yy_bp )
+                 ^
+g++ -c -g -Wall -std=c++11 y.tab.c -o y.tab.o
+compiler.y: In function ‘int yyparse()’:
+compiler.y:117:42: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         for(int arg = 0; arg < args.size(); arg++){
+                                          ^
+g++ -c -g -Wall -std=c++11 Debugger.cpp -o Debugger.o
+g++ -c -g -Wall -std=c++11 Spec.cpp -o Spec.o
+Spec.cpp: In member function ‘virtual std::string TypeArray::toString() const’:
+Spec.cpp:263:48: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int dim = 0; dim < this->arraySizes.size(); dim++){
+                                                ^
+Spec.cpp: In member function ‘virtual std::string TypeFunction::toString() const’:
+Spec.cpp:303:46: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int arg = 0; arg < this->argTypes.size(); arg++){
+                                              ^
+Spec.cpp:305:36: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     if(arg < this->argTypes.size()-1){
+                                    ^
+g++ -c -g -Wall -std=c++11 SymbolNode.cpp -o SymbolNode.o
+g++ -c -g -Wall -std=c++11 SymbolTable.cpp -o SymbolTable.o
+SymbolTable.cpp: In member function ‘void SymbolTable::writeFile()’:
+SymbolTable.cpp:141:7: warning: variable ‘level’ set but not used [-Wunused-but-set-variable]
+   int level;
+       ^
+g++ -c -g -Wall -std=c++11 Declaration.cpp -o Declaration.o
+Declaration.cpp: In member function ‘TypeBasic* Declaration::makeBasicType()’:
+Declaration.cpp:273:35: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     while(sign < this->signs.size() && this->signs[sign] != 0){
+                                   ^
+Declaration.cpp:284:35: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     while(base < this->bases.size() && this->bases[base] != 0){
+                                   ^
+Declaration.cpp: In member function ‘bool Declaration::pushBasic(std::string)’:
+Declaration.cpp:297:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   while(storage < this->storages.size() && this->storages[storage] != 0){
+                                       ^
+Declaration.cpp: In member function ‘bool Declaration::pushArray(std::string)’:
+Declaration.cpp:326:48: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int dim = 0; dim < this->arraySizes.size(); dim++){
+                                                ^
+Declaration.cpp:334:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   while(storage < this->storages.size() && this->storages[storage] != 0){
+                                       ^
+Declaration.cpp: In member function ‘bool Declaration::pushFunction(std::string)’:
+Declaration.cpp:407:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(sign < this->signs.size() && this->signs[sign] != 0){
+                                       ^
+Declaration.cpp:415:45: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(storage < this->storages.size() && this->storages[storage] != 0){
+                                             ^
+Declaration.cpp:426:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(base < this->bases.size() && this->bases[base] != 0){
+                                       ^
+Declaration.cpp:455:34: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for( ; kind < this->kinds.size(); kind++){
+                                  ^
+Declaration.cpp:468:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(sign < this->signs.size() && this->signs[sign] != 0){
+                                       ^
+Declaration.cpp:476:45: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(storage < this->storages.size() && this->storages[storage] != 0){
+                                             ^
+Declaration.cpp:488:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(base < this->bases.size() && this->bases[base] != 0){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showIDs() const’:
+Declaration.cpp:528:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+    for(int id = 0;id < this->ids.size(); id++){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showSigns() const’:
+Declaration.cpp:533:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int n = 0; n < this->signs.size(); n++){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showKinds() const’:
+Declaration.cpp:538:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int n = 0; n < this->kinds.size(); n++){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showBases() const’:
+Declaration.cpp:543:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int n = 0; n < this->bases.size(); n++){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showStorages() const’:
+Declaration.cpp:548:42: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int n = 0; n < this->storages.size(); n++){
+                                          ^
+g++ -o compiler driver.o lex.yy.o y.tab.o Debugger.o Spec.o SymbolNode.o SymbolTable.o Declaration.o -ll -ly
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler <[Ktestcases/int.c < [K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kint.c < testcases/int.c
+int.list
+[S]: ERROR: Redefinition of 'main'[S]: ERROR: Redefinition of 'ib1'[S]: ERROR: Redefinition of 'ib2'[S]: ERROR: Redefinition of 'ib3'[S]: ERROR: Redefinition of 'ih1'[S]: ERROR: Redefinition of 'ih3'[S]: ERROR: Redefinition of 'io1'[S]: ERROR: Redefinition of 'io2'[S]: ERROR: Redefinition of 'id1'[S]: ERROR: Redefinition of 'id2']0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler int.c < testcases/int.c[1P[1P[1P[1@s[1@c[1@o[1@p[1@e[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P.c[1P.c[1P.cs.cc.co.cp.ce.c
+scope.list
+[S]: ERROR: Redefinition of 'a'[S]: ERROR: Redefinition of 'b'[S]: ERROR: Redefinition of 'foo'[S]: ERROR: Redefinition of 'main'warning: shadowing
+[S]: ERROR: Redefinition of 'x'warning: shadowing
+[S]: ERROR: Redefinition of 'y'[S]: ERROR: Redefinition of 'z'Error: invalid base type
+[S]: ERROR: Redefinition of 'z'warning: shadowing
+[S]: ERROR: Redefinition of 'x'[S]: ERROR: Redefinition of 'w'error: redefinition
+[S]: ERROR: Redefinition of 'w'Error: invalid base type
+warning: shadowing
+[S]: ERROR: Redefinition of 'a'error: redefinition
+error: redefinition
+error: redefinition
+[S]: ERROR: Redefinition of 'foo']0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler scope.c < testcases/scope.c[1P[1P[1P[1P[1P[1@t[1@e[1@s[1@tcases/.c < testcases/scope..c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C./compiler testcases/.c < testcases/scope..c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[7Pint.c < testcases/int.c
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ctestcases/.c < testcases/scope..c[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ct.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ce.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cs.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ct.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C1.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C./compiler testcases/.c < testcases/scope..c[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ct.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ce.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cs.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ct.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C1.c < testcases/scope.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C
+[C[C[C[C[C[1P.c[1P.c[1P.c[1P.c[1P.ct.ce.cs.ct.c1.c[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ctest1.c < testcases/te[1Pst1.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ctest1.c < testcases/tes[1Pt1.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ctest1.c < testcases/test[1P1.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ctest1.c < testcases/test1[1P.c[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ctest1.c < testcases/test1.[1Pc[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ctest1.c < testcases/test1.c[K[A]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cest1.c < testcases/test1.c [K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P[1P
+test1.list
+[S]: ERROR: Redefinition of 'si'[S]: ERROR: Redefinition of 'cd'[S]: ERROR: Redefinition of 'vd'[S]: ERROR: Redefinition of 'cvi'[S]: ERROR: Redefinition of 'scvf'[S]: ERROR: Redefinition of 'scvsll'[S]: ERROR: Redefinition of 'lscui'[S]: ERROR: Redefinition of 'edl'[S]: ERROR: Redefinition of 'f2d'[S]: ERROR: Redefinition of 'i3d'[S]: ERROR: Redefinition of 'foo'[S]: ERROR: Redefinition of 'boo'[S]: ERROR: Redefinition of 'zoo'warning: shadowing
+[S]: ERROR: Redefinition of 'x'[S]: ERROR: Redefinition of 'y'[S]: ERROR: Redefinition of 'main'[S]: ERROR: Redefinition of 'ip'[S]: ERROR: Redefinition of 'ipp'[S]: ERROR: Redefinition of 'i1'[S]: ERROR: Redefinition of 'i2'[S]: ERROR: Redefinition of 'i3']0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test1.c < testcases/test1.c[C[C[C[C[C[C[C[K./compiler test1.c < testcases/test1.c[K./compiler test1.c < testcases/test1.c[1P[1@2[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P.c2.c
+test2.list
+[S]: ERROR: Redefinition of 'main'[S]: ERROR: Redefinition of 'foo'[S]: ERROR: Redefinition of 'x'[S]: ERROR: Redefinition of 'foo'[S]: ERROR: Redefinition of 'y']0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test2.c < testcases/test2.c[1P[1@3[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P.c3.c
+test3.list
+[S]: ERROR: Redefinition of 'main'[S]: ERROR: Redefinition of 'c1'[S]: ERROR: Redefinition of 'c2'[S]: ERROR: Redefinition of 'c22'[S]: ERROR: Redefinition of 'c3'[S]: ERROR: Redefinition of 'i1'[S]: ERROR: Redefinition of 'i3'[S]: ERROR: Redefinition of 'i5'[S]: ERROR: Redefinition of 'i6'[S]: ERROR: Redefinition of 'i7'[S]: ERROR: Redefinition of 'i8'[S]: ERROR: Redefinition of 'i9'[S]: ERROR: Redefinition of 'i92'[S]: ERROR: Redefinition of 'i10'[S]: ERROR: Redefinition of 'i11'[S]: ERROR: Redefinition of 'i12'[S]: ERROR: Redefinition of 'i13'[S]: ERROR: Redefinition of 'i14'[S]: ERROR: Redefinition of 'i15'[S]: ERROR: Redefinition of 'i16'[S]: ERROR: Redefinition of 'i17'[S]: ERROR: Redefinition of 'i18'[S]: ERROR: Redefinition of 'i19'[S]: ERROR: Redefinition of 'i20'[S]: ERROR: Redefinition of 'i21'[S]: ERROR: Redefinition of 'i212'[S]: ERROR: Redefinition of 'i22'[S]: ERROR: Redefinition of 'i23'[S]: ERROR: Redefinition of 'f1'[S]: ERROR: Redefinition of 'd1'[S]: ERROR: Redefinition of 'd2']0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test3.c < testcases/test3.c[C[K./compiler test3.c < testcases/test3.c[1P[1@4[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P.c4.c
+test4.list
+[S]: ERROR: Redefinition of 'main'[S]: ERROR: Redefinition of 'x']0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ exit
+exit
+
+Script done on Mon 19 Oct 2015 04:11:06 AM PDT
