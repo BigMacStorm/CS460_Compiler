@@ -20,7 +20,8 @@ extern int colnum;
 extern char* yytext;
 
 // File for writing source lines and reductions to
-const char* LIST_FILE = "list_file";
+//const char* listFileName = "list_file";
+extern std::string listFileName;
 
 void yyerror(const char* message);
 void error(std::string& message);
@@ -1126,9 +1127,9 @@ void yyerror(const char* message) {
 
 // Simultaneous output to debugging and list_file
 void reductionOut(const char* reductionCStr) {
-    // Append the reduction to LIST_FILE
+    // Append the reduction to listFileName
     std::ofstream fout;
-    fout.open(LIST_FILE, std::ofstream::out | std::ofstream::app);
+    fout.open(listFileName, std::ofstream::out | std::ofstream::app);
     fout << reductionCStr << std::endl;
     fout.close();
 

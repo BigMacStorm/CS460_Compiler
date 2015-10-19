@@ -8,6 +8,8 @@ extern "C"{
 #include "Debugger.h"
 #include "y.tab.h"
 #include <string.h>
+#include <vector>
+#include <string>
 
 extern SymbolTable symTable;
 extern void yyerror(const char* s);
@@ -15,6 +17,9 @@ extern Debugger lexDebugger;
 extern Debugger lexSymbolDebugger;
 unsigned int linenum = 1;
 unsigned int colnum = 1;
+
+std::vector<std::string> sourceLine;
+std::string listFileName;
 
 char errormsg [70];
 void addCol(int);
@@ -77,6 +82,7 @@ scomment "//".*
 {newlines}   {
                addLine(yyleng);
                zeroCol();
+               sourceLine.clear();
              }
 {ws}         {  addCol(yyleng); }
 {scomment}   {  addLine(1); }
