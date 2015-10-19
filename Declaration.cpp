@@ -70,6 +70,12 @@ std::string Declaration::getID(int idx) const{
  bool Declaration::isMode(DeclMode::Mode mode) const{
   return this->mode == mode;
  }
+int Declaration::getArgSize() const{
+  return this->argSize;
+ }
+ std::vector<SymbolNode*> Declaration::getArgSymbolNodes() const{
+  return this->argSymbolNodes;
+ }
 
 // base type *****************************************************************
  bool Declaration::setBaseType(TypeBasic *base, SpecName::BaseType basetype){
@@ -162,11 +168,20 @@ bool Declaration::checkSigned(SpecName::BaseType type) const{
 }
  // storage ******************************************************************
  bool Declaration::setStorage(SpecName::Storage storage){
+  // double storage
   if(this->spec.getStorage() != SpecName::NoStorage){
     error("[P]: ERROR: Sign already exists");
     return false;
   }
-  if(symTable.getLevel() == 1){
+  // function declarator
+  else if(isMode(DeclMode::FunctionArg)){
+    if(storage != SpecName::Register){
+      error("[P]: ERROR: invalid storage class specifier in function declarator");
+      return false;
+    }
+  }
+  // top level
+  else if(symTable.getLevel() == 1){
     if(storage == SpecName::Auto || storage == SpecName::Register){
       error("[P]: ERROR: illegal storage class on file-scoped variable");
       return false;
@@ -234,13 +249,17 @@ void Declaration::clear(){
 
   this->arraySizes.clear();
   this->levels = 0;
-  this->argSize = 0;
 
   this->pos.clear();
   this->ids.clear();
   this->kinds.clear();
   this->bases.clear();
   this->signs.clear();
+  this->storages.clear();
+}
+void Declaration::clearArgs(){
+  this->argSize = 0;
+  this->argSymbolNodes.clear();
 }
 TypeBasic* Declaration::makeBasicType(){
     // set sign
@@ -251,6 +270,21 @@ TypeBasic* Declaration::makeBasicType(){
       }
       sign++;
     } // end sign
+
+    // set storage
+    int storage = 0;
+    while(storage < this->storages.size() && this->storages[storage] != 0){
+      if(!setStorage(this->storages[storage])){
+        return NULL;
+      }
+      storage++;
+    } // end storage
+
+    // local variable has auto by default
+    if(this->spec.getStorage() == SpecName::NoStorage && symTable.getLevel() > 1){
+      this->spec.setStorage(SpecName::Auto);
+    }
+
     TypeBasic *basetype = new TypeBasic(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
 
     // set basetype
@@ -284,6 +318,11 @@ bool Declaration::pushArray(std::string name){
     }
   }
 
+  // local variable has auto by default
+  if(this->spec.getStorage() == SpecName::NoStorage && symTable.getLevel() > 1){
+    this->spec.setStorage(SpecName::Auto);
+  }
+
   TypeArray *array = new TypeArray(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
   // basic type
   if(this->kinds[0] == SpecName::Basic){
@@ -304,6 +343,12 @@ bool Declaration::pushArray(std::string name){
   return symTable.insertSymbol(name, val);
 }
 bool Declaration::pushPointer(std::string name){
+
+  // local variable has auto by default
+  if(this->spec.getStorage() == SpecName::NoStorage && symTable.getLevel() > 1){
+    this->spec.setStorage(SpecName::Auto);
+  }
+
   TypePointer *pointer = new TypePointer(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
   pointer->setLevels(this->levels);
 
@@ -323,11 +368,15 @@ bool Declaration::pushPointer(std::string name){
 }
 bool Declaration::pushFunction(std::string name){
   TypeFunction *function = new TypeFunction(this->spec.getStorage(),this->spec.getQualifier(),this->spec.getSign());
-
   int kind = 0;
   int sign = 0;
   int base = 0;
-  // return type
+  int storage = 0;
+
+  bool arg_definition_mode = false;
+  int arg = 0;
+
+  // return type  ===========================================================
   {
     // ignore dummy values
     if(this->bases[base] == 0){base++;}
@@ -344,6 +393,15 @@ bool Declaration::pushFunction(std::string name){
           }
           sign++;
         } // end sign
+
+        // set storage
+        while(storage < this->storages.size() && this->storages[storage] != 0){
+          if(!setStorage(this->storages[storage])){
+            return false;
+          }
+          storage++;
+        } // end storage
+
         TypeBasic *basetype = new TypeBasic();
         basetype->setSign(this->spec.getSign());
 
@@ -362,12 +420,21 @@ bool Declaration::pushFunction(std::string name){
       kind++;
 
     } // end loop
-  } // end return type
+  } // end return type  ======================================================
 
   // reset spec
   this->spec = Spec();
 
-  // argment types
+  // function arguments mode
+  setMode(DeclMode::FunctionArg); // better to check if an arg exists
+
+  // check if arg has id
+  if(ids.size()*2 == kinds.size()){ // not quite right way
+    arg_definition_mode = true;
+    arg = 1;
+  }
+
+  // argment types ===========================================================
   for( ; kind < this->kinds.size(); kind++){
     // new kind
     if(this->kinds[kind] != 0){
@@ -376,6 +443,7 @@ bool Declaration::pushFunction(std::string name){
       // ignore dummy values
       if(this->bases[base] == 0){base++;}
       if(this->signs[sign] == 0){sign++;}
+      if(this->storages[storage] == 0){storage++;}
 
       // basic ---------------------------------------------------
       if(this->kinds[kind] == SpecName::Basic){
@@ -386,8 +454,18 @@ bool Declaration::pushFunction(std::string name){
           }
           sign++;
         } // end sign
+
+        // set storage
+        while(storage < this->storages.size() && this->storages[storage] != 0){
+          if(!setStorage(this->storages[storage])){
+            return false;
+          }
+          storage++;
+        } // end storage
+
         TypeBasic *basetype = new TypeBasic();
         basetype->setSign(this->spec.getSign());
+        basetype->setStorage(this->spec.getStorage());
 
         // set base
         while(base < this->bases.size() && this->bases[base] != 0){
@@ -398,19 +476,25 @@ bool Declaration::pushFunction(std::string name){
           }
           base++;
         } // end base
+
+        // arg_definition_mode
+        if(arg_definition_mode){
+          if(basetype->getStorage() == SpecName::NoStorage){basetype->setStorage(SpecName::Auto);}
+          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], basetype, basetype->toString(), this->pos[arg]));
+          arg++;
+        }
+
         function->insertArg(basetype->getTypeName());
       } // end basic ---------------------------------------------------
 
     } // end kind
     this->spec = Spec();
-  } // end argment types
+  } // end argment types  ====================================================
 
   // insert function
   SymbolNode *val = new SymbolNode(name, function, function->toString(), this->pos[0]);
-
   return symTable.insertSymbol(name, val);
 }
-
 
 // debug ********************************************************************
 void Declaration::showIDs() const{
