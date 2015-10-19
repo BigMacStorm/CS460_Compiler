@@ -1,6 +1,6 @@
-tricky types combinations -
-invalid type handling -
-struct/union - create scopes and insert elements
-enum -
-typedef -
-multiple comments -> syntax error
+Declarations:
+  struct/union - create scopes and insert elements
+  enum
+  typedef
+  tricky types combinations
+  invalid type handling

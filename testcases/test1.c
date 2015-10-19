@@ -10,6 +10,8 @@ extern double long edl[10];
 float f2d[20];
 int i3d[2][2][2];
 
+int long int long zzz = 0;
+
 int foo();
 unsigned int boo(float x, long double z);
 
