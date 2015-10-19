@@ -10,7 +10,7 @@ extern "C"{
 #include <string.h>
 
 extern SymbolTable symTable;
-extern void yyerror(char* s);
+extern void yyerror(const char* s);
 extern Debugger lexDebugger;
 extern Debugger lexSymbolDebugger;
 unsigned int linenum = 1;
@@ -24,12 +24,14 @@ bool checkOverflow(unsigned long long);
 void checkIDLength(char*);
 void printToStderr(char*);
 void printLine();
-void dumpNextSymbol();
+void dumpNextSymbol(const char* token);
 
 unsigned long long btoi(char*);
 unsigned long long otoi(char* text);
 unsigned long long htoi(char* text);
 int myatoi(char*);
+
+const char* LEX_FILE = "llog.txt";
 %}
 
 %option noyywrap
@@ -90,401 +92,401 @@ scomment "//".*
                 }
 
 "sizeof"     {
-               dumpNextSymbol();
+               dumpNextSymbol("SIZEOFtok");
                addCol(yyleng);
                return(SIZEOFtok);
              }
 "->"         {
-               dumpNextSymbol();
+               dumpNextSymbol("PTR_OPtok");
                addCol(yyleng);
                return(PTR_OPtok);
              }
 "++"         {
-               dumpNextSymbol();
+               dumpNextSymbol("INC_OPtok");
                addCol(yyleng);
                return(INC_OPtok);
              }
 "--"         {
-               dumpNextSymbol();
+               dumpNextSymbol("DEC_OPtok");
                addCol(yyleng);
                return(DEC_OPtok);
              }
 "<<"         {
-               dumpNextSymbol();
+               dumpNextSymbol("LEFT_OPtok");
                addCol(yyleng);
                return(LEFT_OPtok);
              }
 ">>"         {
-               dumpNextSymbol();
+               dumpNextSymbol("RIGHT_OPtok");
                addCol(yyleng);
                return(RIGHT_OPtok);
              }
 "<="         {
-               dumpNextSymbol();
+               dumpNextSymbol("LE_OPtok");
                addCol(yyleng);
                return(LE_OPtok);
              }
 ">="         {
-               dumpNextSymbol();
+               dumpNextSymbol("GE_OPtok");
                addCol(yyleng);
                return(GE_OPtok);
              }
 "=="         {
-               dumpNextSymbol();
+               dumpNextSymbol("EQ_OPtok");
                addCol(yyleng);
                return(EQ_OPtok);
              }
 "!="         {
-               dumpNextSymbol();
+               dumpNextSymbol("NE_OPtok");
                addCol(yyleng);
                return(NE_OPtok);
              }
 "&&"         {
-               dumpNextSymbol();
+               dumpNextSymbol("AND_OPtok");
                addCol(yyleng);
                return(AND_OPtok);
              }
 "||"         {
-               dumpNextSymbol();
+               dumpNextSymbol("OR_OPtok");
                addCol(yyleng);
                return(OR_OPtok);
              }
 
 "*="         {
-               dumpNextSymbol();
+               dumpNextSymbol("MUL_ASSIGNtok");
                addCol(yyleng);
                return(MUL_ASSIGNtok);
              }
 "/="         {
-               dumpNextSymbol();
+               dumpNextSymbol("DIV_ASSIGNtok");
                addCol(yyleng);
                return(DIV_ASSIGNtok);
              }
 "%="         {
-               dumpNextSymbol();
+               dumpNextSymbol("MOD_ASSIGNtok");
                addCol(yyleng);
                return(MOD_ASSIGNtok);
              }
 "+="         {
-               dumpNextSymbol();
+               dumpNextSymbol("ADD_ASSIGNtok");
                addCol(yyleng);
                return(ADD_ASSIGNtok);
              }
 "-="         {
-               dumpNextSymbol();
+               dumpNextSymbol("SUB_ASSIGNtok");
                addCol(yyleng);
                return(SUB_ASSIGNtok);
              }
 "<<="        {
-               dumpNextSymbol();
+               dumpNextSymbol("LEFT_ASSIGNtok");
                addCol(yyleng);
                return(LEFT_ASSIGNtok);
              }
 ">>="        {
-               dumpNextSymbol();
+               dumpNextSymbol("RIGHT_ASSIGNtok");
                addCol(yyleng);
                return(RIGHT_ASSIGNtok);
              }
 "&="         {
-               dumpNextSymbol();
+               dumpNextSymbol("AND_ASSIGNtok");
                addCol(yyleng);
                return(AND_ASSIGNtok);
              }
 "^="         {
-               dumpNextSymbol();
+               dumpNextSymbol("XOR_ASSIGNtok");
                addCol(yyleng);
                return(XOR_ASSIGNtok);
              }
 "|="         {
-               dumpNextSymbol();
+               dumpNextSymbol("OR_ASSIGNtok");
                addCol(yyleng);
                return(OR_ASSIGNtok);
              }
 "("          {
-               dumpNextSymbol();
+               dumpNextSymbol("OPEN_PARENtok");
                addCol(yyleng);
                return(OPEN_PARENtok);
              }
 ")"          {
-               dumpNextSymbol();
+               dumpNextSymbol("CLOSE_PARENtok");
                addCol(yyleng);
                return(CLOSE_PARENtok);
              }
 ("{"|"<%")   {
-               dumpNextSymbol();
+               dumpNextSymbol("OPEN_CURLYtok");
                addCol(yyleng);
                return(OPEN_CURLYtok);
              }
 ("}"|"%>")   {
-               dumpNextSymbol();
+               dumpNextSymbol("CLOSE_CURLYtok");
                addCol(yyleng);
                return(CLOSE_CURLYtok);
              }
 ("["|"<:")   {
-               dumpNextSymbol();
+               dumpNextSymbol("OPEN_SQUAREtok");
                addCol(yyleng);
                return(OPEN_SQUAREtok);
              }
 ("]"|":>")   {
-               dumpNextSymbol();
+               dumpNextSymbol("CLOSE_SQUAREtok");
                addCol(yyleng);
                return(CLOSE_SQUAREtok);
              }
 
 "."          {
-               dumpNextSymbol();
+               dumpNextSymbol("PERIODtok");
                addCol(yyleng);
                return(PERIODtok);
              }
 ","          {
-               dumpNextSymbol();
+               dumpNextSymbol("COMMAtok");
                addCol(yyleng);
                return(COMMAtok);
              }
 ":"          {
-               dumpNextSymbol();
+               dumpNextSymbol("COLONtok");
                addCol(yyleng);
                return(COLONtok);
              }
 ";"          {
-               dumpNextSymbol();
+               dumpNextSymbol("SEMItok");
                addCol(yyleng);
                return(SEMItok);
              }
 "="          {
-               dumpNextSymbol();
+               dumpNextSymbol("EQUALtok");
                addCol(yyleng);
                return(EQUALtok);
              }
 "&"          {
-               dumpNextSymbol();
+               dumpNextSymbol("UNARY_ANDtok");
                addCol(yyleng);
                return(UNARY_ANDtok);
              }
 "!"          {
-               dumpNextSymbol();
+               dumpNextSymbol("UNARY_BANGtok");
                addCol(yyleng);
                return(UNARY_BANGtok);
              }
 "~"          {
-               dumpNextSymbol();
+               dumpNextSymbol("UNARY_TILDEtok");
                addCol(yyleng);
                return(UNARY_TILDEtok);
              }
 "*"          {
-               dumpNextSymbol();
+               dumpNextSymbol("UNARY_ASTERISKtok");
                addCol(yyleng);
                return(UNARY_ASTERISKtok);
              }
 "/"          {
-               dumpNextSymbol();
+               dumpNextSymbol("FORWARD_SLASHtok");
                addCol(yyleng);
                return(FORWARD_SLASHtok);
              }
 "+"          {
-               dumpNextSymbol();
+               dumpNextSymbol("UNARY_PLUStok");
                addCol(yyleng);
                return(UNARY_PLUStok);
              }
 "-"          {
-               dumpNextSymbol();
+               dumpNextSymbol("UNARY_MINUStok");
                addCol(yyleng);
                return(UNARY_MINUStok);
              }
 "%"          {
-               dumpNextSymbol();
+               dumpNextSymbol("PERCENTtok");
                addCol(yyleng);
                return(PERCENTtok);
              }
 "<"          {
-               dumpNextSymbol();
+               dumpNextSymbol("LEFT_ANGLEtok");
                addCol(yyleng);
                return(LEFT_ANGLEtok);
              }
 ">"          {
-               dumpNextSymbol();
+               dumpNextSymbol("RIGHT_ANGLEtok");
                addCol(yyleng);
                return(RIGHT_ANGLEtok);
              }
 "^"          {
-               dumpNextSymbol();
+               dumpNextSymbol("UP_CARROTtok");
                addCol(yyleng);
                return(UP_CARROTtok);
              }
 "|"          {
-               dumpNextSymbol();
+               dumpNextSymbol("PIPEtok");
                addCol(yyleng);
                return(PIPEtok);
              }
 "?"          {
-               dumpNextSymbol();
+               dumpNextSymbol("QUESTION_MARKtok");
                addCol(yyleng);
                return(QUESTION_MARKtok);
              }
 
 "typedef"    {
-               dumpNextSymbol();
+               dumpNextSymbol("TYPEDEFtok");
                addCol(yyleng);
                return(TYPEDEFtok);
              }
 "extern"     {
-               dumpNextSymbol();
+               dumpNextSymbol("EXTERNtok");
                addCol(yyleng);
                return(EXTERNtok);
              }
 "static"     {
-               dumpNextSymbol();
+               dumpNextSymbol("STATICtok");
                addCol(yyleng);
                return(STATICtok);
              }
 "auto"       {
-               dumpNextSymbol();
+               dumpNextSymbol("AUTOtok");
                addCol(yyleng);
                return(AUTOtok);
              }
 "register"   {
-               dumpNextSymbol();
+               dumpNextSymbol("REGISTERtok");
                addCol(yyleng);
                return(REGISTERtok);
              }
 "char"       {
-               dumpNextSymbol();
+               dumpNextSymbol("CHARtok");
                addCol(yyleng);
                return(CHARtok);
              }
 "short"      {
-               dumpNextSymbol();
+               dumpNextSymbol("SHORTtok");
                addCol(yyleng);
                return(SHORTtok);
              }
 "int"        {
-               dumpNextSymbol();
+               dumpNextSymbol("INTtok");
                addCol(yyleng);
                return(INTtok);
              }
 "long"       {
-               dumpNextSymbol();
+               dumpNextSymbol("LONGtok");
                addCol(yyleng);
                return(LONGtok);
              }
 "signed"     {
-               dumpNextSymbol();
+               dumpNextSymbol("SIGNEDtok");
                addCol(yyleng);
                return(SIGNEDtok);
              }
 "unsigned"   {
-               dumpNextSymbol();
+               dumpNextSymbol("UNSIGNEDtok");
                addCol(yyleng);
                return(UNSIGNEDtok);
              }
 "float"      {
-               dumpNextSymbol();
+               dumpNextSymbol("FLOATtok");
                addCol(yyleng);
                return(FLOATtok);
              }
 "double"     {
-               dumpNextSymbol();
+               dumpNextSymbol("DOUBLEtok");
                addCol(yyleng);
                return(DOUBLEtok);
              }
 "const"      {
-               dumpNextSymbol();
+               dumpNextSymbol("CONSTtok");
                addCol(yyleng);
                return(CONSTtok);
              }
 "volatile"   {
-               dumpNextSymbol();
+               dumpNextSymbol("VOLATILEtok");
                addCol(yyleng);
                return(VOLATILEtok);
              }
 "void"       {
-               dumpNextSymbol();
+               dumpNextSymbol("VOIDtok");
                addCol(yyleng);
                return(VOIDtok);
              }
 "struct"     {
-               dumpNextSymbol();
+               dumpNextSymbol("STRUCTtok");
                addCol(yyleng);
                return(STRUCTtok);
              }
 "union"      {
-               dumpNextSymbol();
+               dumpNextSymbol("UNIONtok");
                addCol(yyleng);
                return(UNIONtok);
              }
 "enum"       {
-               dumpNextSymbol();
+               dumpNextSymbol("ENUMtok");
                addCol(yyleng);
                return(ENUMtok);
              }
 "..."        {
-               dumpNextSymbol();
+               dumpNextSymbol("ELIPSIStok");
                addCol(yyleng);
                return(ELIPSIStok);
              }
 "case"       {
-               dumpNextSymbol();
+               dumpNextSymbol("CASEtok");
                addCol(yyleng);
                return(CASEtok);
              }
 "default"    {
-               dumpNextSymbol();
+               dumpNextSymbol("DEFAULTtok");
                addCol(yyleng);
                return(DEFAULTtok);
              }
 "if"         {
-               dumpNextSymbol();
+               dumpNextSymbol("IFtok");
                addCol(yyleng);
                return(IFtok);
              }
 "else"       {
-               dumpNextSymbol();
+               dumpNextSymbol("ELSEtok");
                addCol(yyleng);
                return(ELSEtok);
              }
 "switch"     {
-               dumpNextSymbol();
+               dumpNextSymbol("SWITCHtok");
                addCol(yyleng);
                return(SWITCHtok);
              }
 "while"      {
-               dumpNextSymbol();
+               dumpNextSymbol("WHILEtok");
                addCol(yyleng);
                return(WHILEtok);
              }
 "do"         {
-               dumpNextSymbol();
+               dumpNextSymbol("DOtok");
                addCol(yyleng);
                return(DOtok);
              }
 "for"        {
-               dumpNextSymbol();
+               dumpNextSymbol("FORtok");
                addCol(yyleng);
                return(FORtok);
              }
 "goto"       {
-               dumpNextSymbol();
+               dumpNextSymbol("GOTOtok");
                addCol(yyleng);
                return(GOTOtok);
              }
 "continue"   {
-               dumpNextSymbol();
+               dumpNextSymbol("CONTINUEtok");
                addCol(yyleng);
                return(CONTINUEtok);
              }
 "break"      {
-               dumpNextSymbol();
+               dumpNextSymbol("BREAKtok");
                addCol(yyleng);
                return(BREAKtok);
              }
 "return"     {
-               dumpNextSymbol();
+               dumpNextSymbol("RETURNtok");
                addCol(yyleng);
                return(RETURNtok);
              }
 
 {id}         {
-                dumpNextSymbol();
+                dumpNextSymbol("id");
                 std::string name(yytext);
                 strcpy(yylval.sval, yytext);
                 // SymbolNode * symNode = new SymbolNode(name, NULL, yylineno);
@@ -496,25 +498,25 @@ scomment "//".*
                 return(IDENTIFIERtok);
              }
 {int_const}       {
-                    dumpNextSymbol();
+                    dumpNextSymbol("INTEGER_CONSTANTtok");
                     yylval.ival = myatoi(yytext);
                     addCol(yyleng);
                     return(INTEGER_CONSTANTtok);
                   }
 {real_const}      {
-                    dumpNextSymbol();
+                    dumpNextSymbol("FLOATING_CONSTANTtok");
                     yylval.dval = atof(yytext);
                     addCol(yyleng);
                     return(FLOATING_CONSTANTtok);
                   }
 {char_const}      {
-                    dumpNextSymbol();
+                    dumpNextSymbol("CHARACTER_CONSTANTtok");
                     yylval.cval = *yytext;
                     addCol(yyleng);
                     return(CHARACTER_CONSTANTtok);
                   }
 {string_literal}  {
-                    dumpNextSymbol();
+                    dumpNextSymbol("STRING_LITERALtok");
                     strcpy(yylval.sval, yytext);
                     addCol(yyleng);
                     return(STRING_LITERALtok);
@@ -637,8 +639,8 @@ int myatoi(char* text){
   return val;
 }
 
-void dumpNextSymbol(){
+void dumpNextSymbol(const char* token){
   std::stringstream ss;
-  ss << "[L]: Next symbol -> " << yytext;
+  ss << "//" << yytext << std::endl << token << std::endl;
   lexSymbolDebugger.debug(ss.str());
 }
