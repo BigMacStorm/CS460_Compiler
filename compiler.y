@@ -338,31 +338,12 @@ type_qualifier
 
 struct_or_union_specifier
   : struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
-      // struct id{ ... }
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok");
 
-      bool redefinition = false;
-      bool shadowing = false;
-
-      if(symTable.lookupTopTable($2)) {
-        redefinition = true;
-        printf("Here\n");
-        // Redefinition; fatal error
-        yyerror("error: redefinition");  // Note: Make this message better
-      }
-
-      // Can't shadow struct / union types
-      /*
-      else if(symTable.lookUpShadowedSymbol($2)) {
-        shadowing = true;
-        // Shadowing; warning
-        printf("warning: shadowing\n");  // Note: Make this message better
-      }
-      */
-
-      // Put the new declaration in the symbol table
-      //symTable.insertSymbol($2, new SymbolNode($2, new Spec($1)));
-      symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
+      if(symTable.lookupTopTable($2))
+        yyerror("error: redefinition"); // Redefinition; fatal error
+      else
+        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
   }
   | struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
       // struct {...}
@@ -371,6 +352,11 @@ struct_or_union_specifier
   | struct_or_union identifier {
       // forward declaration  struct id;
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier");
+
+      if(symTable.lookupTopTable($2))
+        yyerror("error: redefinition"); // Redefinition; fatal error
+      else
+        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
   }
   ;
 
