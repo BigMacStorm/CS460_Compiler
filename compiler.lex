@@ -73,8 +73,6 @@ scomment "//".*
 
 /* token rules and actions ***************************************************/
 %%
-"!!S"        {  symTable.writeFile(); }
-=======
 {scomment}"!!S" {  symTable.writeFile(); }
 {newlines}   {
                addLine(yyleng);
