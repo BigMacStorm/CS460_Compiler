@@ -6,8 +6,10 @@ extern "C"{
 }
 #include <stdio.h>
 #include <fstream>
+#include <string.h>
 #include "SymbolTable.h"
 #include "Debugger.h"
+#include "Spec.h"
 
 extern Debugger warningDebugger;
 extern Debugger reductionDebugger;
@@ -42,8 +44,11 @@ void yyerror(char* s);
   //char* sval;
   char sval[100]; // Changing this to an array fixed a strcpy segfault
   SymbolNode* symval;
+
+  SpecName::TypeKind tkval;
  }
 
+// Tokens
 %token <sval> IDENTIFIERtok
 %token INTEGER_CONSTANTtok FLOATING_CONSTANTtok CHARACTER_CONSTANTtok ENUMERATION_CONSTANTtok
 %token STRING_LITERALtok
@@ -65,11 +70,17 @@ void yyerror(char* s);
 
 %token TYPEDEFtok EXTERNtok STATICtok AUTOtok REGISTERtok
 %token CHARtok SHORTtok INTtok LONGtok SIGNEDtok UNSIGNEDtok FLOATtok DOUBLEtok CONSTtok VOLATILEtok VOIDtok
-%token STRUCTtok UNIONtok ENUMtok ELIPSIStok RANGEtok
+%token <tkval> STRUCTtok
+%token <tkval> UNIONtok
+%token ENUMtok ELIPSIStok RANGEtok
 
 %token CASEtok DEFAULTtok IFtok ELSEtok SWITCHtok WHILEtok DOtok FORtok GOTOtok CONTINUEtok BREAKtok RETURNtok
 
 %token ERRORtok
+
+// Nonterminals
+%type <sval> identifier
+%type <tkval> struct_or_union
 
 %start translation_unit
 
@@ -265,6 +276,28 @@ type_qualifier
 struct_or_union_specifier
   : struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
       reductionOut("struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok");
+
+      bool redefinition = false;
+      bool shadowing = false;
+
+      if(symTable.lookupTopTable($2)) {
+        redefinition = true;
+        printf("Here\n");
+        // Redefinition; fatal error
+        yyerror("error: redefinition");  // Note: Make this message better
+      }
+
+      // Can't shadow struct / union types
+      /*
+      else if(symTable.lookUpShadowedSymbol($2)) {
+        shadowing = true;
+        // Shadowing; warning
+        printf("warning: shadowing\n");  // Note: Make this message better
+      }
+      */
+
+      // Put the new declaration in the symbol table
+      symTable.insertSymbol($2, new SymbolNode($2, new Spec($1)));
   }
   | struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
       reductionOut("struct_or_union_specifier -> struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtokk");
@@ -278,9 +311,11 @@ struct_or_union_specifier
 struct_or_union
   : STRUCTtok {
       reductionOut("struct_or_union -> STRUCTtok");
+      $$ = SpecName::TypeKind::Struct;
   }
   | UNIONtok {
       reductionOut("struct_or_union -> UNIONtok");
+      $$ = SpecName::TypeKind::Union;
   }
   ;
 
@@ -1002,6 +1037,7 @@ string
 identifier
   : IDENTIFIERtok {
       reductionOut("identifier -> IDENTIFIERtok");
+      strcpy($$, $1);
   }
   ;
 
