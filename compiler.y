@@ -487,6 +487,16 @@ direct_declarator
       decl.pushBase(SpecName::NoType);
       decl.pushSign(SpecName::NoSign);
       decl.pushStorage(SpecName::NoStorage);
+
+      if(symTable.lookupTopTable($1))
+        yyerror("error: redefinition\n"); // Redefinition; fatal error
+      else {
+          if(symTable.lookUpShadowedSymbol($1))
+            printf("warning: shadowing\n"); // Shadowing; warning
+
+          // Put the new declaration in the symbol table
+          symTable.insertSymbol($1, new SymbolNode($1, new Spec(), $1));
+      }
   }
   | OPEN_PARENtok declarator CLOSE_PARENtok {
       // e.g., (*a)[COLS]
