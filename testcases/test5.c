@@ -11,4 +11,10 @@ int main(){
 
   int id1 = 0;
   int id2 = 4294967295;
+
+  float  f1 = 2e-16f;
+  float  f2 = 02e-16f;
+
+  double d1  = 2e32;
+  double d2 = 02e32;
 }
