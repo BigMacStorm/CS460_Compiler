@@ -4,13 +4,13 @@
 class SymbolNode{
 public:
   SymbolNode();
-  SymbolNode(std::string, std::string, int = -1);
+  //SymbolNode(std::string, std::string, int = -1);
   SymbolNode(std::string, Spec* specifier, int = -1);
-  SymbolNode(std::string, Spec* specifier, std::string, int = -1);
+  //SymbolNode(std::string, Spec* specifier, std::string, int = -1);
 
   // setters
   void setName(std::string);
-  void setSpecName(std::string);
+  //void setSpecName(std::string);
   void setPosition(int);
   void setSpecifier(Spec*);
 
@@ -22,7 +22,7 @@ public:
 
 private:
   std::string name;
-  std::string specname;
+  //std::string specname;
   Spec* specifier;
   int pos;
 };

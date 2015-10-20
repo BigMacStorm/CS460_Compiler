@@ -7,13 +7,14 @@ extern "C"{
 #include "SymbolTable.h"
 #include "Debugger.h"
 #include "y.tab.h"
+#include "limits.h" // or we can define by ourselves
 #include <string.h>
 #include <vector>
 #include <string>
 
 extern SymbolTable symTable;
-extern void yyerror(const char* s);
 extern Debugger lexSymbolDebugger;
+void error(const std::string& message);
 unsigned int linenum = 1;
 unsigned int colnum = 1;
 
@@ -93,7 +94,7 @@ scomment "//".*
                sourceLine.clear();
              }
 {ws}         {  addCol(yyleng); }
-{scomment}   {  addLine(1); }
+{scomment}   {}
 "/*"            {
                     //start of comment block
                     BEGIN(COMMENT);
@@ -622,8 +623,9 @@ scomment "//".*
 .                 {
                     addCol(yyleng);
                     sourceLine.push_back(yytext);
-                    sprintf(errormsg, "ERROR: illegal character: line %d, col %d", linenum, colnum);
-                    yyerror(errormsg);
+                    std::stringstream ss;
+                    ss << "[L]: ERROR: illegal character" << ", line " << linenum << " col " << colnum;
+                    error(ss.str());
                     return(ERRORtok);
                   }
 
@@ -631,9 +633,10 @@ scomment "//".*
 /* user code **************************************************************/
 bool checkOverflow (unsigned long long val){
   std::stringstream ss;
-  if (val > 4294967295){
+  // 32? 64?
+  if (val > (2^32-1)){
         ss << "[L]: ERROR: Integer overflow" << ", line " << linenum << " col " << colnum;
-        std::cout << ss.str() << std::endl;
+        error(ss.str());
         return true;
   }
   return false;
@@ -645,7 +648,7 @@ void checkIDLength(char* charInput){
 
     if (len >= 32){
         ss << "[L]: ERROR: Very long ID " << charInput << ", line " << linenum << " col " << colnum;
-        std::cout << ss.str() << std::endl;
+        error(ss.str());
     }
 }
 
@@ -670,6 +673,7 @@ void printErrorLine(){
   //print ^ colnum spaces over on next line
 }
 
+// conversion --------------------------------------------------------------
 unsigned long long btoi(char* text){
   unsigned long long val = 0;
   bool isValid = true;
@@ -682,7 +686,7 @@ unsigned long long btoi(char* text){
     }else{
       isValid = false;
       ss << "[L]: ERROR: invalid digit \'" << *text << "\' in binary constant, line " << linenum << " col " << colnum;
-      std::cout << ss.str() << std::endl;
+      error(ss.str());
     }
   }
   return val;
@@ -701,7 +705,7 @@ unsigned long long htoi(char* text){
     }else{
       isValid = false;
       ss << "[L]: ERROR: invalid digit \'" << *text << "\' in octal constant, line " << linenum << " col " << colnum;
-      std::cout << ss.str() << std::endl;
+      error(ss.str());
     }
   }
   return val;
@@ -718,7 +722,7 @@ unsigned long long otoi(char* text){
     }else{
       isValid = false;
       ss << "[L]: ERROR: invalid digit \'" << *text << "\' in hexadecimal constant, line " << linenum << " col " << colnum;
-      std::cout << ss.str() << std::endl;
+      error(ss.str());
     }
   }
   return val;
@@ -734,8 +738,8 @@ int myatoi(char* text){
   }else{
     val = atoll(text);
   }
-
-  return checkOverflow(val);
+  checkOverflow(val);
+  return val;
 }
 
 void dumpNextSymbol(const char* token){

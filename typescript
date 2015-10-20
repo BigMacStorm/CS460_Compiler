@@ -1,0 +1,127 @@
+Script started on Mon 19 Oct 2015 08:49:00 AM PDT
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ls
+[0m[01;34mcalculator[0m    Debugger.cpp     [01;34mfailcases[0m     README          SymbolTable.cpp
+[01;34mclang[0m         Debugger.h       ff            [01;34mreferences[0m      SymbolTable.h
+[01;32mcompiler.lex[0m  Declaration.cpp  lexDriver.c   Spec.cpp        [01;34mtestcases[0m
+compiler.y    Declaration.h    llog.txt      Spec.h          todo.txt
+comp.lex      directions.txt   Makefile      SymbolNode.cpp  typescript
+comp.y        driver.cpp       problems.txt  SymbolNode.h
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ make clean
+rm -f compiler lex.yy.* y.tab.* y.output *.o  *~
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ make
+g++ -c -g -Wall -std=c++11 driver.cpp -o driver.o
+bison -d --debug --verbose -o y.tab.c compiler.y
+compiler.y: warning: 1 shift/reduce conflict [-Wconflicts-sr]
+flex  compiler.lex
+g++ -c -g -Wall -std=c++11 lex.yy.c -o lex.yy.o
+compiler.lex: In function ‘int yylex()’:
+compiler.lex:89:51: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+                for(int i = 0; i < sourceLine.size(); ++i)
+                                                   ^
+lex.yy.c: At global scope:
+lex.yy.c:2257:17: warning: ‘void yyunput(int, char*)’ defined but not used [-Wunused-function]
+     static void yyunput (int c, register char * yy_bp )
+                 ^
+g++ -c -g -Wall -std=c++11 y.tab.c -o y.tab.o
+compiler.y: In function ‘int yyparse()’:
+compiler.y:117:42: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         for(int arg = 0; arg < args.size(); arg++){
+                                          ^
+g++ -c -g -Wall -std=c++11 Debugger.cpp -o Debugger.o
+g++ -c -g -Wall -std=c++11 Spec.cpp -o Spec.o
+Spec.cpp: In member function ‘virtual std::string TypeArray::toString() const’:
+Spec.cpp:263:48: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int dim = 0; dim < this->arraySizes.size(); dim++){
+                                                ^
+Spec.cpp: In member function ‘virtual std::string TypeFunction::toString() const’:
+Spec.cpp:303:46: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int arg = 0; arg < this->argTypes.size(); arg++){
+                                              ^
+Spec.cpp:305:36: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     if(arg < this->argTypes.size()-1){
+                                    ^
+g++ -c -g -Wall -std=c++11 SymbolNode.cpp -o SymbolNode.o
+g++ -c -g -Wall -std=c++11 SymbolTable.cpp -o SymbolTable.o
+SymbolTable.cpp: In member function ‘void SymbolTable::writeFile()’:
+SymbolTable.cpp:141:7: warning: variable ‘level’ set but not used [-Wunused-but-set-variable]
+   int level;
+       ^
+g++ -c -g -Wall -std=c++11 Declaration.cpp -o Declaration.o
+Declaration.cpp: In member function ‘TypeBasic* Declaration::makeBasicType()’:
+Declaration.cpp:273:35: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     while(sign < this->signs.size() && this->signs[sign] != 0){
+                                   ^
+Declaration.cpp:284:35: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+     while(base < this->bases.size() && this->bases[base] != 0){
+                                   ^
+Declaration.cpp: In member function ‘bool Declaration::pushBasic(std::string)’:
+Declaration.cpp:297:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   while(storage < this->storages.size() && this->storages[storage] != 0){
+                                       ^
+Declaration.cpp: In member function ‘bool Declaration::pushArray(std::string)’:
+Declaration.cpp:326:48: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int dim = 0; dim < this->arraySizes.size(); dim++){
+                                                ^
+Declaration.cpp:334:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   while(storage < this->storages.size() && this->storages[storage] != 0){
+                                       ^
+Declaration.cpp: In member function ‘bool Declaration::pushFunction(std::string)’:
+Declaration.cpp:407:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(sign < this->signs.size() && this->signs[sign] != 0){
+                                       ^
+Declaration.cpp:415:45: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(storage < this->storages.size() && this->storages[storage] != 0){
+                                             ^
+Declaration.cpp:426:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(base < this->bases.size() && this->bases[base] != 0){
+                                       ^
+Declaration.cpp:455:34: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for( ; kind < this->kinds.size(); kind++){
+                                  ^
+Declaration.cpp:468:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(sign < this->signs.size() && this->signs[sign] != 0){
+                                       ^
+Declaration.cpp:476:45: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(storage < this->storages.size() && this->storages[storage] != 0){
+                                             ^
+Declaration.cpp:488:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+         while(base < this->bases.size() && this->bases[base] != 0){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showIDs() const’:
+Declaration.cpp:528:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+    for(int id = 0;id < this->ids.size(); id++){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showSigns() const’:
+Declaration.cpp:533:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int n = 0; n < this->signs.size(); n++){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showKinds() const’:
+Declaration.cpp:538:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int n = 0; n < this->kinds.size(); n++){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showBases() const’:
+Declaration.cpp:543:39: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int n = 0; n < this->bases.size(); n++){
+                                       ^
+Declaration.cpp: In member function ‘void Declaration::showStorages() const’:
+Declaration.cpp:548:42: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   for(int n = 0; n < this->storages.size(); n++){
+                                          ^
+g++ -o compiler driver.o lex.yy.o y.tab.o Debugger.o Spec.o SymbolNode.o SymbolTable.o Declaration.o -ll -ly
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./comp[K[K[K[K[K[K./compiler test1.c < test1.c
+test1.list
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test1.c < test1.c[1P.c2.c[C[1P[1@2
+test2.list
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test2.c < test2.c[1P.c3.c[1P[1@3
+test3.list
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test3.c < test3.c[1P.c4.c[1P[1@4
+test4.list
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test4.c < test4.c[1P.c5.c[1P[1@5
+test5.list
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ ./compiler test5.c < test5.c[1P.c6.c[1P[1@6
+test6.list
+error: identifier not found
+]0;david@A-Laptop:/home/david/compilers/CS460_Compiler]7;file://A-Laptop/home/david/compilers/CS460_Compiler]0;david@A-Laptop: ~/compilers/CS460_Compiler[0;34mdavid@A-Laptop[00m:[00m~/compilers/CS460_Compiler[00m$ exit
+exit
+
+Script done on Mon 19 Oct 2015 08:51:05 AM PDT

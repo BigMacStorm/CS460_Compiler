@@ -38,6 +38,8 @@ public:
     SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
   virtual ~Spec();
   virtual std::string toString() const;
+  virtual std::string toTypeString() const;
+
   std::string getTypeKindStr() const;
   std::string getStorageClassStr() const;
   std::string getTypeQualifierStr() const;
@@ -72,6 +74,8 @@ class TypeBasic: public Spec{
   TypeBasic(SpecName::Storage = SpecName::NoStorage, SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
   ~TypeBasic();
   std::string toString() const;
+  std::string toTypeString() const;
+
   std::string getTypeName() const;
   std::string getBaseTypeStr() const;
   SpecName::BaseType getBaseType() const;
@@ -86,12 +90,16 @@ class TypeBasic: public Spec{
 class TypeEnum: public Spec{
  public:
    TypeEnum(SpecName::Storage = SpecName::NoStorage,SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
+   std::string toString() const;
+   std::string toTypeString() const;
+
    int getSize() const;
    void addConst(std::string name, int number);
    int getNextNumber() const;
 
  private:
   int nextNumber;
+  std::string enumName;
   std::map<std::string, int> constants;
 };
 
@@ -100,14 +108,17 @@ class TypeArray: public Spec{
  public:
    TypeArray(SpecName::Storage = SpecName::NoStorage,SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
    std::string toString() const;
-   std::string getElemType() const;
+   std::string toTypeString() const;
+
+   std::string getElemTypeName() const;
    int getSize(int n) const;
    int getDim() const;
-   void setElemType(std::string elemType);
+   void setElemSpec(Spec* elemSpec);
    void setArraySizes(std::vector<int> &arraysizes);
 
  private:
-  std::string elemType;
+  //std::string elemType;
+  Spec* elemSpec;
   std::vector<int> arraySizes;
 };
 // function -----------------------------------------------
@@ -115,25 +126,34 @@ class TypeFunction : public Spec{
 public:
     TypeFunction(SpecName::Storage = SpecName::NoStorage,SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
     std::string toString() const;
-    void insertArg(std::string argType);
-    void setReturnType(std::string returnType);
-    std::string getReturnType() const;
+    std::string toTypeString() const;
+
+    void insertArg(Spec* argSpec);
+    void setReturnSpec(Spec* returnSpec);
     int getArgSize() const;
-    std::string getArgType(int nth) const;
+    std::string getArgTypeName(int nth) const;
+    std::string getReturnSpecName() const;
+    Spec* getReturnSpec() const;
 
   private:
-    std::string returnType;
-    std::vector<std::string> argTypes;
+    Spec* returnSpec;
+    std::vector<Spec*> argSpecs;
 };
 // TypeName -----------------------------------------------
 class TypeTypeName: public Spec{
  public:
    TypeTypeName(SpecName::Storage = SpecName::NoStorage,SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
-   TypeTypeName(Spec* baseSpec);
+   std::string toString() const;
+   std::string toTypeString() const;
+
    Spec* getBaseSpec() const;
+   std::string getTypeName() const;
+   void setBaseSpec(Spec* baseSpec);
+   void setTypeName(std::string typeName);
 
  private:
-  Spec*baseSpec;
+  std::string typeName;
+  Spec * baseSpec;
 };
 
 // pointer -----------------------------------------------
@@ -141,14 +161,16 @@ class TypePointer: public Spec{
  public:
    TypePointer(SpecName::Storage = SpecName::NoStorage,SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
    std::string toString() const;
-   std::string getTargetType() const;
+   std::string toTypeString() const;
+   Spec* getTargetSpec() const;
+   std::string getTargetTypeName() const;
    int getLevels() const;
-   void setTargetType(std::string targetType);
+   void setTargetSpec(Spec* targetSpec);
    void setLevels(int levels);
    void incLevel();
 
  private:
- std::string targetType;
+ Spec* targetSpec;
  int levels;
 };
 // struct -----------------------------------------------
@@ -156,20 +178,30 @@ class TypePointer: public Spec{
 class TypeStruct: public Spec{
  public:
   TypeStruct(SpecName::Storage = SpecName::NoStorage,SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
+  std::string toString() const;
+  std::string toTypeString() const;
+
   void addMember(std::string name, Spec* type);
   Spec* findMember(std::string name);
+
  private:
-  std::map<std::string, Spec*> members;
+  std::string structName;
+  std::map<std::string, Spec*> members; // small symbol table
 };
 // union -----------------------------------------------
 // no need to separate struct and union?
 class TypeUnion: public Spec{
  public:
   TypeUnion(SpecName::Storage = SpecName::NoStorage,SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
+  std::string toString() const;
+  std::string toTypeString() const;
+
   void addMember(std::string name, Spec* type);
   Spec* findMember(std::string name);
+
  private:
-  std::map<std::string, Spec*> members;
+  std::string unionName;
+  std::map<std::string, Spec*> members; // small symbol table
 };
 
 #endif

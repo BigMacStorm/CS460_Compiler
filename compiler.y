@@ -6,6 +6,7 @@ extern "C"{
 }
 #include <stdio.h>
 #include <fstream>
+#include <string.h>
 #include "SymbolTable.h"
 #include "Debugger.h"
 #include "Declaration.h"
@@ -23,7 +24,7 @@ extern char* yytext;
 extern std::string listFileName;
 
 void yyerror(const char* message);
-void error(std::string& message);
+void error(const std::string& message);
 void reductionOut(const char* reductionCStr);
 
 Declaration decl; // holds info about a current declaration
@@ -43,6 +44,8 @@ Declaration decl; // holds info about a current declaration
   SpecName::TypeKind tkval;
  }
 
+
+// Tokens
 %token <sval> IDENTIFIERtok
 %token INTEGER_CONSTANTtok FLOATING_CONSTANTtok CHARACTER_CONSTANTtok ENUMERATION_CONSTANTtok
 %token STRING_LITERALtok
@@ -64,6 +67,7 @@ Declaration decl; // holds info about a current declaration
 
 %token TYPEDEFtok EXTERNtok STATICtok AUTOtok REGISTERtok
 %token CHARtok SHORTtok INTtok LONGtok SIGNEDtok UNSIGNEDtok FLOATtok DOUBLEtok CONSTtok VOLATILEtok VOIDtok
+
 /*%token STRUCTtok UNIONtok ENUMtok ELIPSIStok RANGEtok*/
 
 %token <tkval> STRUCTtok
@@ -325,11 +329,11 @@ type_specifier
 type_qualifier
   : CONSTtok {
     reductionOut("[p]: type_qualifier -> CONSTtok");
-    decl.setQualifier(SpecName::Const);
+    decl.pushQualifier(SpecName::Const);
   }
   | VOLATILEtok {
     reductionOut("[p]: type_qualifier -> VOLATILEtok");
-    decl.setQualifier(SpecName::Volatile);
+    decl.pushQualifier(SpecName::Volatile);
   }
   ;
 
@@ -338,9 +342,9 @@ struct_or_union_specifier
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok");
 
       if(symTable.lookupTopTable($2))
-        error("error: redefinition\n"); // Redefinition; fatal error
+        error("error: redefinition"); // Redefinition; fatal error
       else
-        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
+        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1)));
   }
   | struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
       // struct {...}
@@ -351,9 +355,9 @@ struct_or_union_specifier
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier");
 
       if(symTable.lookupTopTable($2))
-        error("error: redefinition\n"); // Redefinition; fatal error
+        error("error: redefinition"); // Redefinition; fatal error
       else
-        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1), "Struct/Union"));
+        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1)));
   }
   ;
 
@@ -466,10 +470,18 @@ declarator
 direct_declarator
   : identifier {
       reductionOut("[p]: direct_declarator -> identifier");
+
+      // for no return type
+      if(decl.getBasesNum() > 0){
+        decl.setHasType();
+      }
+
       decl.pushKind(SpecName::NoKind);
       decl.pushBase(SpecName::NoType);
       decl.pushSign(SpecName::NoSign);
+      decl.pushQualifier(SpecName::NoQualifier);
       decl.pushStorage(SpecName::NoStorage);
+
   }
   | OPEN_PARENtok declarator CLOSE_PARENtok {
       // e.g., (*a)[COLS]
@@ -480,22 +492,26 @@ direct_declarator
       reductionOut("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok CLOSE_SQUAREtok");
       decl.setMode(DeclMode::Array);
       decl.pushArraySize(1); // if there is initialization, warning: tentative array definition assumed to have one element
+      decl.pushKind(SpecName::Array);
   }
   | direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok {
       // array mode - e.g., type foo[size], foo[s1][s2]
       reductionOut("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
       decl.setMode(DeclMode::Array);
       decl.pushArraySize(yylval.ival);
+      decl.pushKind(SpecName::Array);
   }
   | direct_declarator OPEN_PARENtok CLOSE_PARENtok{
       // function mode - e.g., foo()
       reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok");
       decl.setMode(DeclMode::Function);
+      decl.pushKind(SpecName::Function);
   }
   | direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok{
       // function mode - e.g., foo(type a, type b)
       reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
       decl.setMode(DeclMode::Function);
+      decl.pushKind(SpecName::Function);
   }
   | direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok{
       // function call - e.g., foo(x,y)
@@ -509,24 +525,28 @@ pointer
       // *
       reductionOut("[p]: pointer -> UNARY_ASTERISKtok");
       decl.setMode(DeclMode::Pointer);
+      decl.pushKind(SpecName::Pointer);
       decl.incLevels();
   }
   | UNARY_ASTERISKtok type_qualifier_list {
       // * const/volatile
       reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list");
       decl.setMode(DeclMode::Pointer);
+      decl.pushKind(SpecName::Pointer);
       decl.incLevels();
   }
   | UNARY_ASTERISKtok pointer {
       // ** ...
       reductionOut("[p]: pointer -> UNARY_ASTERISKtok pointer");
       decl.setMode(DeclMode::Pointer);
+      decl.pushKind(SpecName::Pointer);
       decl.incLevels();
   }
   | UNARY_ASTERISKtok type_qualifier_list pointer {
       // * const/volatile * ...
       reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list pointer");
       decl.setMode(DeclMode::Pointer);
+      decl.pushKind(SpecName::Pointer);
       decl.incLevels();
   }
   ;
@@ -556,6 +576,7 @@ parameter_list
   }
   | parameter_list COMMAtok parameter_declaration {
       reductionOut("[p]: parameter_list -> parameter_list COMMAtok parameter_declaration");
+      decl.incArgSize();
   }
   ;
 
@@ -567,6 +588,11 @@ parameter_declaration
   | declaration_specifiers {
       // e.g., int
       reductionOut("[p]: parameter_declaration -> declaration_specifiers");
+      decl.pushKind(SpecName::NoKind);
+      decl.pushBase(SpecName::NoType);
+      decl.pushSign(SpecName::NoSign);
+      decl.pushQualifier(SpecName::NoQualifier);
+      decl.pushStorage(SpecName::NoStorage);
   }
   | declaration_specifiers abstract_declarator {
       // e.g., ?
@@ -1049,7 +1075,7 @@ primary_expression
   : identifier {
       reductionOut("[p]: primary_expression -> identifier");
       if(!symTable.lookupSymbol($1)) {
-        error("error: identifier not found\n");
+        error("error: identifier not found");
       }
   }
   | constant {
@@ -1106,9 +1132,10 @@ identifier
 /* user code ****************************************************************/
 void error(const std::string& message) {
     yyerror(message.c_str());
+    exit(1); // stop parsing
 }
 void yyerror(const char* message) {
-    printf("%s %d:%d\n", message, linenum, colnum);
+    printf("%s\n", message);
 }
 
 // Simultaneous output to debugging and list_file

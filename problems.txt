@@ -1,3 +1,11 @@
-struct/union/enum/typedef
-float conversion
-long int long int
+Declarations:
+  struct/union - create scopes and insert elements
+  enum
+  typedef
+  long int long int
+  void -> size = 1
+  formal definition -> auto by default
+
+Git rid of scope test case
+Endlines on error messages
+Clean script file

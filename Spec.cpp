@@ -8,6 +8,17 @@ Spec::Spec(SpecName::TypeKind tk, SpecName::Storage sc,
   this->baseType = SpecName::NoType;
 }
 Spec::~Spec(){}
+std::string Spec::toTypeString() const{
+  return getTypeKindStr();
+}
+std::string Spec::toString() const{
+  std::stringstream ss;
+  ss << "TypeKind: "<< this->getTypeKindStr()
+     << " Storage: "<< this->getStorageClassStr()
+     << " Qualifier: "<< this->getTypeQualifierStr()
+     << " Sign: "<< this->getSignStr();
+  return ss.str();
+}
 SpecName::TypeKind Spec::getTypeKind() const{
   return this->typekind;
 }
@@ -32,7 +43,6 @@ void Spec::setQualifier(SpecName::Qualifier qualifier){
 void Spec::setSign(SpecName::Sign sign){
   this->sign = sign;
 }
-
 bool Spec::isTypeKind(SpecName::TypeKind type) const {
   return this->typekind == type;
 }
@@ -44,14 +54,6 @@ bool Spec::isTypeQualifier(SpecName::Qualifier type) const {
 }
 bool Spec::isSign(SpecName::Sign type) const {
   return this->sign == type;
-}
-std::string Spec::toString() const{
-  std::stringstream ss;
-  ss << "TypeKind: "<< this->getTypeKindStr()
-     << " Storage: "<< this->getStorageClassStr()
-     << " Qualifier: "<< this->getTypeQualifierStr()
-     << " Sign: "<< this->getSignStr();
-  return ss.str();
 }
 std::string Spec::getTypeKindStr() const{
   std::string result;
@@ -174,6 +176,9 @@ std::string TypeBasic::toString() const{
   }
   return ss.str();
 }
+std::string TypeBasic::toTypeString() const{
+  return getTypeName();
+}
 std::string TypeBasic::basetToStr(SpecName::BaseType basetype) const{
   std::string result;
   if(basetype == SpecName::Void){
@@ -235,8 +240,15 @@ TypeEnum::TypeEnum(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign s
   this->storage = sc;
   this->qualifier = tq;
   this->sign = sign;
-  this->baseType = SpecName::NoType;
+
   this->nextNumber = 0;
+  this->enumName = "int";
+}
+std::string TypeEnum::toTypeString() const{
+  return this->enumName;
+}
+std::string TypeEnum::toString() const{
+  return "Enum"; //for now
 }
 int TypeEnum::getSize() const{
   return constants.size();
@@ -255,14 +267,21 @@ TypeArray::TypeArray(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign
   this->storage = sc;
   this->qualifier = tq;
   this->sign = sign;
+
+  this->elemSpec = NULL;
+}
+std::string TypeArray::toTypeString() const{
+  std::stringstream ss;
+  ss << getElemTypeName();
+  for(int dim = 0; dim < this->arraySizes.size(); dim++){
+    ss << "[" << this->arraySizes[dim] << "]";
+  }
+  return ss.str();
 }
 std::string TypeArray::toString() const{
   std::stringstream ss;
   std::string temp;
-  ss << this->elemType;
-  for(int dim = 0; dim < this->arraySizes.size(); dim++){
-    ss << "[" << this->arraySizes[dim] << "]";
-  }
+  ss << toTypeString();
   temp = this->getStorageClassStr();
   if(!temp.empty()){
     ss << " " + temp;
@@ -273,14 +292,17 @@ std::string TypeArray::toString() const{
   }
   return ss.str();
 }
-void TypeArray::setElemType(std::string elemType){
-  this->elemType = elemType;
+void TypeArray::setElemSpec(Spec* elemSpec){
+  this->elemSpec = elemSpec;
 }
 void TypeArray::setArraySizes(std::vector<int>& arraySizes){
   this->arraySizes = arraySizes;
 }
-std::string TypeArray::getElemType() const{
-  return this->elemType;
+std::string TypeArray::getElemTypeName() const{
+  if(this->elemSpec!=NULL){
+    return this->elemSpec->toString();
+  }
+  return "";
 }
 int TypeArray::getSize(int dim) const{
   return this->arraySizes[dim];
@@ -295,18 +317,26 @@ TypeFunction::TypeFunction(SpecName::Storage sc,SpecName::Qualifier tq, SpecName
   this->storage = sc;
   this->qualifier = tq;
   this->sign = sign;
+
+  this->returnSpec = NULL;
 }
-std::string TypeFunction::toString() const{
+std::string TypeFunction::toTypeString() const{
   std::stringstream ss;
   std::string temp;
-  ss << this->returnType + "(";
-  for(int arg = 0; arg < this->argTypes.size(); arg++){
-    ss << this->argTypes[arg];
-    if(arg < this->argTypes.size()-1){
+  ss << getReturnSpecName() + "(";
+  for(int arg = 0; arg < this->argSpecs.size(); arg++){
+    ss << getArgTypeName(arg);
+    if(arg < this->argSpecs.size()-1){
       ss << ", ";
     }
   }
   ss << ")";
+  return ss.str();
+}
+std::string TypeFunction::toString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << toTypeString();
   temp = this->getStorageClassStr();
   if(!temp.empty()){
     ss << " " + temp;
@@ -317,20 +347,23 @@ std::string TypeFunction::toString() const{
   }
   return ss.str();
 }
-void TypeFunction::insertArg(std::string argType){
-  this->argTypes.push_back(argType);
+void TypeFunction::insertArg(Spec* argSpec){
+  this->argSpecs.push_back(argSpec);
 }
-void TypeFunction::setReturnType(std::string  returnType){
-  this->returnType = returnType;
-}
-std::string  TypeFunction::getReturnType() const{
-  return this->returnType;
+void TypeFunction::setReturnSpec(Spec*  returnSpec){
+  this->returnSpec = returnSpec;
 }
 int TypeFunction::getArgSize() const{
-  return this->argTypes.size();
+  return this->argSpecs.size();
 }
-std::string  TypeFunction::getArgType(int nth) const{
-  return this->argTypes[nth];
+std::string TypeFunction::getArgTypeName(int nth) const{
+  return this->argSpecs[nth]->toString();
+}
+std::string TypeFunction::getReturnSpecName() const{
+  return this->returnSpec->toString();
+}
+Spec* TypeFunction::getReturnSpec() const{
+  return this->returnSpec;
 }
 // typename  ------------------------------------------------------------------
 TypeTypeName::TypeTypeName(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
@@ -338,7 +371,23 @@ TypeTypeName::TypeTypeName(SpecName::Storage sc,SpecName::Qualifier tq, SpecName
   this->storage = sc;
   this->qualifier = tq;
   this->sign = sign;
+
   this->baseSpec = NULL;
+}
+std::string TypeTypeName::toTypeString() const{
+  return this->baseSpec->toTypeString();
+}
+std::string TypeTypeName::toString() const{
+ std::stringstream ss;
+ std::string temp;
+ ss << "Typedef " << this->typeName << " " << toTypeString();
+ return ss.str();
+}
+void TypeTypeName::setTypeName(std::string typeName){
+  this->typeName = typeName;
+}
+void TypeTypeName::setBaseSpec(Spec* baseSpec){
+  this->baseSpec = baseSpec;
 }
 Spec* TypeTypeName::getBaseSpec() const{
   return this->baseSpec;
@@ -350,13 +399,19 @@ TypePointer::TypePointer(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::
   this->qualifier = tq;
   this->sign = sign;
 }
-std::string TypePointer::toString() const{
+std::string TypePointer::toTypeString() const{
   std::stringstream ss;
   std::string temp;
-  ss << this->targetType;
+  ss << getTargetTypeName();
   for(int level = 0; level < this->levels; level++){
     ss << "*";
   }
+  return ss.str();
+}
+std::string TypePointer::toString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << toTypeString();
   temp = this->getStorageClassStr();
   if(!temp.empty()){
     ss << " " + temp;
@@ -367,14 +422,14 @@ std::string TypePointer::toString() const{
   }
   return ss.str();
 }
-std::string TypePointer::getTargetType() const{
-  return this->targetType;
+std::string TypePointer::getTargetTypeName() const{
+  return this->targetSpec->toTypeString();
 }
 int TypePointer::getLevels() const{
   return this->levels;
 }
-void TypePointer::setTargetType(std::string targetType){
-  this->targetType = targetType;
+void TypePointer::setTargetSpec(Spec* targetSpec){
+  this->targetSpec = targetSpec;
 }
 void TypePointer::setLevels(int levels){
   this->levels = levels;
@@ -388,6 +443,29 @@ TypeStruct::TypeStruct(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Si
   this->storage = sc;
   this->qualifier = tq;
   this->sign = sign;
+}
+std::string TypeStruct::toString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << toTypeString();
+  temp = this->getStorageClassStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  temp = this->getTypeQualifierStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  return ss.str();
+}
+std::string TypeStruct::toTypeString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << "Struct";
+  if(!this->structName.empty()){  // may be anonymous
+    ss << " " + this->structName;
+  }
+  return ss.str();
 }
 void TypeStruct::addMember(std::string name, Spec* type){
     this->members[name] = type;
@@ -404,6 +482,29 @@ TypeUnion::TypeUnion(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign
   this->storage = sc;
   this->qualifier = tq;
   this->sign = sign;
+}
+std::string TypeUnion::toString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << toTypeString();
+  temp = this->getStorageClassStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  temp = this->getTypeQualifierStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
+  return ss.str();
+}
+std::string TypeUnion::toTypeString() const{
+  std::stringstream ss;
+  std::string temp;
+  ss << "Union";
+  if(!this->unionName.empty()){  // may be anonymous
+    ss << " " + this->unionName;
+  }
+  return ss.str();
 }
 void TypeUnion::addMember(std::string name, Spec* type){
     this->members[name] = type;

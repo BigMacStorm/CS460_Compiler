@@ -22,7 +22,6 @@ class Declaration{
   // push info to declaration from parser
   void pushID(std::string id);
   void pushPos(int pos);
-  void pushSpec(std::string spec);
   void pushKind(SpecName::TypeKind);
   void pushBase(SpecName::BaseType);
   void pushSign(SpecName::Sign);
@@ -33,18 +32,31 @@ class Declaration{
   void incArgSize();
 
   std::string getID(int idx) const;
-  std::string getSpecStr(int idx) const;
   int getArgSize() const;
+  int getBasesNum() const{
+    return this->bases.size();
+  }
   std::vector<SymbolNode*> getArgSymbolNodes() const;
 
-  Spec* getSpec();
-
-  void setSpec(Spec& spec);
-  bool setSign(SpecName::Sign sign);
-  bool setType(SpecName::TypeKind typekind);
+  bool setSign(Spec*, SpecName::Sign sign);
   bool setBaseType(TypeBasic *base, SpecName::BaseType BaseType);
-  bool setQualifier(SpecName::Qualifier qualifier);
-  bool setStorage(SpecName::Storage storage);
+  bool setQualifier(Spec*,SpecName::Qualifier qualifier);
+  bool setStorage(Spec*, SpecName::Storage storage);
+  void setHasType();
+
+  bool buildStorage(Spec* spec, std::vector<SpecName::Storage> storages);
+  bool buildSign(Spec* spec, std::vector<SpecName::Sign> signs);
+  bool buildQualifier(Spec* spec, std::vector<SpecName::Qualifier> qualifiers);
+  bool buildBase(Spec* spec, std::vector<SpecName::BaseType> bases);
+
+  TypeBasic* makeBasicType(std::vector<SpecName::BaseType> bases, std::vector<SpecName::Sign>signs);
+  TypeBasic* makeBasicVar(std::vector<SpecName::BaseType> bases,
+    std::vector<SpecName::Sign>signs, std::vector<SpecName::Storage> storages,
+     std::vector<SpecName::Qualifier> qualifiers);
+
+  TypePointer* makePointerVar(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
+    std::vector<SpecName::Sign>signs, std::vector<SpecName::Storage> storages,
+     std::vector<SpecName::Qualifier> qualifiers);
 
   bool checkSigned(SpecName::BaseType type) const;
 
@@ -55,13 +67,12 @@ class Declaration{
   void clear();
   bool complete();
 
-  TypeBasic* makeBasicType();
   bool pushBasic(std::string name);
   bool pushArray(std::string name);
   bool pushPointer(std::string name);
   bool pushFunction(std::string name);
 
-  bool insertSymbol(std::string name, SymbolNode* val);
+  bool insertSymbol(std::string name, SymbolNode* val, int pos);
 
   // debug
   void showKinds() const;
@@ -72,21 +83,29 @@ class Declaration{
 
  private:
   DeclMode::Mode mode;
-  Spec spec;
   std::vector<std::string> ids; // identifiers
   std::vector<int> pos; // identifier positions
 
-  std::vector<SpecName::TypeKind> kinds;
-  std::vector<SpecName::BaseType> bases; // for basic type
+  // type-specific detail
   std::vector<int> arraySizes; // for multi dimension
   int levels; // pointer deepness
   int argSize; // function argments
+  bool hasType;
   std::vector<SymbolNode*> argSymbolNodes;
 
-  std::vector<std::string> specs;
+  // main components of spec
+  std::vector<SpecName::TypeKind> kinds;
+  std::vector<SpecName::BaseType> bases;
   std::vector<SpecName::Sign> signs;
   std::vector<SpecName::Qualifier> qualifiers;
   std::vector<SpecName::Storage> storages;
+
+  // holder holds a set of each component set
+  std::vector<std::vector<SpecName::TypeKind>> kindsHolder;
+  std::vector<std::vector<SpecName::Sign>> signsHolder;
+  std::vector<std::vector<SpecName::Qualifier>> qualifiersHolder;
+  std::vector<std::vector<SpecName::Storage>> storagesHolder;
+  std::vector<std::vector<SpecName::BaseType>> basesHolder;
 
 };
 #endif

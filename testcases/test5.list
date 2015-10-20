@@ -1,0 +1,263 @@
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok
+[p]: declarator -> direct_declarator
+int main ( ) { 
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: declaration_list -> declaration
+int ib1 = 0b00001 ; 
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: declaration_list -> declaration_list declaration
+int ib2 = 0B00011 ; 
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: declaration_list -> declaration_list declaration
+int ib3 = 0b11111111111111111111111111111111 ; 
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: declaration_list -> declaration_list declaration
+int ih1 = 0x00ABCDEF ; 
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: declaration_list -> declaration_list declaration
+int ih3 = 0xFFFFFFFF ; 
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: declaration_list -> declaration_list declaration
+int io1 = 077777777 ; 
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: declaration_list -> declaration_list declaration
+int io2 = 017562730 ; 
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: declaration_list -> declaration_list declaration
+int id1 = 0 ; 
+[p]: type_specifier -> INTtok
+[p]: declaration_specifiers -> type_specifier
+[p]: identifier -> IDENTIFIERtok
+[p]: direct_declarator -> identifier
+[p]: declarator -> direct_declarator
+[p]: constant -> INTEGER_CONSTANTtok
+[p]: primary_expression -> constant
+[p]: postfix_expression -> primary_expression
+[p]: unary_expression -> postfix_expression
+[p]: cast_expression -> unary_expression
+[p]: multiplicative_expression -> cast_expression
+[p]: additive_expression -> multiplicative_expression
+[p]: shift_expression -> additive_expression
+[p]: relational_expression -> shift_expression
+[p]: equality_expression -> relational_expression
+[p]: and_expression -> equality_expression
+[p]: exclusive_or_expression -> and_expression
+[p]: inclusive_or_expression -> exclusive_or_expression
+[p]: logical_and_expression -> inclusive_or_expression
+[p]: logical_or_expression -> logical_and_expression
+[p]: conditional_expression -> logical_or_expression
+[p]: assignment_expression -> conditional_expression
+[p]: initializer -> assignment_expression
+[p]: init_declarator -> declarator EQUALtok initializer
+[p]: init_declarator_list -> init_declarator
+[p]: declaration -> declaration_specifiers init_declarator_list SEMItok
+[p]: declaration_list -> declaration_list declaration
+int id2 = 4294967295 ; 
+[p]: compound_statement -> OPEN_CURLYtok declaration_list CLOSE_CURLYtok
+[p]: function_definition -> declaration_specifiers declarator compound_statement
+[p]: external_declaration -> function_definition
+[p]: translation_unit -> external_declaration
