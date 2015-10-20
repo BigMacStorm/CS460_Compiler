@@ -87,6 +87,7 @@ Declaration decl; // holds info about a current declaration
 translation_unit
   : external_declaration {
      reductionOut("[p]: translation_unit -> external_declaration");
+     std::cout << "Success!" << std::endl;
   }
   | translation_unit external_declaration {
     reductionOut("[p]: translation_unit -> translation_unit external_declaration");
