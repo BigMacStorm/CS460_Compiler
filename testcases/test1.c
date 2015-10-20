@@ -10,15 +10,16 @@ extern double long edl[10];
 float f2d[20];
 int i3d[2][2][2];
 
-int foo();
-unsigned int boo(float x, long double z);
+void hello(void);
+static int foo();
 
+unsigned int boo(float x, long double z);
 void zoo(int a, register unsigned int b){
   int x, y;
   //!!S
 }
 
-int main(){
+int main(int argc, char ** argv){
   int *ip;
   int **ipp;
 
@@ -27,3 +28,22 @@ int main(){
   //!!S
   return 0;
 }
+
+advanced(void){
+/*
+  int * aip[10];
+  double ** apd[10];
+  long long *llp2d[10][10];
+  int (*p2d)[10]; // int(*)[]
+  const int *cip;
+  const int * const cicpp;
+  const int *** const * volatile cipppciv;
+  const int *** const * volatile cipppciv3d [10][10][10];
+  */
+
+  //!!S
+  return 0;
+}
+
+//!!S
+

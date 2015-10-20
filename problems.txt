@@ -5,6 +5,7 @@ Declarations:
   long int long int
   void -> size = 1
   formal definition -> auto by default
+  char **
 
 Git rid of scope test case
 Endlines on error messages
