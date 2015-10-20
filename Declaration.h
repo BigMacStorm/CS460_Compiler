@@ -33,9 +33,7 @@ class Declaration{
 
   std::string getID(int idx) const;
   int getArgSize() const;
-  int getBasesNum() const{
-    return this->bases.size();
-  }
+  int getBasesNum() const;
   std::vector<SymbolNode*> getArgSymbolNodes() const;
 
   bool setSign(Spec*, SpecName::Sign sign);
@@ -49,7 +47,8 @@ class Declaration{
   bool buildQualifier(Spec* spec, std::vector<SpecName::Qualifier> qualifiers);
   bool buildBase(Spec* spec, std::vector<SpecName::BaseType> bases);
 
-  TypeBasic* makeBasicType(std::vector<SpecName::BaseType> bases, std::vector<SpecName::Sign>signs);
+  TypeBasic* makeBasicType(std::vector<SpecName::BaseType> bases, std::vector<SpecName::Sign>signs,
+    std::vector<SpecName::Qualifier> qualifiers);
   TypeBasic* makeBasicVar(std::vector<SpecName::BaseType> bases,
     std::vector<SpecName::Sign>signs, std::vector<SpecName::Storage> storages,
      std::vector<SpecName::Qualifier> qualifiers);
@@ -57,6 +56,8 @@ class Declaration{
   TypePointer* makePointerVar(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
     std::vector<SpecName::Sign>signs, std::vector<SpecName::Storage> storages,
      std::vector<SpecName::Qualifier> qualifiers);
+  TypePointer* makePointerType(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
+    std::vector<SpecName::Sign>signs, std::vector<SpecName::Qualifier> qualifiers);
 
   bool checkSigned(SpecName::BaseType type) const;
 
@@ -80,6 +81,7 @@ class Declaration{
   void showBases() const;
   void showIDs() const;
   void showStorages() const;
+  void showQualifiers() const;
 
  private:
   DeclMode::Mode mode;

@@ -40,7 +40,7 @@ void Declaration::pushBase(SpecName::BaseType basetype){
   }
 }
 void Declaration::pushQualifier(SpecName::Qualifier qualifier){
-  //std::cout << qualifier << std::endl;
+  //std::cout << "Qualifier: " << qualifier << std::endl;
   if(qualifier == SpecName::NoQualifier){
     this->qualifiersHolder.push_back(this->qualifiers);
     this->qualifiers.clear();
@@ -73,6 +73,7 @@ void Declaration::pushSign(SpecName::Sign sign){
 void Declaration::pushArraySize(int size){
   this->arraySizes.push_back(size);
 }
+
 void Declaration::incLevels(){
   this->levels++;
 }
@@ -98,7 +99,9 @@ int Declaration::getArgSize() const{
  std::vector<SymbolNode*> Declaration::getArgSymbolNodes() const{
   return this->argSymbolNodes;
  }
-
+ int Declaration::getBasesNum() const{
+   return this->bases.size();
+ }
 // base type *****************************************************************
  bool Declaration::setBaseType(TypeBasic *base, SpecName::BaseType basetype){
   SpecName::BaseType currentBaseType = base->getBaseType();
@@ -278,6 +281,7 @@ bool Declaration::complete(){
 
   // e.g., int(*)[] can be resolved by parsing the kinds here?
   std::cout << "Mode: " << mode <<std::endl;
+  showQualifiers();
   if(isMode(DeclMode::NoMode)){
     complete = pushBasic(name);
   }
@@ -338,13 +342,17 @@ void Declaration::clearArgs(){
   this->hasType = false;
   this->argSymbolNodes.clear();
 }
-TypeBasic* Declaration::makeBasicType(std::vector<SpecName::BaseType> bases, std::vector<SpecName::Sign>signs){
+TypeBasic* Declaration::makeBasicType(std::vector<SpecName::BaseType> bases, std::vector<SpecName::Sign>signs,
+  std::vector<SpecName::Qualifier> qualifiers){
   //std::cout << "Building Basic Type ..." << std::endl;
   Spec spec;
   if(!buildSign(&spec,signs)){
     return NULL;
   }
-  TypeBasic *basetype = new TypeBasic(SpecName::NoStorage,SpecName::NoQualifier,spec.getSign());
+  if(!buildQualifier(&spec, qualifiers)){
+    return NULL;
+  }
+  TypeBasic *basetype = new TypeBasic(SpecName::NoStorage,spec.getQualifier(),spec.getSign());
 
   if(!buildBase(basetype, bases)){
     return NULL;
@@ -357,14 +365,11 @@ TypeBasic* Declaration::makeBasicVar(std::vector<SpecName::BaseType> bases,
   std::vector<SpecName::Sign>signs, std::vector<SpecName::Storage> storages,
    std::vector<SpecName::Qualifier> qualifiers){
 
-  TypeBasic *base = makeBasicType(bases,signs);
+  TypeBasic *base = makeBasicType(bases,signs,qualifiers);
   if(base == NULL){
     return NULL;
   }
   if(!buildStorage(base,storages)){
-    return NULL;
-  }
-  if(!buildQualifier(base, qualifiers)){
     return NULL;
   }
   if(base->getBaseType() == SpecName::Void){
@@ -399,47 +404,87 @@ bool Declaration::pushArray(std::string name){
     return false;
   }
   TypeArray *array = new TypeArray(spec.getStorage(),spec.getQualifier());
+  int type = this->kindsHolder[0].size()-1;
 
   // basic type
-  if(this->kindsHolder[0][0] == SpecName::Basic){
-    TypeBasic *base = makeBasicType(this->basesHolder[0],this->signsHolder[0]);
+  if(this->kindsHolder[0][type] == SpecName::Basic){
+    TypeBasic *base = makeBasicType(this->basesHolder[0],this->signsHolder[0],this->qualifiersHolder[0]);
     if(base == NULL){
       return false;
     }
     array->setElemSpec(base);
     array->setArraySizes(this->arraySizes);
   }
-
-  // typedef
-
   // pointer
+  else if(this->kindsHolder[0][type] == SpecName::Pointer){
+    TypePointer* pointer = makePointerType(this->kindsHolder[0][type-1], this->basesHolder[0],this->signsHolder[0],this->qualifiersHolder[0]);
+    array->setElemSpec(pointer);
+    array->setArraySizes(this->arraySizes);
+  }
+  // typedef
 
   // insert array
   SymbolNode *val = new SymbolNode(name,array,this->pos[0]);
   return insertSymbol(name, val,this->pos[0]);
 }
+TypePointer* Declaration::makePointerType(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
+  std::vector<SpecName::Sign>signs, std::vector<SpecName::Qualifier> qualifiers){
+    Spec spec;
+    if(!buildQualifier(&spec, qualifiers)){
+      return NULL;
+    }
+    TypePointer *pointer = new TypePointer(SpecName::NoStorage,spec.getQualifier());
+    pointer->setLevels(this->levels);
+
+    // basic type -------------------------------
+    if(typekind == SpecName::Basic){
+      TypeBasic *base = makeBasicType(bases,signs,qualifiers);
+      if(base == NULL){
+        return NULL;
+      }
+      pointer->setTargetSpec(base);
+    }
+    // typedef
+    return pointer;
+    /*
+    TypePointer *pointer = new TypePointer();
+
+    if(typekind == SpecName::Basic){
+       int currentLevels = this->levels;
+       if(this->levels > 1){
+         this->levels--;
+         TypePointer *another = makePointerType(typekind, bases,signs,qualifiers);
+         if(another == NULL){
+           return NULL;
+         }
+          pointer->setLevels(currentLevels);
+          pointer->setTargetSpec(another);
+          TypeBasic *base = makeBasicType(bases,signs,qualifiers);
+          if(base == NULL){
+            return NULL;
+          }
+          pointer->setTargetSpec(base);
+        }
+        else{
+          pointer->setLevels(this->levels);
+          TypeBasic *base = makeBasicType(bases,signs,qualifiers);
+          if(base == NULL){
+            return NULL;
+          }
+          pointer->setTargetSpec(base);
+        }
+      }
+    return pointer;
+     */
+}
 TypePointer* Declaration::makePointerVar(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
   std::vector<SpecName::Sign>signs, std::vector<SpecName::Storage> storages,
    std::vector<SpecName::Qualifier> qualifiers){
   Spec spec;
-  if(!buildStorage(&spec,storages)){
+  TypePointer *pointer = makePointerType(typekind,bases,signs,qualifiers);
+  if(!buildStorage(pointer,storages)){
     return NULL;
   }
-  if(!buildQualifier(&spec, qualifiers)){
-    return NULL;
-  }
-  TypePointer *pointer = new TypePointer(spec.getStorage(),spec.getQualifier(),spec.getSign());
-  pointer->setLevels(this->levels);
-
-  // basic type -------------------------------
-  if(typekind == SpecName::Basic){
-    TypeBasic *base = makeBasicType(bases,signs);
-    if(base == NULL){
-      return NULL;
-    }
-    pointer->setTargetSpec(base);
-  }
-  // typedef
   return pointer;
 }
 
@@ -473,14 +518,22 @@ bool Declaration::pushFunction(std::string name){
   }
   else{
     Spec returnSpec;
-      // basic ---------------------------------------------------
-      if(this->kindsHolder[kind][0] == SpecName::Basic){
-        TypeBasic* base = makeBasicType(this->basesHolder[type],this->signsHolder[type]);
-        if(base != NULL){
-          function->setReturnSpec(base);
-        }
+    int num = this->kindsHolder[kind].size()-1;
+    // basic ---------------------------------------------------
+    if(this->kindsHolder[kind][num] == SpecName::Basic){
+      TypeBasic* base = makeBasicType(this->basesHolder[num],this->signsHolder[type],this->qualifiersHolder[type]);
+      if(base != NULL){
+        function->setReturnSpec(base);
       }
-      // pointer -------------------------------------------------
+    }
+    // pointer -------------------------------------------------
+    else if(this->kindsHolder[kind][num] == SpecName::Pointer){
+      TypePointer* pointer = makePointerType(this->kindsHolder[kind][num-1],this->basesHolder[type],
+        this->signsHolder[type],this->qualifiersHolder[type]);
+      if(pointer != NULL){
+        function->setReturnSpec(pointer);
+      }
+    }
   }
 
   // function arguments mode
@@ -497,8 +550,9 @@ bool Declaration::pushFunction(std::string name){
     //std::cout << "Figuring out a new argment type ..." << std::endl;
       type++;
 
+      int num = this->kindsHolder[kind].size()-1;
       // basic ---------------------------------------------------
-      if(this->kindsHolder[kind][0] == SpecName::Basic){
+      if(this->kindsHolder[kind][num] == SpecName::Basic){
         TypeBasic* base = makeBasicVar(this->basesHolder[type],this->signsHolder[type],this->storagesHolder[type],this->qualifiersHolder[type]);
         if(arg_definition_mode){
           this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], base, this->pos[arg]));
@@ -507,15 +561,13 @@ bool Declaration::pushFunction(std::string name){
         function->insertArg(base);
       }
       // pointer ---------------------------------------------------
-      else if(this->kindsHolder[kind][0] == SpecName::Pointer){
-        /*
-        TypePointer* pointer = makePointerVar(this->kindsHolder[kind], this->basesHolder[type],this->signsHolder[type],this->storagesHolder[type],this->qualifiersHolder[type]);
+      else if(this->kindsHolder[kind][num] == SpecName::Pointer){
+        TypePointer* pointer = makePointerVar(this->kindsHolder[kind][num-1], this->basesHolder[type],this->signsHolder[type],this->storagesHolder[type],this->qualifiersHolder[type]);
         if(arg_definition_mode){
           this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], pointer, this->pos[arg]));
           arg++;
         }
         function->insertArg(pointer);
-         */
       }
   } // end argment types  ====================================================
 
@@ -565,6 +617,13 @@ void Declaration::showStorages() const{
   for(int n = 0; n < this->storagesHolder.size(); n++){
     for(int storage = 0; storage< this->storagesHolder[n].size(); storage++){
       std::cout << this->storagesHolder[n].at(storage) << std::endl;
+    }
+  }
+}
+void Declaration::showQualifiers() const{
+  for(int n = 0; n < this->qualifiersHolder.size(); n++){
+    for(int qualifier = 0; qualifier< this->qualifiersHolder[n].size(); qualifier++){
+      std::cout << this->qualifiersHolder[n].at(qualifier) << std::endl;
     }
   }
 }

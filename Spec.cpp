@@ -170,10 +170,6 @@ std::string TypeBasic::toString() const{
   if(!temp.empty()){
     ss << " " + temp;
   }
-  temp = this->getTypeQualifierStr();
-  if(!temp.empty()){
-    ss << " " + temp;
-  }
   return ss.str();
 }
 std::string TypeBasic::toTypeString() const{
@@ -218,7 +214,12 @@ std::string TypeBasic::getBaseTypeStr() const{
 }
 std::string TypeBasic::getTypeName() const{
   std::string result = basetToStr(this->baseType);
-  std::string temp = this->getSignStr();
+  std::string temp;
+  temp = this->getTypeQualifierStr();
+  if(!temp.empty()){
+    result =temp + " " + result;
+  }
+  temp = this->getSignStr();
   if(!temp.empty()){
     result = temp + " " + result;
   }
@@ -286,10 +287,6 @@ std::string TypeArray::toString() const{
   if(!temp.empty()){
     ss << " " + temp;
   }
-  temp = this->getTypeQualifierStr();
-  if(!temp.empty()){
-    ss << " " + temp;
-  }
   return ss.str();
 }
 void TypeArray::setElemSpec(Spec* elemSpec){
@@ -338,10 +335,6 @@ std::string TypeFunction::toString() const{
   std::string temp;
   ss << toTypeString();
   temp = this->getStorageClassStr();
-  if(!temp.empty()){
-    ss << " " + temp;
-  }
-  temp = this->getTypeQualifierStr();
   if(!temp.empty()){
     ss << " " + temp;
   }
@@ -403,6 +396,10 @@ std::string TypePointer::toTypeString() const{
   std::stringstream ss;
   std::string temp;
   ss << getTargetTypeName();
+  temp = this->getTypeQualifierStr();
+  if(!temp.empty()){
+    ss << " " + temp;
+  }
   for(int level = 0; level < this->levels; level++){
     ss << "*";
   }
@@ -413,10 +410,6 @@ std::string TypePointer::toString() const{
   std::string temp;
   ss << toTypeString();
   temp = this->getStorageClassStr();
-  if(!temp.empty()){
-    ss << " " + temp;
-  }
-  temp = this->getTypeQualifierStr();
   if(!temp.empty()){
     ss << " " + temp;
   }
@@ -452,10 +445,6 @@ std::string TypeStruct::toString() const{
   if(!temp.empty()){
     ss << " " + temp;
   }
-  temp = this->getTypeQualifierStr();
-  if(!temp.empty()){
-    ss << " " + temp;
-  }
   return ss.str();
 }
 std::string TypeStruct::toTypeString() const{
@@ -488,10 +477,6 @@ std::string TypeUnion::toString() const{
   std::string temp;
   ss << toTypeString();
   temp = this->getStorageClassStr();
-  if(!temp.empty()){
-    ss << " " + temp;
-  }
-  temp = this->getTypeQualifierStr();
   if(!temp.empty()){
     ss << " " + temp;
   }
