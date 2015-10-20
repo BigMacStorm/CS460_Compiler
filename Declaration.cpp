@@ -11,23 +11,23 @@ void Declaration::pushPos(int pos){
   this->pos.push_back(pos);
 }
 void Declaration::pushKind(SpecName::TypeKind typekind){
-  std::cout << "Kind: " << typekind;
+  //std::cout << "Kind: " << typekind;
   if(typekind == SpecName::NoKind){
     this->kindsHolder.push_back(this->kinds);
     this->kinds.clear();
-    std::cout << " Size: " << this->kindsHolder.size();
+    //std::cout << " Size: " << this->kindsHolder.size();
   }
   else{
     if(this->kinds.empty()){
       this->kinds.push_back(typekind);
-      std::cout << " OK";
+      //std::cout << " OK";
     }
     else if(typekind != this->kinds.back()){
       this->kinds.push_back(typekind);
-      std::cout << " OK";
+      //std::cout << " OK";
     }
   }
-  std::cout << " " << std::endl;
+  //std::cout << " " << std::endl;
 }
 void Declaration::pushBase(SpecName::BaseType basetype){
   //std::cout << "Base: " << basetype << std::endl;
@@ -277,11 +277,9 @@ bool Declaration::buildSign(Spec* spec, std::vector<SpecName::Sign> signs){
 bool Declaration::complete(){
   bool complete = false;
   std::string name = this->ids[0];
-  std::cout << "Identifier \'" << name << "\' is processed ..."<< std::endl;
+  //std::cout << "Identifier \'" << name << "\' is processed ..."<< std::endl;
+  //std::cout << "Mode: " << mode <<std::endl;
 
-  // e.g., int(*)[] can be resolved by parsing the kinds here?
-  std::cout << "Mode: " << mode <<std::endl;
-  showQualifiers();
   if(isMode(DeclMode::NoMode)){
     complete = pushBasic(name);
   }
@@ -578,11 +576,11 @@ bool Declaration::pushFunction(std::string name){
 bool Declaration::insertSymbol(std::string name, SymbolNode* val, int pos){
   if(symTable.lookupTopTable(name)){
     std::stringstream ss;
-    ss << "[S]: ERROR: Redefinition of \'" << name << "\'" << "@" << pos;
+    ss << "[P]: ERROR: Redefinition of \'" << name << "\'" << "@" << pos;
     error(ss.str());
   }
   else if(symTable.lookUpShadowedSymbol(name)) {
-    std::cout << "[S]: WARNING: Symbol \'"+name+"\' shadows another in parent level\n" << "@" << pos;
+    std::cout << "[P]: WARNING: Symbol \'"+name+"\' shadows another in parent level\n" << "@" << pos;
   }
   return symTable.insertSymbol(name, val);
 }

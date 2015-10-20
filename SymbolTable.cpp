@@ -61,7 +61,6 @@ bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
     return true;
   }
   else{
-    this->debugger->debug("[S]: Redefinition of \'"+key+"\'");
     return false;
   }
 }

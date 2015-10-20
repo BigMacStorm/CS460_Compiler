@@ -28,6 +28,7 @@ void error(const std::string& message);
 void reductionOut(const char* reductionCStr);
 
 Declaration decl; // holds info about a current declaration
+bool insert_mode = true;
 
 %}
 
@@ -35,20 +36,21 @@ Declaration decl; // holds info about a current declaration
   char cval;
   int ival;
   double dval;
-  long lval;
-  unsigned long long ullval;
-  //char* sval;
-  char sval[100]; // Changing this to an array fixed a strcpy segfault
-  SymbolNode* symval;
-
+  char sval[100];
+  SymbolNode* sym;
+  //ASTNode* ast;
   SpecName::TypeKind tkval;
  }
 
 
 // Tokens
 %token <sval> IDENTIFIERtok
-%token INTEGER_CONSTANTtok FLOATING_CONSTANTtok CHARACTER_CONSTANTtok ENUMERATION_CONSTANTtok
-%token STRING_LITERALtok
+%token <ival> INTEGER_CONSTANTtok
+%token <dval> FLOATING_CONSTANTtok
+%token <cval> CHARACTER_CONSTANTtok
+%token <sym> ENUMERATION_CONSTANTtok
+%token <sval> STRING_LITERALtok
+
 %token SIZEOFtok
 %token PTR_OPtok
 %token INC_OPtok DEC_OPtok
@@ -73,12 +75,17 @@ Declaration decl; // holds info about a current declaration
 %token <tkval> STRUCTtok
 %token <tkval> UNIONtok
 %token ENUMtok ELIPSIStok RANGEtok
+
 %type <sval> identifier
 %type <tkval> struct_or_union
 
 %token CASEtok DEFAULTtok IFtok ELSEtok SWITCHtok WHILEtok DOtok FORtok GOTOtok CONTINUEtok BREAKtok RETURNtok
 
 %token ERRORtok
+
+/****
+%type <ast> identifier constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression
+****/
 
 %start translation_unit
 
@@ -109,18 +116,24 @@ after compound_statement.
 *****************************************************************************/
 enter_scope
   : {
-      decl.complete(); // complete function definition
-      symTable.pushTable();
+      if(insert_mode){
+        decl.complete(); // complete function definition
+        symTable.pushTable();
 
-      // push argments if possible
-      std::vector<SymbolNode*> args = decl.getArgSymbolNodes();
-      if(args.size() > 0){
-        for(int arg = 0; arg < args.size(); arg++){
-          symTable.insertSymbol(args[arg]->getName(),args[arg]);
-          }
-        decl.clearArgs();
+        // push argments if possible
+        std::vector<SymbolNode*> args = decl.getArgSymbolNodes();
+        if(args.size() > 0){
+          for(int arg = 0; arg < args.size(); arg++){
+            symTable.insertSymbol(args[arg]->getName(),args[arg]);
+            }
+          decl.clearArgs();
+        }
+        decl.clear(); // clear function definition
+        insert_mode = false;
       }
-      decl.clear(); // clear function definition
+      else{
+        symTable.pushTable();
+      }
     }
 ;
 end_scope
@@ -166,12 +179,18 @@ init_declarator_list
   : init_declarator {
       // a single variable declaration
       reductionOut("[p]: init_declarator_list -> init_declarator");
-      decl.complete();
+      if(insert_mode){
+        decl.complete();
+        insert_mode = false;
+      }
   }
   | init_declarator_list COMMAtok init_declarator {
       // multiple single line declarations
       reductionOut("[p]: init_declarator_list -> init_declarator_list COMMAtok init_declarator");
-      decl.complete();
+      if(insert_mode){
+        decl.complete();
+        insert_mode = false;
+      }
   }
   ;
 
@@ -461,6 +480,7 @@ enumerator
 declarator
   : direct_declarator {
       reductionOut("[p]: declarator -> direct_declarator");
+      insert_mode = true;
   }
   | pointer direct_declarator {
       // pointer mode
@@ -1076,8 +1096,9 @@ primary_expression
   : identifier {
       reductionOut("[p]: primary_expression -> identifier");
       if(!symTable.lookupSymbol($1)) {
-        error("error: identifier not found");
+        error("[p]: ERROR: identifier not found");
       }
+      insert_mode = false;
   }
   | constant {
       reductionOut("[p]: primary_expression -> constant");

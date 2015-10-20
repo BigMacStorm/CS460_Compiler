@@ -27,8 +27,6 @@ void addLine(int);
 void zeroCol();
 bool checkOverflow(unsigned long long);
 void checkIDLength(char*);
-void printToStderr(char*);
-void printLine();
 void dumpNextSymbol(const char* token);
 
 unsigned long long btoi(char*);
@@ -52,7 +50,10 @@ hexd [a-fA-F0-9]
 exp [eE][+-]?{digit}+
 letter [a-zA-Z_]
 
-isuffix (u|U|l|L)*
+us (u|U)
+ls  (l|L)
+lls (ll|LL)
+isuffix ({us}|{us}{ls}|{us}{lls}|{ls}|{ls}{us}|{lls}|{lls}{us})
 fsuffix (f|F|l|L)
 
 id {letter}({letter}|{digit})*
@@ -63,10 +64,13 @@ dec {digit}+{isuffix}?
 hex 0[xX]{hexd}+{isuffix}?
 int_const ({bi}|{oct}|{dec}|{hex})
 
-real1 {digit}{exp}{fsuffix}?
+real1 {digit}+{exp}{fsuffix}?
 real2 {digit}*"."{digit}+{exp}?{fsuffix}?
 real3 {digit}+"."{digit}*{exp}?{fsuffix}?
-real_const ({real1}|{real2}|{real3})
+
+real4 0[xX]{hexd}*"."{hexd}*([Pp][+-]?{digit}+){fsuffix}
+real5 0[xX]{hexd}+([Pp][+-]?{digit}+){fsuffix}
+real_const ({real1}|{real2}|{real3}|{real4}|{real5})
 
 char_const L?'(\\.|[^\\'])+'
 string_literal L?\"(\\.|[^\\"])*\"
@@ -634,7 +638,7 @@ scomment "//".*
 bool checkOverflow (unsigned long long val){
   std::stringstream ss;
   // 32? 64?
-  if (val > (2^32-1)){
+  if (val > 4294967295){
         ss << "[L]: ERROR: Integer overflow" << ", line " << linenum << " col " << colnum;
         error(ss.str());
         return true;
@@ -662,15 +666,6 @@ void addLine(int matchedLine){
 
 void zeroCol(){
   colnum = 1;
-}
-
-void printToStderr(char* errormsg){
-    fprintf(stderr, "%s\n", errormsg);
-}
-void printErrorLine(){
-  //open current file(?)
-  //print entire line
-  //print ^ colnum spaces over on next line
 }
 
 // conversion --------------------------------------------------------------
