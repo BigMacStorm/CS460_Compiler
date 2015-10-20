@@ -22,6 +22,7 @@ void zoo(int a, register unsigned int b){
 int main(int argc, char ** argv){
   int *ip;
   int **ipp;
+  int ******* ipppppppp;
 
   int i1, i2[10], *i3;
 
@@ -29,13 +30,14 @@ int main(int argc, char ** argv){
   return 0;
 }
 
-advanced(void){
-/*
+others(void){
   int * aip[10];
   double ** apd[10];
   long long *llp2d[10][10];
-  int (*p2d)[10]; // int(*)[]
+
+/*
   const int *cip;
+  int (*p2d)[10]; // int(*)[]
   const int * const cicpp;
   const int *** const * volatile cipppciv;
   const int *** const * volatile cipppciv3d [10][10][10];
