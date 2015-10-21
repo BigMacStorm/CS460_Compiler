@@ -1111,7 +1111,7 @@ primary_expression
   : identifier {
       if(!symTable.lookupSymbol($1)) {
         std::stringstream ss;
-        ss << "[p]: ERROR: identifier \'" << $1 << "\' not found";
+        ss << "[p]: ERROR: identifier \'" << $1 << "\' not found, line " << linenum << ", col " << colnum << ".";
         error(ss.str());
       }
       decl.clear(); // erace symbols not in declaration
