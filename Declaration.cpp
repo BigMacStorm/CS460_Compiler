@@ -1,5 +1,5 @@
 #include "Declaration.h"
-Declaration::Declaration():mode(DeclMode::NoMode), levels(0), argSize(0), hasType(false){
+Declaration::Declaration():mode(DeclMode::NoMode), levels(0), argSize(0), hasType(false), hasInt(false){
 }
 Declaration::~Declaration(){}
 
@@ -117,10 +117,19 @@ int Declaration::getArgSize() const{
   if(currentBaseType == SpecName::NoType){
     // otherwise
     base->setBaseType(basetype);
+    if(basetype == SpecName::Int){
+      this->hasInt = true;
+    }
     return true;
   }
   // int check
   if(basetype == SpecName::Int){
+    if(this->hasInt){
+      error("[P]: ERROR: cannot combine with previous 'int' declaration specifier");
+    }
+    else{
+      this->hasInt = true;
+    }
     if(currentBaseType == SpecName::Short ||
        currentBaseType == SpecName::Long  ||
        currentBaseType == SpecName::LLong){
@@ -131,7 +140,7 @@ int Declaration::getArgSize() const{
     return false;
   }
   // short check
-  if(basetype == SpecName::Short){
+  else if(basetype == SpecName::Short){
     if(currentBaseType == SpecName::Int){
       base->setBaseType(basetype);
       return true;
@@ -140,7 +149,7 @@ int Declaration::getArgSize() const{
     return false;
   }
   // long check
-  if(basetype == SpecName::Long){
+  else if(basetype == SpecName::Long){
     if(currentBaseType == SpecName::Long){
       base->setBaseType(SpecName::LLong);
       return true;
@@ -157,7 +166,7 @@ int Declaration::getArgSize() const{
     return false;
   }
   // check double
-  if(basetype == SpecName::Double){
+  else if(basetype == SpecName::Double){
     if(currentBaseType == SpecName::Long){
       base->setBaseType(SpecName::LDouble);
       return true;
@@ -277,7 +286,7 @@ bool Declaration::buildSign(Spec* spec, std::vector<SpecName::Sign> signs){
 bool Declaration::complete(){
   bool complete = false;
   std::string name = this->ids[0];
-  std::cout << "Identifier \'" << name << "\' is processed ..."<< std::endl;
+  //std::cout << "Identifier \'" << name << "\' is processed ..."<< std::endl;
   //std::cout << "Mode: " << mode <<std::endl;
 
   if(isMode(DeclMode::Basic)){
@@ -304,35 +313,31 @@ bool Declaration::complete(){
   else if(isMode(DeclMode::FunctionCall)){
 
   }
+  lightClear();
+  return complete;
+}
+void Declaration::lightClear(){
   this->kinds.clear();
   this->bases.clear();
   this->signs.clear();
   this->qualifiers.clear();
   this->storages.clear();
-
   this->ids.clear();
   this->pos.clear();
   this->arraySizes.clear();
   this->levels = 0;
-  return complete;
+  this->hasInt = false;
 }
 void Declaration::clear(){
   //std::cout << "Declaration is correctly cleared" << std::endl;
+  lightClear();
   mode = DeclMode::NoMode;
-
-  this->arraySizes.clear();
-  this->levels = 0;
-
-  this->pos.clear();
-  this->ids.clear();
-  this->kinds.clear();
 
   this->signsHolder.clear();
   this->storagesHolder.clear();
   this->qualifiersHolder.clear();
   this->basesHolder.clear();
   this->kindsHolder.clear();
-
   clearArgs();
 }
 void Declaration::clearArgs(){

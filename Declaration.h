@@ -66,6 +66,7 @@ class Declaration{
 
   void clearArgs();
   void clear();
+  void lightClear();
   bool complete();
 
   bool pushBasic(std::string name);
@@ -93,6 +94,7 @@ class Declaration{
   int levels; // pointer deepness
   int argSize; // function argments
   bool hasType;
+  bool hasInt;
   std::vector<SymbolNode*> argSymbolNodes;
 
   // main components of spec
