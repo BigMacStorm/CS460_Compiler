@@ -8,8 +8,10 @@ Where "program" is the name of the program to run the compiler on.
 Testcase programs are in the same directory, and are named
     "test1.c" ... "test6.c".
 
-An output file of the same name but with extension ".list" will be created when the compiler is run on a ".c" program. These are the list files, where lines of source code and reductions are output.
+An output file of the same name but with extension ".list" will be created when the compiler is run on a ".c" program. These are the list files, where lines of source code and reductions are output by the parser.
 
-A file called "log.txt" will be created when the "-d l", "-d s", or "-d p" options are used.(or any combination, such as "-d ls" or "-d lsp")
+A file called "llog.txt" will be created when the "-d l" option is used. This is the token file, where all of the tokens are dumped from lex.
 
-A file called "llog.txt" will be created. This is the token file, where all of the tokens are dumped from lex.
+A file called "symTableLog.txt" will be created when the "-d s" option is used and there are occurrences of //!!S inside of the program. These will cause symbol table dumps to be written to the file.
+
+A file called "log.txt" will be created when the "-d l", "-d s", or "-d p" options are used.(or any combination, such as "-d ls" or "-d lsp") containing all debug information.
