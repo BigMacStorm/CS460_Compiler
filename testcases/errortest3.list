@@ -1,9 +1,9 @@
 [p]: type_specifier -> INTtok
+[p]: type_specifier -> CHARtok
 [p]: declaration_specifiers -> type_specifier
+[p]: declaration_specifiers -> type_specifier declaration_specifiers
 [p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
-[p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok
 [p]: declarator -> direct_declarator
-int main ( ) { 
-
-[p]: identifier -> IDENTIFIERtok
+[p]: init_declarator -> declarator
+[p]: init_declarator_list -> init_declarator
