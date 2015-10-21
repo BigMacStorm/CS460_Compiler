@@ -277,10 +277,10 @@ bool Declaration::buildSign(Spec* spec, std::vector<SpecName::Sign> signs){
 bool Declaration::complete(){
   bool complete = false;
   std::string name = this->ids[0];
-  //std::cout << "Identifier \'" << name << "\' is processed ..."<< std::endl;
+  std::cout << "Identifier \'" << name << "\' is processed ..."<< std::endl;
   //std::cout << "Mode: " << mode <<std::endl;
 
-  if(isMode(DeclMode::NoMode)){
+  if(isMode(DeclMode::Basic)){
     complete = pushBasic(name);
   }
   else if(isMode(DeclMode::Array)){
@@ -382,7 +382,7 @@ TypeBasic* Declaration::makeBasicVar(std::vector<SpecName::BaseType> bases,
 }
 bool Declaration::pushBasic(std::string name){
   TypeBasic* base = makeBasicVar(this->basesHolder[0],this->signsHolder[0],this->storagesHolder[0],this->qualifiersHolder[0]);
-  SymbolNode *val = new SymbolNode(name,base,this->pos[0]);
+  SymbolNode *val = new SymbolNode(name,base,this->pos[0],true);
   return insertSymbol(name,val,this->pos[0]);
 }
 
@@ -422,7 +422,7 @@ bool Declaration::pushArray(std::string name){
   // typedef
 
   // insert array
-  SymbolNode *val = new SymbolNode(name,array,this->pos[0]);
+  SymbolNode *val = new SymbolNode(name,array,this->pos[0], true);
   return insertSymbol(name, val,this->pos[0]);
 }
 TypePointer* Declaration::makePointerType(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
@@ -553,7 +553,7 @@ bool Declaration::pushFunction(std::string name){
       if(this->kindsHolder[kind][num] == SpecName::Basic){
         TypeBasic* base = makeBasicVar(this->basesHolder[type],this->signsHolder[type],this->storagesHolder[type],this->qualifiersHolder[type]);
         if(arg_definition_mode){
-          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], base, this->pos[arg]));
+          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], base, this->pos[arg],true));
           arg++;
         }
         function->insertArg(base);
@@ -562,7 +562,7 @@ bool Declaration::pushFunction(std::string name){
       else if(this->kindsHolder[kind][num] == SpecName::Pointer){
         TypePointer* pointer = makePointerVar(this->kindsHolder[kind][num-1], this->basesHolder[type],this->signsHolder[type],this->storagesHolder[type],this->qualifiersHolder[type]);
         if(arg_definition_mode){
-          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], pointer, this->pos[arg]));
+          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], pointer, this->pos[arg],true));
           arg++;
         }
         function->insertArg(pointer);
@@ -574,13 +574,14 @@ bool Declaration::pushFunction(std::string name){
   return insertSymbol(name, val,this->pos[0]);
 }
 bool Declaration::insertSymbol(std::string name, SymbolNode* val, int pos){
-  if(symTable.lookupTopTable(name)){
+  SymbolNode *sym = symTable.lookupTopTable(name);
+  if(sym != NULL && sym->isDefined()){
     std::stringstream ss;
     ss << "[P]: ERROR: Redefinition of \'" << name << "\'" << "@" << pos;
     error(ss.str());
   }
   else if(symTable.lookUpShadowedSymbol(name)) {
-    std::cout << "[P]: WARNING: Symbol \'"+name+"\' shadows another in parent level\n" << "@" << pos;
+    std::cout << "[P]: WARNING: Symbol \'"+name+"\' shadows another in parent level " << "@" << pos << std::endl;
   }
   return symTable.insertSymbol(name, val);
 }

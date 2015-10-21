@@ -1,9 +1,10 @@
 #include "SymbolNode.h"
-SymbolNode::SymbolNode(){};
-SymbolNode::SymbolNode(std::string name, Spec* specifier, int pos){
+SymbolNode::SymbolNode(): initialized(false), defined(false){};
+SymbolNode::SymbolNode(std::string name, Spec* specifier, int pos, bool defined){
   this->name = name;
   this->specifier = specifier;
   this->pos = pos;
+  this->defined = defined;
 }
 void SymbolNode::setName(std::string name){
   this->name = name;
@@ -11,6 +12,13 @@ void SymbolNode::setName(std::string name){
 void SymbolNode::setPosition(int pos){
   this->pos = pos;
 }
+void SymbolNode::setInitialized(bool initialized){
+  this->initialized = initialized;
+}
+void SymbolNode::setDefined(bool defined){
+  this->defined = defined;
+}
+// getters ------------------------------
 std::string SymbolNode::getName() const{
   return this->name;
 }
@@ -25,4 +33,10 @@ void SymbolNode::setSpecifier(Spec* specifier){
 }
 Spec* SymbolNode::getSpecifier() const{
   return this->specifier;
+}
+bool SymbolNode::isInitialized() const{
+  return this->initialized;
+}
+bool SymbolNode::isDefined() const{
+  return this->defined;
 }

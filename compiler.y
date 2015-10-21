@@ -87,14 +87,18 @@ bool insert_mode = true;
 %type <ast> identifier constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression
 ****/
 
-%start translation_unit
+%start program
 
 /* Grammar ruls and actions ***************************************************/
 %%
+
+program
+  : translation_unit{
+    std::cout << "Success!" << std::endl;
+  }
 translation_unit
   : external_declaration {
      reductionOut("[p]: translation_unit -> external_declaration");
-     std::cout << "Success!" << std::endl;
   }
   | translation_unit external_declaration {
     reductionOut("[p]: translation_unit -> translation_unit external_declaration");
@@ -116,7 +120,7 @@ after compound_statement.
 *****************************************************************************/
 enter_scope
   : {
-      if(insert_mode){
+      if(insert_mode && decl.isMode(DeclMode::Function)){
         decl.complete(); // complete function definition
         symTable.pushTable();
 
@@ -126,10 +130,14 @@ enter_scope
           for(int arg = 0; arg < args.size(); arg++){
             symTable.insertSymbol(args[arg]->getName(),args[arg]);
             }
-          decl.clearArgs();
         }
-        decl.clear(); // clear function definition
+        // function is complete
+        std::string func_name = decl.getID(0);
+        symTable.lookupSymbol(func_name)->setDefined(true);
+
+        decl.clear();
         insert_mode = false;
+        decl.setMode(DeclMode::NoMode);
       }
       else{
         symTable.pushTable();
@@ -291,36 +299,43 @@ type_specifier
   :
     VOIDtok {
     reductionOut("[p]: type_specifier -> VOIDtok");
+    decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Void);
   }
   | CHARtok {
     reductionOut("[p]: type_specifier -> CHARtok");
+    decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Char);
   }
   | SHORTtok {
     reductionOut("[p]: type_specifier -> SHORTtok");
+    decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Short);
   }
   | INTtok {
     reductionOut("[p]: type_specifier -> INTtok");
+    decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Int);
   }
   | LONGtok  {
     reductionOut("[p]: type_specifier -> LONGtok");
+    decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Long);
   }
   | FLOATtok  {
     reductionOut("[p]: type_specifier -> FLOATtok");
+    decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Float);
   }
   | DOUBLEtok  {
     reductionOut("[p]: type_specifier -> DOUBLEtok");
+    decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Double);
   }
@@ -1094,11 +1109,14 @@ postfix_expression
 
 primary_expression
   : identifier {
-      reductionOut("[p]: primary_expression -> identifier");
       if(!symTable.lookupSymbol($1)) {
-        error("[p]: ERROR: identifier not found");
+        std::stringstream ss;
+        ss << "[p]: ERROR: identifier \'" << $1 << "\' not found";
+        error(ss.str());
       }
+      decl.clear(); // erace symbols not in declaration
       insert_mode = false;
+      reductionOut("[p]: primary_expression -> identifier");
   }
   | constant {
       reductionOut("[p]: primary_expression -> constant");

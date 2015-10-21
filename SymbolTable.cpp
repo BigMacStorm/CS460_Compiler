@@ -1,7 +1,7 @@
 #include "SymbolTable.h"
 SymbolTable* SymbolTable::instance = NULL;
 
-SymbolTable::SymbolTable(): levels(0){
+SymbolTable::SymbolTable(): levels(-1){
   this->debugger = new Debugger();
 }
 SymbolTable::~SymbolTable(){
@@ -36,7 +36,7 @@ void SymbolTable::popTable(){
   this->debugger->debug("[S]: The top symbol table is popped off ========================================");
 }
 bool SymbolTable::empty() const{
-  if(this->levels <= 0){
+  if(this->levels < 0){
     this->debugger->debug("[S]: No Symbol Table");
     return true;
   }
@@ -48,15 +48,18 @@ bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
   }
   // declarations/initializations
   SymbolNode* content = lookupTopTable(key);
+  std::stringstream ss;
 
-  this->symTables[this->levels-1][key] = val;
+  this->symTables[this->levels][key] = val;
   if(content == NULL){
     content = lookUpShadowedSymbol(key);
     if(content == NULL){
-      this->debugger->debug("[S]: Symbol \'"+key+"\' is inserted at top level");
+      ss << "[S]: Symbol \'"+key+"\' is inserted at level #" << this->levels;
+      this->debugger->debug(ss.str());
     }
     else{
-      this->debugger->debug("[S]: Symbol \'"+key+"\' shadows another in parent level");
+      ss << "[S]: Symbol \'"+key+"\' shadows another in parent level #" << this->levels;
+      this->debugger->debug(ss.str());
     }
     return true;
   }
@@ -77,8 +80,8 @@ otherwise, it returns NULL.
   // declarations/initializations
   SymbolNode * val = NULL;
 
-  if(this->symTables[this->levels-1].find(key) != this->symTables[this->levels-1].end()){
-      val = this->symTables[this->levels-1][key];
+  if(this->symTables[this->levels].find(key) != this->symTables[this->levels].end()){
+      val = this->symTables[this->levels][key];
     }
   if(val != NULL){
     this->debugger->debug("[S]: Symbol "+key+" is found at top level");
@@ -100,16 +103,15 @@ it finds; otherwise, it returns NULL.
   // declarations/initializations
   SymbolNode* val = NULL;
   bool found = false;
-  int level = 2;
+  int level;
 
-  //ignore the top level
-  for(int level = this->levels - 2; level >= 0; --level){
+  //ignore the top level -> level-1
+  for(level = this->levels-1; level >= 0; --level){
     if(symTables[level].find(key) != symTables[level].end()){
       val = symTables[level][key];
       found = true;
     }
   }
-
   if(found){
     this->debugger->debug("[S]: Symbol "+key+" is found at level "+ std::to_string(level));
   }
@@ -137,15 +139,13 @@ void SymbolTable::writeFile(){
   // declarations/initializations
   std::ofstream fout;
   std::map<std::string,SymbolNode*>::iterator iter;
-  int level;
 
   fout.open(filename.c_str(), std::ofstream::app);
   fout << "Symbol Tables\n"
        << "====================================================" << std::endl;
-  level = 1;
 
   // dump symbol tables
-  for(int level = this->levels - 1; level >= 0; --level){
+  for(int level = this->levels; level >= 0; --level){
       fout << "[Symbol table #" << level << "]"<< std::endl;
 
       for(iter = this->symTables[level].begin(); iter != this->symTables[level].end(); ++iter){

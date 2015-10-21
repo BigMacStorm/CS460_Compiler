@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include "Debugger.h"
 #include "SymbolNode.h"
