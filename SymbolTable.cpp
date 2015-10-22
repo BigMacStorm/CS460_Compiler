@@ -2,28 +2,34 @@
 SymbolTable* SymbolTable::instance = NULL;
 
 SymbolTable::SymbolTable(): levels(-1){
+  /*default constructor*/
   this->debugger = new Debugger();
 }
 SymbolTable::~SymbolTable(){
+  /*destructor*/
   delete this->debugger;
   debugger = NULL;
 }
 SymbolTable* SymbolTable::getInstance(){
+  /*return an unique instance of symboltable*/
   if(SymbolTable::instance == NULL){
     SymbolTable::instance = new SymbolTable();
   }
   return SymbolTable::instance;
 }
 int SymbolTable::getLevel() const{
+  /*return levels*/
   return this->levels;
 }
 void SymbolTable::pushTable(std::map<std::string,SymbolNode*> newSymTable){
+  /*push a given table on top and increment levels*/
   this->levels++;
   this->symTables.push_back(newSymTable);
   this->debugger->debug("[S]: A new symbol table is pushed on ===========================================");
 }
 
 void SymbolTable::pushTable(){
+  /*push a new table on top and increment levels*/
   std::map<std::string,SymbolNode*> newSymTable;
   this->levels++;
   this->symTables.push_back(newSymTable);
@@ -31,11 +37,13 @@ void SymbolTable::pushTable(){
 }
 
 void SymbolTable::popTable(){
+  /*pop the top table and decrement levels*/
   this->levels--;
   this->symTables.pop_back();
   this->debugger->debug("[S]: The top symbol table is popped off ========================================");
 }
 bool SymbolTable::empty() const{
+  /* return true if the symbol table is empty*/
   if(this->levels < 0){
     this->debugger->debug("[S]: No Symbol Table");
     return true;
@@ -43,6 +51,9 @@ bool SymbolTable::empty() const{
   return false;
 }
 bool SymbolTable::insertSymbol(const std::string& key, SymbolNode* val){
+  /* insert a given symbol and returns true if there is no conflict with
+  one in the same table; otherwise return false
+  */
   if(empty()){
     return false;
   }
@@ -105,7 +116,7 @@ it finds; otherwise, it returns NULL.
   bool found = false;
   int level;
 
-  //ignore the top level -> level-1
+  //ignore the top level -> start with level-1
   for(level = this->levels-1; level >= 0; --level){
     if(symTables[level].find(key) != symTables[level].end()){
       val = symTables[level][key];
@@ -113,7 +124,7 @@ it finds; otherwise, it returns NULL.
     }
   }
   if(found){
-    this->debugger->debug("[S]: Symbol "+key+" is found at level "+ std::to_string(level));
+    this->debugger->debug("[S]: Symbol "+key+" is found at level "+ std::to_string(level+1));
   }
   else{
     this->debugger->debug("[S]: Symbol "+key+" is not found at any parent level");
@@ -133,6 +144,7 @@ if the key is found; otherwise, it returns NULL.
   return val;
 }
 void SymbolTable::writeFile(){
+  /*dump a current symbol table to a file*/
   if(empty()){
     return;
   }
@@ -147,7 +159,6 @@ void SymbolTable::writeFile(){
   // dump symbol tables
   for(int level = this->levels; level >= 0; --level){
       fout << "[Symbol table #" << level << "]"<< std::endl;
-
       for(iter = this->symTables[level].begin(); iter != this->symTables[level].end(); ++iter){
         fout << "Symbol: " << iter->first << ", ";
         fout << (*iter->second).getSpecName() << " ";
@@ -161,8 +172,10 @@ void SymbolTable::writeFile(){
   fout.close();
 }
 Debugger* SymbolTable::getDebugger() const{
+  /*return a debugger*/
   return this->debugger;
 }
 void SymbolTable::setFileName(const std::string filename){
+  /*set an ouput file name*/
   this->filename = filename;
 }
