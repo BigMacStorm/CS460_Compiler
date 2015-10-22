@@ -25,6 +25,7 @@ extern std::string listFileName;
 
 void yyerror(const char* message);
 void error(const std::string& message);
+void warning(const std::string& message);
 void reductionOut(const char* reductionCStr);
 
 Declaration decl; // holds info about a current declaration
@@ -166,10 +167,12 @@ function_definition
 declaration
   : declaration_specifiers SEMItok{
       reductionOut("[p]: declaration -> declaration_specifiers SEMItok");
+      insert_mode = true;
       decl.clear();
   }
   | declaration_specifiers init_declarator_list SEMItok{
       reductionOut("[p]: declaration -> declaration_specifiers init_declarator_list SEMItok");
+      insert_mode = true;
       decl.clear();
   }
   ;
@@ -187,18 +190,10 @@ init_declarator_list
   : init_declarator {
       // a single variable declaration
       reductionOut("[p]: init_declarator_list -> init_declarator");
-      if(insert_mode){
-        decl.complete();
-        insert_mode = false;
-      }
   }
   | init_declarator_list COMMAtok init_declarator {
       // multiple single line declarations
       reductionOut("[p]: init_declarator_list -> init_declarator_list COMMAtok init_declarator");
-      if(insert_mode){
-        decl.complete();
-        insert_mode = false;
-      }
   }
   ;
 
@@ -206,10 +201,12 @@ init_declarator
   : declarator{
       // declaration
       reductionOut("[p]: init_declarator -> declarator");
+      decl.complete();
   }
   | declarator EQUALtok initializer {
       // initialization
       reductionOut("[p]: init_declarator -> declarator EQUALtok initializer");
+      decl.complete();
   }
   ;
 
@@ -496,21 +493,6 @@ declarator
   : direct_declarator {
       reductionOut("[p]: declarator -> direct_declarator");
       insert_mode = true;
-  }
-  | pointer direct_declarator {
-      // pointer mode
-      reductionOut("[p]: declarator -> pointer direct_declarator");
-  }
-  ;
-
-direct_declarator
-  : identifier {
-      reductionOut("[p]: direct_declarator -> identifier");
-
-      // for no return type
-      if(decl.getBasesNum() > 0){
-        decl.setHasType();
-      }
 
       decl.pushKind(SpecName::NoKind);
       decl.pushBase(SpecName::NoType);
@@ -518,6 +500,34 @@ direct_declarator
       decl.pushQualifier(SpecName::NoQualifier);
       decl.pushStorage(SpecName::NoStorage);
 
+      if(decl.isMode(DeclMode::Array)){
+         decl.setNextArray();
+      }
+  }
+  | pointer direct_declarator {
+      // pointer mode
+      reductionOut("[p]: declarator -> pointer direct_declarator");
+      decl.setNextPtr();
+
+      decl.pushKind(SpecName::NoKind);
+      decl.pushBase(SpecName::NoType);
+      decl.pushSign(SpecName::NoSign);
+      decl.pushQualifier(SpecName::NoQualifier);
+      decl.pushStorage(SpecName::NoStorage);
+
+      if(decl.isMode(DeclMode::Array)){
+         decl.setNextArray();
+      }
+  }
+  ;
+
+direct_declarator
+  : identifier {
+      reductionOut("[p]: direct_declarator -> identifier");
+      // for no return type
+      if(decl.getBasesNum() > 0){
+        decl.setHasType();
+      }
   }
   | OPEN_PARENtok declarator CLOSE_PARENtok {
       // e.g., (*a)[COLS]
@@ -537,13 +547,29 @@ direct_declarator
       decl.pushArraySize(yylval.ival);
       decl.pushKind(SpecName::Array);
   }
-  | direct_declarator OPEN_PARENtok CLOSE_PARENtok{
+  | direct_declarator OPEN_PARENtok {
+
+    decl.pushKind(SpecName::NoKind);
+    decl.pushBase(SpecName::NoType);
+    decl.pushSign(SpecName::NoSign);
+    decl.pushQualifier(SpecName::NoQualifier);
+    decl.pushStorage(SpecName::NoStorage);
+
+  } CLOSE_PARENtok{
       // function mode - e.g., foo()
       reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok");
       decl.setMode(DeclMode::Function);
       decl.pushKind(SpecName::Function);
   }
-  | direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok{
+  | direct_declarator OPEN_PARENtok {
+
+    decl.pushKind(SpecName::NoKind);
+    decl.pushBase(SpecName::NoType);
+    decl.pushSign(SpecName::NoSign);
+    decl.pushQualifier(SpecName::NoQualifier);
+    decl.pushStorage(SpecName::NoStorage);
+
+  } parameter_type_list CLOSE_PARENtok{
       // function mode - e.g., foo(type a, type b)
       reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
       decl.setMode(DeclMode::Function);
@@ -562,28 +588,28 @@ pointer
       reductionOut("[p]: pointer -> UNARY_ASTERISKtok");
       decl.setMode(DeclMode::Pointer);
       decl.pushKind(SpecName::Pointer);
-      decl.incLevels();
+      decl.incPtrLevel();
   }
   | UNARY_ASTERISKtok type_qualifier_list {
       // * const/volatile
       reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list");
       decl.setMode(DeclMode::Pointer);
       decl.pushKind(SpecName::Pointer);
-      decl.incLevels();
+      decl.incPtrLevel();
   }
   | UNARY_ASTERISKtok pointer {
       // ** ...
       reductionOut("[p]: pointer -> UNARY_ASTERISKtok pointer");
       decl.setMode(DeclMode::Pointer);
       decl.pushKind(SpecName::Pointer);
-      decl.incLevels();
+      decl.incPtrLevel();
   }
   | UNARY_ASTERISKtok type_qualifier_list pointer {
       // * const/volatile * ...
       reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list pointer");
       decl.setMode(DeclMode::Pointer);
       decl.pushKind(SpecName::Pointer);
-      decl.incLevels();
+      decl.incPtrLevel();
   }
   ;
 
@@ -1111,10 +1137,10 @@ primary_expression
   : identifier {
       if(!symTable.lookupSymbol($1)) {
         std::stringstream ss;
-        ss << "[p]: ERROR: identifier \'" << $1 << "\' not found";
+        ss << "[p]: ERROR: identifier \'" << $1 << "\' not found" << ", line " << linenum << " col " << colnum;
         error(ss.str());
       }
-      decl.clear(); // erace symbols not in declaration
+      decl.lightClear(); // erace symbols not in declaration
       insert_mode = false;
       reductionOut("[p]: primary_expression -> identifier");
   }
@@ -1163,7 +1189,8 @@ identifier
   : IDENTIFIERtok {
       reductionOut("[p]: identifier -> IDENTIFIERtok");
       decl.pushID(std::string(yylval.sval));
-      decl.pushPos(linenum);
+      decl.pushLine(linenum);
+      decl.pushCol(colnum);
       strcpy($$, $1);
   }
   ;
@@ -1177,7 +1204,9 @@ void error(const std::string& message) {
 void yyerror(const char* message) {
     printf("%s\n", message);
 }
-
+void warning(const std::string& message){
+  std::cout << message << std::endl;
+}
 // Simultaneous output to debugging and list_file
 void reductionOut(const char* reductionCStr) {
     // Append the reduction to listFileName
