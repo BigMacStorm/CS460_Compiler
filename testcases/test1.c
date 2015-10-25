@@ -7,7 +7,7 @@ static const volatile signed long long int scvsll;
 
 long static const unsigned int lscui[];
 extern double long edl[10];
-float f2d[20];
+float f1d[20];
 int i3d[2][2][2];
 
 void hello(void);
@@ -19,7 +19,7 @@ void zoo(int a, register unsigned int b){
   //!!S
 }
 
-int main(int argc, char ** argv){
+int main(int argc, char **argv){
   int *ip;
   int **ipp;
   int ******* ipppppppp;
@@ -34,15 +34,6 @@ others(void){
   int * aip[10];
   double ** apd[10];
   long long *llp2d[10][10];
-
-/*
-  const int *cip;
-  int (*p2d)[10]; // int(*)[]
-  const int * const cicpp;
-  const int *** const * volatile cipppciv;
-  const int *** const * volatile cipppciv3d [10][10][10];
-  */
-
   //!!S
   return 0;
 }

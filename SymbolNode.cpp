@@ -1,16 +1,16 @@
 #include "SymbolNode.h"
 SymbolNode::SymbolNode(): initialized(false), defined(false){};
-SymbolNode::SymbolNode(std::string name, Spec* specifier, int pos, bool defined){
+SymbolNode::SymbolNode(std::string name, Spec* specifier, int line, bool defined){
   this->name = name;
   this->specifier = specifier;
-  this->pos = pos;
+  this->line = line;
   this->defined = defined;
 }
 void SymbolNode::setName(std::string name){
   this->name = name;
 }
-void SymbolNode::setPosition(int pos){
-  this->pos = pos;
+void SymbolNode::setPosition(int line){
+  this->line = line;
 }
 void SymbolNode::setInitialized(bool initialized){
   this->initialized = initialized;
@@ -26,7 +26,7 @@ std::string SymbolNode::getSpecName() const{
   return this->specifier->toString();
 }
 int SymbolNode::getPos() const{
-  return this->pos;
+  return this->line;
 }
 void SymbolNode::setSpecifier(Spec* specifier){
   this->specifier = specifier;

@@ -7,6 +7,7 @@
 
 extern SymbolTable symTable;
 extern void error(const std::string& message);
+extern void warning(const std::string& message);
 
 namespace DeclMode{
   enum Mode{
@@ -21,14 +22,19 @@ class Declaration{
 
   // push info to declaration from parser
   void pushID(std::string id);
-  void pushPos(int pos);
+  void pushLine(int pos);
+  void pushCol(int col);
   void pushKind(SpecName::TypeKind);
   void pushBase(SpecName::BaseType);
   void pushSign(SpecName::Sign);
   void pushQualifier(SpecName::Qualifier);
   void pushStorage(SpecName::Storage);
+
+  void setNextPtr();
+  void incPtrLevel();
+  void setNextArray();
   void pushArraySize(int size);
-  void incLevels();
+
   void incArgSize();
 
   std::string getID(int idx) const;
@@ -66,6 +72,7 @@ class Declaration{
 
   void clearArgs();
   void clear();
+  void lightClear();
   bool complete();
 
   bool pushBasic(std::string name);
@@ -73,7 +80,7 @@ class Declaration{
   bool pushPointer(std::string name);
   bool pushFunction(std::string name);
 
-  bool insertSymbol(std::string name, SymbolNode* val, int pos);
+  bool insertSymbol(std::string name, SymbolNode* val, int line, int col);
 
   // debug
   void showKinds() const;
@@ -86,13 +93,17 @@ class Declaration{
  private:
   DeclMode::Mode mode;
   std::vector<std::string> ids; // identifiers
-  std::vector<int> pos; // identifier positions
+  std::vector<int> lines; // identifier line number
+  std::vector<int> cols; // identifier column number
 
   // type-specific detail
+  std::vector<std::vector<int>> dims;
   std::vector<int> arraySizes; // for multi dimension
-  int levels; // pointer deepness
+  std::vector<int> levels; // pointer deepness
+  int level;
   int argSize; // function argments
   bool hasType;
+  bool hasInt;
   std::vector<SymbolNode*> argSymbolNodes;
 
   // main components of spec

@@ -1,5 +1,5 @@
 #include "Declaration.h"
-Declaration::Declaration():mode(DeclMode::NoMode), levels(0), argSize(0), hasType(false){
+Declaration::Declaration():mode(DeclMode::NoMode), level(0), argSize(0), hasType(false), hasInt(false){
 }
 Declaration::~Declaration(){}
 
@@ -7,27 +7,30 @@ Declaration::~Declaration(){}
 void Declaration::pushID(std::string id){
   this->ids.push_back(id);
 }
-void Declaration::pushPos(int pos){
-  this->pos.push_back(pos);
+void Declaration::pushLine(int line){
+  this->lines.push_back(line);
+}
+void Declaration::pushCol(int col){
+  this->cols.push_back(col);
 }
 void Declaration::pushKind(SpecName::TypeKind typekind){
-  //std::cout << "Kind: " << typekind;
+  std::cout << "Kind: " << typekind;
   if(typekind == SpecName::NoKind){
     this->kindsHolder.push_back(this->kinds);
     this->kinds.clear();
-    //std::cout << " Size: " << this->kindsHolder.size();
+    std::cout << " Size: " << this->kindsHolder.size();
   }
   else{
     if(this->kinds.empty()){
       this->kinds.push_back(typekind);
-      //std::cout << " OK";
+      std::cout << " OK";
     }
     else if(typekind != this->kinds.back()){
       this->kinds.push_back(typekind);
-      //std::cout << " OK";
+      std::cout << " OK";
     }
   }
-  //std::cout << " " << std::endl;
+  std::cout << " " << std::endl;
 }
 void Declaration::pushBase(SpecName::BaseType basetype){
   //std::cout << "Base: " << basetype << std::endl;
@@ -70,13 +73,24 @@ void Declaration::pushSign(SpecName::Sign sign){
     this->signs.push_back(sign);
   }
 }
+void Declaration::setNextPtr(){
+  //std::cout << this->level;
+  this->levels.push_back(this->level);
+  this->level = 0;
+}
+void Declaration::incPtrLevel(){
+  this->level++;
+}
+void Declaration::setNextArray(){
+  //std::cout << this->arraySizes.size();
+  this->dims.push_back(this->arraySizes);
+  this->arraySizes.clear();
+}
 void Declaration::pushArraySize(int size){
+  // std::cout << "SIZE" << size << std::endl;
   this->arraySizes.push_back(size);
 }
 
-void Declaration::incLevels(){
-  this->levels++;
-}
 void Declaration::incArgSize(){
   this->argSize++;
 }
@@ -117,10 +131,19 @@ int Declaration::getArgSize() const{
   if(currentBaseType == SpecName::NoType){
     // otherwise
     base->setBaseType(basetype);
+    if(basetype == SpecName::Int){
+      this->hasInt = true;
+    }
     return true;
   }
   // int check
   if(basetype == SpecName::Int){
+    if(this->hasInt){
+      error("[P]: ERROR: cannot combine with previous 'int' declaration specifier");
+    }
+    else{
+      this->hasInt = true;
+    }
     if(currentBaseType == SpecName::Short ||
        currentBaseType == SpecName::Long  ||
        currentBaseType == SpecName::LLong){
@@ -131,7 +154,7 @@ int Declaration::getArgSize() const{
     return false;
   }
   // short check
-  if(basetype == SpecName::Short){
+  else if(basetype == SpecName::Short){
     if(currentBaseType == SpecName::Int){
       base->setBaseType(basetype);
       return true;
@@ -140,7 +163,7 @@ int Declaration::getArgSize() const{
     return false;
   }
   // long check
-  if(basetype == SpecName::Long){
+  else if(basetype == SpecName::Long){
     if(currentBaseType == SpecName::Long){
       base->setBaseType(SpecName::LLong);
       return true;
@@ -157,7 +180,7 @@ int Declaration::getArgSize() const{
     return false;
   }
   // check double
-  if(basetype == SpecName::Double){
+  else if(basetype == SpecName::Double){
     if(currentBaseType == SpecName::Long){
       base->setBaseType(SpecName::LDouble);
       return true;
@@ -277,13 +300,14 @@ bool Declaration::buildSign(Spec* spec, std::vector<SpecName::Sign> signs){
 bool Declaration::complete(){
   bool complete = false;
   std::string name = this->ids[0];
-  std::cout << "Identifier \'" << name << "\' is processed ..."<< std::endl;
-  //std::cout << "Mode: " << mode <<std::endl;
+  std::cout << "ID: \'" << name << "\'" << std::endl;
+  std::cout << "Mode: " << mode <<std::endl;
 
   if(isMode(DeclMode::Basic)){
     complete = pushBasic(name);
   }
   else if(isMode(DeclMode::Array)){
+    this->kindsHolder[0].pop_back();
     complete = pushArray(name);
   }
   else if(isMode(DeclMode::Pointer)){
@@ -299,40 +323,39 @@ bool Declaration::complete(){
 
   }
   else if(isMode(DeclMode::Function)){
+    this->kindsHolder.pop_back();
     complete = pushFunction(name);
   }
   else if(isMode(DeclMode::FunctionCall)){
 
   }
+  lightClear();
+  return complete;
+}
+void Declaration::lightClear(){
   this->kinds.clear();
   this->bases.clear();
   this->signs.clear();
   this->qualifiers.clear();
   this->storages.clear();
-
   this->ids.clear();
-  this->pos.clear();
+  this->lines.clear();
+  this->cols.clear();
+  this->dims.clear();
+  this->levels.clear();
   this->arraySizes.clear();
-  this->levels = 0;
-  return complete;
+  this->level = 0;
+  this->hasInt = false;
 }
 void Declaration::clear(){
-  //std::cout << "Declaration is correctly cleared" << std::endl;
+  //std::cout << "Clearing previous declaration information" << std::endl;
+  lightClear();
   mode = DeclMode::NoMode;
-
-  this->arraySizes.clear();
-  this->levels = 0;
-
-  this->pos.clear();
-  this->ids.clear();
-  this->kinds.clear();
-
   this->signsHolder.clear();
   this->storagesHolder.clear();
   this->qualifiersHolder.clear();
   this->basesHolder.clear();
   this->kindsHolder.clear();
-
   clearArgs();
 }
 void Declaration::clearArgs(){
@@ -382,19 +405,19 @@ TypeBasic* Declaration::makeBasicVar(std::vector<SpecName::BaseType> bases,
 }
 bool Declaration::pushBasic(std::string name){
   TypeBasic* base = makeBasicVar(this->basesHolder[0],this->signsHolder[0],this->storagesHolder[0],this->qualifiersHolder[0]);
-  SymbolNode *val = new SymbolNode(name,base,this->pos[0],true);
-  return insertSymbol(name,val,this->pos[0]);
+  SymbolNode *val = new SymbolNode(name,base,this->lines[0],true);
+  return insertSymbol(name,val,this->lines[0], this->cols[0]);
 }
-
 bool Declaration::pushArray(std::string name){
   Spec spec;
   // check array size
-  for(int dim = 0; dim < this->arraySizes.size(); dim++){
-    if(this->arraySizes[dim] < 0){
+  for(int dim = 0; dim < this->dims.front().size(); dim++){
+    if(this->dims.front().at(dim) < 0){
       error("[P]: ERROR: an array with a negative size");
       return false;
     }
   }
+
   if(!buildStorage(&spec,this->storagesHolder[0])){
     return false;
   }
@@ -403,7 +426,6 @@ bool Declaration::pushArray(std::string name){
   }
   TypeArray *array = new TypeArray(spec.getStorage(),spec.getQualifier());
   int type = this->kindsHolder[0].size()-1;
-
   // basic type
   if(this->kindsHolder[0][type] == SpecName::Basic){
     TypeBasic *base = makeBasicType(this->basesHolder[0],this->signsHolder[0],this->qualifiersHolder[0]);
@@ -411,19 +433,19 @@ bool Declaration::pushArray(std::string name){
       return false;
     }
     array->setElemSpec(base);
-    array->setArraySizes(this->arraySizes);
   }
   // pointer
   else if(this->kindsHolder[0][type] == SpecName::Pointer){
     TypePointer* pointer = makePointerType(this->kindsHolder[0][type-1], this->basesHolder[0],this->signsHolder[0],this->qualifiersHolder[0]);
     array->setElemSpec(pointer);
-    array->setArraySizes(this->arraySizes);
   }
-  // typedef
+
+  array->setArraySizes(this->dims.front());
+  this->dims.erase(this->dims.begin());
 
   // insert array
-  SymbolNode *val = new SymbolNode(name,array,this->pos[0], true);
-  return insertSymbol(name, val,this->pos[0]);
+  SymbolNode *val = new SymbolNode(name,array,this->lines[0], true);
+  return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
 TypePointer* Declaration::makePointerType(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
   std::vector<SpecName::Sign>signs, std::vector<SpecName::Qualifier> qualifiers){
@@ -432,7 +454,8 @@ TypePointer* Declaration::makePointerType(SpecName::TypeKind typekind, std::vect
       return NULL;
     }
     TypePointer *pointer = new TypePointer(SpecName::NoStorage,spec.getQualifier());
-    pointer->setLevels(this->levels);
+    pointer->setLevels(this->levels.front());
+    this->levels.erase(this->levels.begin());
 
     // basic type -------------------------------
     if(typekind == SpecName::Basic){
@@ -444,36 +467,6 @@ TypePointer* Declaration::makePointerType(SpecName::TypeKind typekind, std::vect
     }
     // typedef
     return pointer;
-    /*
-    TypePointer *pointer = new TypePointer();
-
-    if(typekind == SpecName::Basic){
-       int currentLevels = this->levels;
-       if(this->levels > 1){
-         this->levels--;
-         TypePointer *another = makePointerType(typekind, bases,signs,qualifiers);
-         if(another == NULL){
-           return NULL;
-         }
-          pointer->setLevels(currentLevels);
-          pointer->setTargetSpec(another);
-          TypeBasic *base = makeBasicType(bases,signs,qualifiers);
-          if(base == NULL){
-            return NULL;
-          }
-          pointer->setTargetSpec(base);
-        }
-        else{
-          pointer->setLevels(this->levels);
-          TypeBasic *base = makeBasicType(bases,signs,qualifiers);
-          if(base == NULL){
-            return NULL;
-          }
-          pointer->setTargetSpec(base);
-        }
-      }
-    return pointer;
-     */
 }
 TypePointer* Declaration::makePointerVar(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
   std::vector<SpecName::Sign>signs, std::vector<SpecName::Storage> storages,
@@ -488,12 +481,11 @@ TypePointer* Declaration::makePointerVar(SpecName::TypeKind typekind, std::vecto
 
 bool Declaration::pushPointer(std::string name){
   TypePointer* pointer = makePointerVar(this->kindsHolder[0][0], this->basesHolder[0],this->signsHolder[0],this->storagesHolder[0],this->qualifiersHolder[0]);
-  SymbolNode *val = new SymbolNode(name,pointer,this->pos[0]);
-  return insertSymbol(name, val,this->pos[0]);
+  SymbolNode *val = new SymbolNode(name,pointer,this->lines[0]);
+  return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
 bool Declaration::pushFunction(std::string name){
   Spec spec;
-
   bool arg_definition_mode = false;
   int arg = 0;
   int type = 0;
@@ -509,7 +501,7 @@ bool Declaration::pushFunction(std::string name){
 
   // return type  ===========================================================
   if(!this->hasType){
-    std::cout << "[P] WARNING: type specifier missing, defaults to \'int\'" << std::endl;
+    warning("[P] WARNING: type specifier missing, defaults to \'int\'");
     TypeBasic* base = new TypeBasic();
     base->setBaseType(SpecName::Int);
     function->setReturnSpec(base);
@@ -553,7 +545,7 @@ bool Declaration::pushFunction(std::string name){
       if(this->kindsHolder[kind][num] == SpecName::Basic){
         TypeBasic* base = makeBasicVar(this->basesHolder[type],this->signsHolder[type],this->storagesHolder[type],this->qualifiersHolder[type]);
         if(arg_definition_mode){
-          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], base, this->pos[arg],true));
+          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], base, this->lines[arg],true));
           arg++;
         }
         function->insertArg(base);
@@ -562,26 +554,62 @@ bool Declaration::pushFunction(std::string name){
       else if(this->kindsHolder[kind][num] == SpecName::Pointer){
         TypePointer* pointer = makePointerVar(this->kindsHolder[kind][num-1], this->basesHolder[type],this->signsHolder[type],this->storagesHolder[type],this->qualifiersHolder[type]);
         if(arg_definition_mode){
-          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], pointer, this->pos[arg],true));
+          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], pointer, this->lines[arg],true));
           arg++;
         }
         function->insertArg(pointer);
       }
+      // array ----------------------------------------------------
+      else if(this->kindsHolder[kind][num] == SpecName::Array){
+         TypeArray *array = new TypeArray();
+        // check array size
+        for(int dim = 0; dim < this->dims.front().size(); dim++){
+          if(this->dims.front().at(dim) < 0){
+            error("[P]: ERROR: an array with a negative size");
+            return false;
+          }
+        }
+        if(!buildStorage(array,this->storagesHolder[kind])){
+          return false;
+        }
+        if(!buildQualifier(array, this->qualifiersHolder[kind])){
+          return false;
+        }
+        // basic type
+        if(this->kindsHolder[kind][num-1] == SpecName::Basic){
+          TypeBasic *base = makeBasicType(this->basesHolder[kind],this->signsHolder[kind],this->qualifiersHolder[kind]);
+          if(base == NULL){
+            return false;
+          }
+          array->setElemSpec(base);
+        }
+        array->setArraySizes(this->dims.front());
+        this->dims.erase(this->dims.begin());
+
+        if(arg_definition_mode){
+          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], array, this->lines[arg],true));
+          arg++;
+        }
+
+        function->insertArg(array);
+      }
   } // end argment types  ====================================================
 
   // insert function
-  SymbolNode *val = new SymbolNode(name, function, this->pos[0]);
-  return insertSymbol(name, val,this->pos[0]);
+  SymbolNode *val = new SymbolNode(name, function, this->lines[0]);
+  return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
-bool Declaration::insertSymbol(std::string name, SymbolNode* val, int pos){
+bool Declaration::insertSymbol(std::string name, SymbolNode* val, int line, int col){
   SymbolNode *sym = symTable.lookupTopTable(name);
   if(sym != NULL && sym->isDefined()){
     std::stringstream ss;
-    ss << "[P]: ERROR: Redefinition of \'" << name << "\'" << "@" << pos;
+    ss << "[P]: ERROR: Redefinition of \'" << name << "\'" << ", line " << line << " col " << col;
     error(ss.str());
   }
   else if(symTable.lookUpShadowedSymbol(name)) {
-    std::cout << "[P]: WARNING: Symbol \'"+name+"\' shadows another in parent level " << "@" << pos << std::endl;
+    std::stringstream ss;
+    ss << "[P]: WARNING: Symbol \'"+name+"\' shadows another" << ", line " << line << " col " << col;
+    warning(ss.str());
   }
   return symTable.insertSymbol(name, val);
 }
