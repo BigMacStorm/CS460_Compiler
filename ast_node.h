@@ -1,5 +1,12 @@
 #include <string>
 
+// Comment your name under nodes that you'll work on
+// Assignments (roughly):
+// 1-20 - Niki
+// 21-40 - David
+// 41-60 - Yuta
+// 61-80 - Aaron
+
 class ast_node {
   public:
     virtual ast_node()=0;
@@ -8,8 +15,14 @@ class ast_node {
     virtual void print()=0;
     virtual void generateCode()=0;
 
+    // If we need polymorphism
+    //virtual std::vector<ast_node*> getChildren();
+    // Otherwise, have specialized children getters
+
   private:
     std::string name;
+    ast_node* parent;
+    std::string source;
 };
 
 class program_node : public ast_node {
@@ -229,7 +242,22 @@ class selection_statement_node : public ast_node {
 
 class iteration_statement_node : public ast_node {
   public:
+    /*
+    iteration_statement_node();
+    ~iteration_statement_node();
+
+    void print() {
+        // Print name
+        // And more?
+    }
+
+    void generateCode() {
+        // Don't worry about it for now
+    }
+
+    */
   private:
+    //ast_node* a, b, c, d;
 };
 
 class jump_statement_node : public ast_node {
