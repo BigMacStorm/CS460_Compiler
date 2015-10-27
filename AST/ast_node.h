@@ -4,6 +4,72 @@
 #include <iostream>
 #include "../SymbolNode.h"
 
+// forward declaration
+class ast_node;
+class program_node;
+class translation_unit_node;
+class external_declaration_node;
+class function_definition_node;
+class declaration_node;
+class declaration_list_node;
+class init_declarator_node;
+class declaration_specifiers_node;
+class storage_class_specifier_node;
+class type_specifier_node;
+class type_qualifier_node;
+class union_specifier_node;
+class or_union_node;
+class struct_declaration_node;
+class qualifier_list_node;
+class declarator_list_node;
+class struct_declarator_node;
+class enum_specifier_node;
+class enumerator_list_node;
+class enumerator_node;
+class declarator_node;
+class direct_declarator_node;
+class pointer_node;
+class type_list_node;
+class parameter_list_node;
+class parameter_declaration_node;
+class identifier_list_node;
+class initializer_node;
+class initializer_list_node;
+class type_name_node;
+class abstract_declarator_node;
+class statement_node;
+class labeled_statement_node;
+class expression_statement_node;
+class compound_statement_node;
+class statement_list_node;
+class selection_statement_node;
+class iteration_statement_node;
+class jump_statement_node;
+class expression_node;
+class assignment_expression_node;
+class assignment_operator_node;
+class conditional_expression_node;
+class constant_expression_node;
+class logical_or_expression_node;
+class logical_and_expression_node;
+class inclusive_or_expression_node;
+class exclusive_or_expression_node;
+class equality_expression_node;
+class relational_expression_node;
+class shift_expression_node;
+class additive_expression_node;
+class multiplicative_expression_node;
+class cast_expression_node;
+class unary_expression_node;
+class unary_operator_node;
+class postfix_expression_node;
+class primary_expression_node;
+class expression_list_node;
+class argument_expression_list_node;
+class constant_node;
+class string_node;
+class identifier_node;
+
 // Comment your name under nodes that you'll work on
 // Assignments (roughly):
 // 1-20 - Niki
@@ -48,16 +114,6 @@ class external_declaration_node : public ast_node {
   private:
 };
 
-class enter_scope_node : public ast_node {
-  public:
-  private:
-};
-
-class end_scope_node : public ast_node {
-  public:
-  private:
-};
-
 class function_definition_node : public ast_node {
   public:
   private:
@@ -83,7 +139,7 @@ class declaration_specifiers_node : public ast_node {
   private:
 };
 
-class class_specifier_node : public ast_node {
+class storage_class_specifier_node : public ast_node {
   public:
   private:
 };
@@ -253,19 +309,48 @@ class jump_statement_node : public ast_node {
   private:
 };
 
-class expression_node : public ast_node {
-  public:
-  private:
+class expression_node: public ast_node {
+public:
+  expression_node();
+  expression_node(assignment_expression_node* child);
+  void addAssignmentExpr(assignment_expression_node* child);
+  std::vector<assignment_expression_node*> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<assignment_expression_node*> children;
 };
 
 class assignment_expression_node : public ast_node {
   public:
+    assignment_expression_node(conditional_expression_node* cond_expr);
+    assignment_expression_node(unary_expression_node* unary_expr,
+      assignment_operator_node* assign_op, assignment_expression_node* assign_expr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    conditional_expression_node* cond_expr;
+    unary_expression_node* unary_expr;
+    assignment_operator_node* assign_op;
+    assignment_expression_node* assign_expr;
+    bool isConditionalExpr;
+    int mode;
 };
+
+namespace AssignType{
+  enum Type{EQUAL,MUL_ASSIGN,DIV_ASSIGN,MOD_ASSIGN,ADD_ASSIGN,SUB_ASSIGN,
+    LEFT_ASSIGN,RIGHT_ASSIGN,AND_ASSIGN,XOR_ASSIGN,OR_ASSIGN};
+}
 
 class assignment_operator_node : public ast_node {
   public:
+    assignment_operator_node();
+    assignment_operator_node(AssignType::Type op);
+    void print();
+    void generateCode();
   private:
+    int op;
 };
 
 class conditional_expression_node : public ast_node {
@@ -328,29 +413,82 @@ class cast_expression_node : public ast_node {
   private:
 };
 
+namespace UnaryOpType{
+  enum Type{ INC,DEC,SIZEOF };
+}
 class unary_expression_node : public ast_node {
   public:
+    unary_expression_node(postfix_expression_node* postExpr);
+    unary_expression_node(UnaryOpType::Type op, unary_expression_node* unaryExpr);
+    void print();
+    void generateCode();
   private:
+    postfix_expression_node* postExpr;
+    UnaryOpType::Type op;
+    unary_expression_node* unaryExpr;
+    int mode;
 };
 
 class unary_operator_node : public ast_node {
   public:
   private:
 };
-
+namespace PostOpType{
+  enum Type{NONE,PERIOD,PTR_OP,INC,DEC};
+}
 class postfix_expression_node : public ast_node {
   public:
+    postfix_expression_node(primary_expression_node* primayExpr);
+    postfix_expression_node(postfix_expression_node* postExpr, expression_node* expr); // array
+    postfix_expression_node(postfix_expression_node* postExpr); // array w/o expr
+    postfix_expression_node(postfix_expression_node* postExpr, argument_expression_list_node* argExpr); // function call
+    postfix_expression_node(postfix_expression_node* postExpr, PostOpType::Type op, std::string identifier); // ptr or dot
+    postfix_expression_node(postfix_expression_node* postExpr, PostOpType::Type op); // inc or dec
+    void init();
+    void print();
+    void generateCode();
   private:
+    int mode;
+    primary_expression_node* primayExpr;
+    postfix_expression_node* postExpr;
+    expression_node* expr;
+    argument_expression_list_node* argExpr;
+    PostOpType::Type op;
+    std::string identifier;
 };
 
-class primary_expression_node : public ast_node {
+class primary_expression_node: public ast_node {
   public:
+    primary_expression_node(identifier_node* identifier);
+    primary_expression_node(constant_node* constant);
+    primary_expression_node(string_node* string);
+    primary_expression_node(expression_node* expr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    identifier_node* identifier;
+    constant_node* constant;
+    string_node* string;
+    expression_node* expr;
+    int mode;
 };
 
 class expression_list_node : public ast_node {
   public:
   private:
+};
+
+class argument_expression_list_node : public ast_node {
+public:
+  argument_expression_list_node();
+  argument_expression_list_node(assignment_expression_node* child);
+  void addAssignmentExpr(assignment_expression_node* child);
+  std::vector<assignment_expression_node*> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<assignment_expression_node*> children;
 };
 
 namespace ConstType{
@@ -380,10 +518,17 @@ private:
 
 class string_node : public ast_node {
   public:
+    string_node();
+    string_node(std::string string_literal);
+    std::string getStringLiteral();
+    void setStringLiteral(std::string string_literal);
+    void print();
+    void generateCode();
   private:
+    std::string string_literal;
 };
 
-class identifier_node : public ast_node {
+class identifier_node: public ast_node {
   public:
     identifier_node(std::string name, SymbolNode* symnode);
     SymbolNode* getSymNode() const;
