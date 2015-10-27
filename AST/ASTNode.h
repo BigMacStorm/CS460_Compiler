@@ -1,4 +1,0 @@
-class ASTNode{
-public:
-private:
-};
