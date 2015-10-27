@@ -14,23 +14,23 @@ void Declaration::pushCol(int col){
   this->cols.push_back(col);
 }
 void Declaration::pushKind(SpecName::TypeKind typekind){
-  std::cout << "Kind: " << typekind;
+  //std::cout << "Kind: " << typekind;
   if(typekind == SpecName::NoKind){
     this->kindsHolder.push_back(this->kinds);
     this->kinds.clear();
-    std::cout << " Size: " << this->kindsHolder.size();
+    //std::cout << " Size: " << this->kindsHolder.size();
   }
   else{
     if(this->kinds.empty()){
       this->kinds.push_back(typekind);
-      std::cout << " OK";
+      //std::cout << " OK";
     }
     else if(typekind != this->kinds.back()){
       this->kinds.push_back(typekind);
-      std::cout << " OK";
+      //std::cout << " OK";
     }
   }
-  std::cout << " " << std::endl;
+  //std::cout << " " << std::endl;
 }
 void Declaration::pushBase(SpecName::BaseType basetype){
   //std::cout << "Base: " << basetype << std::endl;
@@ -301,7 +301,7 @@ bool Declaration::complete(){
   bool complete = false;
   std::string name = this->ids[0];
   std::cout << "ID: \'" << name << "\'" << std::endl;
-  std::cout << "Mode: " << mode <<std::endl;
+  //std::cout << "Mode: " << mode <<std::endl;
 
   if(isMode(DeclMode::Basic)){
     complete = pushBasic(name);

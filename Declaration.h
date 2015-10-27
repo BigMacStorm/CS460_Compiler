@@ -97,7 +97,7 @@ class Declaration{
   std::vector<int> cols; // identifier column number
 
   // type-specific detail
-  std::vector<std::vector<int>> dims;
+  std::vector<std::vector<int> > dims;
   std::vector<int> arraySizes; // for multi dimension
   std::vector<int> levels; // pointer deepness
   int level;
@@ -114,11 +114,11 @@ class Declaration{
   std::vector<SpecName::Storage> storages;
 
   // holder holds a set of each component set
-  std::vector<std::vector<SpecName::TypeKind>> kindsHolder;
-  std::vector<std::vector<SpecName::Sign>> signsHolder;
-  std::vector<std::vector<SpecName::Qualifier>> qualifiersHolder;
-  std::vector<std::vector<SpecName::Storage>> storagesHolder;
-  std::vector<std::vector<SpecName::BaseType>> basesHolder;
+  std::vector<std::vector<SpecName::TypeKind> > kindsHolder;
+  std::vector<std::vector<SpecName::Sign> > signsHolder;
+  std::vector<std::vector<SpecName::Qualifier> > qualifiersHolder;
+  std::vector<std::vector<SpecName::Storage> > storagesHolder;
+  std::vector<std::vector<SpecName::BaseType> > basesHolder;
 
 };
 #endif
