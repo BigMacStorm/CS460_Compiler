@@ -7,6 +7,7 @@ extern "C"{
 #include <stdio.h>
 #include <fstream>
 #include <string.h>
+#include "AST/ast_node.h"
 #include "SymbolTable.h"
 #include "Debugger.h"
 #include "Declaration.h"
@@ -38,8 +39,8 @@ bool insert_mode = true;
   int ival;
   double dval;
   char sval[100];
-  SymbolNode* sym;
-  //ASTNode* ast;
+  SymbolNode* symnode;
+  ast_node* astnode;
   SpecName::TypeKind tkval;
  }
 
@@ -84,9 +85,7 @@ bool insert_mode = true;
 
 %token ERRORtok
 
-/****
-%type <ast> identifier constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression
-****/
+%type <astnode> constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression
 
 %start program
 
@@ -398,13 +397,13 @@ struct_or_union
       reductionOut("[p]: struct_or_union -> STRUCTtok");
       decl.pushKind(SpecName::Struct);
       decl.setMode(DeclMode::Struct);
-      $$ = SpecName::TypeKind::Struct;
+      $$ = SpecName::Struct;
   }
   | UNIONtok {
       reductionOut("[p]: struct_or_union -> UNIONtok");
       decl.pushKind(SpecName::Union);
       decl.setMode(DeclMode::Union);
-      $$ = SpecName::TypeKind::Union;
+      $$ = SpecName::Union;
   }
   ;
 
@@ -1135,22 +1134,34 @@ postfix_expression
 
 primary_expression
   : identifier {
+      // use before declaration check
       if(!symTable.lookupSymbol($1)) {
         std::stringstream ss;
         ss << "[p]: ERROR: identifier \'" << $1 << "\' not found" << ", line " << linenum << " col " << colnum;
         error(ss.str());
       }
-      decl.lightClear(); // erace symbols not in declaration
-      insert_mode = false;
+
+      decl.lightClear();   // erace symbols not in declaration
+      insert_mode = false; // turn lookup mode on
+
+      // ast node creation
+      SymbolNode *sym = symTable.lookupSymbol($1);
+      if(sym != NULL){
+        $$ = new identifier_node($1, sym);
+      }
+      // reduction complete
       reductionOut("[p]: primary_expression -> identifier");
   }
   | constant {
+      $$ = $1;
       reductionOut("[p]: primary_expression -> constant");
   }
   | string {
+      $$ = $1;
       reductionOut("[p]: primary_expression -> string");
   }
   | OPEN_PARENtok expression CLOSE_PARENtok {
+      $$ = $1;
       reductionOut("[p]: primary_expression -> OPEN_PARENtok expression CLOSE_PARENtok");
   }
   ;
@@ -1166,12 +1177,15 @@ argument_expression_list
 
 constant
   : INTEGER_CONSTANTtok {
+      $$ = new constant_node((int)$1);
       reductionOut("[p]: constant -> INTEGER_CONSTANTtok");
   }
   | CHARACTER_CONSTANTtok {
+      $$ = new constant_node((char)$1);
       reductionOut("[p]: constant -> CHARACTER_CONSTANTtok");
   }
   | FLOATING_CONSTANTtok {
+      $$ = new constant_node((float)$1);
       reductionOut("[p]: constant -> FLOATING_CONSTANTtok");
   }
   | ENUMERATION_CONSTANTtok {
@@ -1187,11 +1201,13 @@ string
 
 identifier
   : IDENTIFIERtok {
-      reductionOut("[p]: identifier -> IDENTIFIERtok");
+      // save to use later in declaration.cpp
       decl.pushID(std::string(yylval.sval));
       decl.pushLine(linenum);
       decl.pushCol(colnum);
+
       strcpy($$, $1);
+      reductionOut("[p]: identifier -> IDENTIFIERtok");
   }
   ;
 

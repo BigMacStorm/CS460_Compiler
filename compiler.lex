@@ -4,6 +4,7 @@ extern "C"{
   int yyparse();
   int yylex();
 }
+#include "AST/ast_node.h"
 #include "SymbolTable.h"
 #include "Debugger.h"
 #include "y.tab.h"
