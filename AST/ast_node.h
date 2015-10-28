@@ -99,35 +99,66 @@ class ast_node {
     std::string source;
 };
 
+//may not need this node as its a unit production program -> translation_unit
 class program_node : public ast_node {
   public:
+    program_node();
+    program_node(translation_unit_node* child);
+    //should only be on translation unit node so this add function could be removed ??
+    void addTranslationUnit(translation_unit_node* child);
+    translation_unit_node* getChild() const;
+  void print();
+  void generateCode();
   private:
-};
+    translation_unit_node* translationUnit;
+};//n
 
 class translation_unit_node : public ast_node {
   public:
+    translation_unit_node();
+    translation_unit_node(external_declaration_node* child);
+    void addExternDecl(external_declaration_node* child);
+    std::vector<external_declaration_node*> getChildren() const;
+  void print();
+  void generateCode();
   private:
-};
+    std::vector<external_declaration_node*> children;
+};//n
 
 class external_declaration_node : public ast_node {
   public:
+    external_declaration_node();
+    external_declaration_node(function_definition_node* child);
+    external_declaration_node(declaration_node* child);
   private:
-};
+    union child{
+      function_definition_node* functionChild;
+      declaration_node* declChild;
+    };
+};//n
 
 class function_definition_node : public ast_node {
   public:
   private:
-};
+};//n
 
+//pretty sure the ';' to mark the end of a line doesn't really mean anything for mips?
 class declaration_node : public ast_node {
   public:
   private:
-};
+};//n
 
 class declaration_list_node : public ast_node {
   public:
+    declaration_list_node();
+    declaration_list_node(declaration_node* child);
+    void addDecl(declaration_node* child);
+    std::vector<declaration_node*> getChildren() const;
+  void print();
+  void generateCode();
   private:
-};
+    std::vector<declaration_node*> children;
+};//n
 
 class init_declarator_node : public ast_node {
   public:
