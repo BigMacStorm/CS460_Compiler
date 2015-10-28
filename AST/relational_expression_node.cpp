@@ -3,7 +3,7 @@
     init();
     this->shiftExpr = shiftExpr;
   }
-  relational_expression_node::relational_expression_node(relational_expression_node* relExpr, OpType::Unary op, shift_expression_node* shiftExpr){
+  relational_expression_node::relational_expression_node(relational_expression_node* relExpr, OpType::Type op, shift_expression_node* shiftExpr){
     init();
     this->relExpr = relExpr;
     this->op = op;

@@ -1000,9 +1000,11 @@ and_expression
 
 equality_expression
   : relational_expression {
+      $$ = new equality_expression_node(dynamic_cast<relational_expression_node*>($1));
       reductionOut("[p]: equality_expression -> relational_expression");
   }
   | equality_expression EQ_OPtok relational_expression {
+      $$ = new equality_expression_node(dynamic_cast<equality_expression_node*>($1),OpType::EQ,dynamic_cast<relational_expression_node*>($3));
       reductionOut("[p]: equality_expression -> equality_expression EQ_OPtok relational_expression");
   }
   | equality_expression NE_OPtok relational_expression {
@@ -1016,19 +1018,19 @@ relational_expression
       reductionOut("[p]: relational_expression -> shift_expression");
   }
   | relational_expression LEFT_ANGLEtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::L,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::L,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression LEFT_ANGLEtok shift_expression");
   }
   | relational_expression RIGHT_ANGLEtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::G,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::G,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression RIGHT_ANGLEtok shift_expression");
   }
   | relational_expression LE_OPtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::LE,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::LE,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression LE_OPtok shift_expression");
   }
   | relational_expression GE_OPtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::GE,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::GE,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression GE_OPtok shift_expression");
   }
   ;
