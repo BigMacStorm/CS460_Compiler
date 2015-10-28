@@ -628,11 +628,6 @@ class primary_expression_node: public ast_node {
     int mode;
 };
 
-class expression_list_node : public ast_node {
-  public:
-  private:
-};
-
 class argument_expression_list_node : public ast_node {
 public:
   argument_expression_list_node();
