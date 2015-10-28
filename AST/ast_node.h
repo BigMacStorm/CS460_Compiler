@@ -4,6 +4,13 @@
 #include <iostream>
 #include "../SymbolNode.h"
 
+// Comment your name under nodes that you'll work on
+// Assignments (roughly):
+// 1-20 - Niki
+// 21-40 - David
+// 41-60 - Yuta
+// 61-80 - Aaron
+
 // forward declaration
 class ast_node;
 class program_node;
@@ -70,12 +77,19 @@ class constant_node;
 class string_node;
 class identifier_node;
 
-// Comment your name under nodes that you'll work on
-// Assignments (roughly):
-// 1-20 - Niki
-// 21-40 - David
-// 41-60 - Yuta
-// 61-80 - Aaron
+namespace OpType{
+  enum Unary{NONE, INC, DEC, SIZEOF,
+            MUL, DIV, PLUS, MINUS,
+            ASTERISK, MOD, UP_CARROT,
+            AND, OR, TILDE, BANG,
+            LEFT_OP, RIGHT_OP, QUESTION};
+  enum Cond{
+    L, G, GE, LE, EQ
+  };
+}
+namespace PostOpType{
+  enum Type{NONE,PERIOD,PTR_OP,INC,DEC};
+}
 
 class ast_node {
   public:
@@ -390,52 +404,91 @@ class equality_expression_node : public ast_node {
 
 class relational_expression_node : public ast_node {
   public:
+    relational_expression_node(shift_expression_node* shiftExpr);
+    relational_expression_node(relational_expression_node* relExpr, OpType::Unary op, shift_expression_node* shiftExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    relational_expression_node* relExpr;
+    shift_expression_node* shiftExpr;
+    OpType::Cond op;
+    int mode;
 };
 
 class shift_expression_node : public ast_node {
   public:
+    shift_expression_node(additive_expression_node* addExpr);
+    shift_expression_node(shift_expression_node* shiftExpr, OpType::Unary op, additive_expression_node* addExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    shift_expression_node* shiftExpr;
+    additive_expression_node* addExpr;
+    OpType::Unary op;
+    int mode;
 };
 
 class additive_expression_node : public ast_node {
   public:
+    additive_expression_node(multiplicative_expression_node* multiExpr);
+    additive_expression_node(additive_expression_node* addExpr, OpType::Unary op, multiplicative_expression_node* multiExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    multiplicative_expression_node* multiExpr;
+    additive_expression_node* addExpr;
+    OpType::Unary op;
+    int mode;
 };
 
 class multiplicative_expression_node : public ast_node {
   public:
+    multiplicative_expression_node(cast_expression_node* castExpr);
+    multiplicative_expression_node(multiplicative_expression_node* multiExpr, OpType::Unary op, cast_expression_node* castExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    cast_expression_node* castExpr;
+    multiplicative_expression_node* multiExpr;
+    OpType::Unary op;
+    int mode;
 };
 
 class cast_expression_node : public ast_node {
   public:
+    cast_expression_node(unary_expression_node* unaryExpr);
+    void print();
+    void generateCode();
   private:
+    unary_expression_node* unaryExpr;
 };
 
-namespace UnaryOpType{
-  enum Type{ INC,DEC,SIZEOF };
-}
 class unary_expression_node : public ast_node {
   public:
     unary_expression_node(postfix_expression_node* postExpr);
-    unary_expression_node(UnaryOpType::Type op, unary_expression_node* unaryExpr);
+    unary_expression_node(OpType::Unary op, unary_expression_node* unaryExpr);
     void print();
     void generateCode();
   private:
     postfix_expression_node* postExpr;
-    UnaryOpType::Type op;
+    OpType::Unary op;
     unary_expression_node* unaryExpr;
     int mode;
 };
 
 class unary_operator_node : public ast_node {
   public:
+    unary_operator_node(OpType::Unary op);
+    void print();
+    void generateCode();
   private:
+    OpType::Unary op;
 };
-namespace PostOpType{
-  enum Type{NONE,PERIOD,PTR_OP,INC,DEC};
-}
+
 class postfix_expression_node : public ast_node {
   public:
     postfix_expression_node(primary_expression_node* primayExpr);

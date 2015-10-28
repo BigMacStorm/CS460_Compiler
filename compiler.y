@@ -1012,63 +1012,79 @@ equality_expression
 
 relational_expression
   : shift_expression {
+      $$ = new relational_expression_node(dynamic_cast<shift_expression_node*>($1));
       reductionOut("[p]: relational_expression -> shift_expression");
   }
   | relational_expression LEFT_ANGLEtok shift_expression {
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::L,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression LEFT_ANGLEtok shift_expression");
   }
   | relational_expression RIGHT_ANGLEtok shift_expression {
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::G,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression RIGHT_ANGLEtok shift_expression");
   }
   | relational_expression LE_OPtok shift_expression {
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::LE,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression LE_OPtok shift_expression");
   }
   | relational_expression GE_OPtok shift_expression {
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::GE,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression GE_OPtok shift_expression");
   }
   ;
 
 shift_expression
   : additive_expression {
+      $$ = new shift_expression_node(dynamic_cast<additive_expression_node*>($1));
       reductionOut("[p]: shift_expression -> additive_expression");
   }
   | shift_expression LEFT_OPtok additive_expression {
+      $$ = new shift_expression_node(dynamic_cast<shift_expression_node*>($1),OpType::LEFT_OP, dynamic_cast<additive_expression_node*>($3));
       reductionOut("[p]: shift_expression -> shift_expression LEFT_OPtok additive_expression");
   }
   | shift_expression RIGHT_OPtok additive_expression {
+      $$ = new shift_expression_node(dynamic_cast<shift_expression_node*>($1),OpType::RIGHT_OP, dynamic_cast<additive_expression_node*>($3));
       reductionOut("[p]: shift_expression -> shift_expression RIGHT_OPtok additive_expression");
   }
   ;
 
 additive_expression
   : multiplicative_expression {
+      $$ = new additive_expression_node(dynamic_cast<multiplicative_expression_node*>($1));
       reductionOut("[p]: additive_expression -> multiplicative_expression");
   }
   | additive_expression UNARY_PLUStok multiplicative_expression {
+      $$ = new additive_expression_node(dynamic_cast<additive_expression_node*>($1),OpType::PLUS,dynamic_cast<multiplicative_expression_node*>($3));
       reductionOut("[p]: additive_expression -> additive_expression UNARY_PLUStok multiplicative_expression");
   }
   | additive_expression UNARY_MINUStok multiplicative_expression {
+      $$ = new additive_expression_node(dynamic_cast<additive_expression_node*>($1),OpType::MINUS,dynamic_cast<multiplicative_expression_node*>($3));
       reductionOut("[p]: additive_expression -> additive_expression UNARY_MINUStok multiplicative_expression");
   }
   ;
 
 multiplicative_expression
   : cast_expression {
+      $$ = new multiplicative_expression_node(dynamic_cast<cast_expression_node*>($1));
       reductionOut("[p]: multiplicative_expression -> cast_expression");
   }
   | multiplicative_expression UNARY_ASTERISKtok cast_expression {
+      $$ = new multiplicative_expression_node(dynamic_cast<multiplicative_expression_node*>($1),OpType::ASTERISK,dynamic_cast<cast_expression_node*>($3));
       reductionOut("[p]: multiplicative_expression -> multiplicative_expression UNARY_ASTERISKtok cast_expression");
   }
   | multiplicative_expression FORWARD_SLASHtok cast_expression {
+      $$ = new multiplicative_expression_node(dynamic_cast<multiplicative_expression_node*>($1),OpType::DIV,dynamic_cast<cast_expression_node*>($3));
       reductionOut("[p]: multiplicative_expression -> multiplicative_expression FORWARD_SLASHtok cast_expression");
   }
   | multiplicative_expression PERCENTtok cast_expression {
+      $$ = new multiplicative_expression_node(dynamic_cast<multiplicative_expression_node*>($1),OpType::MOD,dynamic_cast<cast_expression_node*>($3));
       reductionOut("[p]: multiplicative_expression -> multiplicative_expression PERCENTtok cast_expression");
   }
   ;
 
 cast_expression
   : unary_expression {
+      $$ = new cast_expression_node(dynamic_cast<unary_expression_node*>($1));
       reductionOut("[p]: cast_expression -> unary_expression");
   }
   | OPEN_PARENtok type_name CLOSE_PARENtok cast_expression {
@@ -1082,18 +1098,18 @@ unary_expression
       reductionOut("[p]: unary_expression -> postfix_expression");
   }
   | INC_OPtok unary_expression {
-      $$ = new unary_expression_node(UnaryOpType::INC,dynamic_cast<unary_expression_node*>($2));
+      $$ = new unary_expression_node(OpType::INC,dynamic_cast<unary_expression_node*>($2));
       reductionOut("[p]: unary_expression -> INC_OPtok unary_expression");
   }
   | DEC_OPtok unary_expression {
-      $$ = new unary_expression_node(UnaryOpType::DEC,dynamic_cast<unary_expression_node*>($2));
+      $$ = new unary_expression_node(OpType::DEC,dynamic_cast<unary_expression_node*>($2));
       reductionOut("[p]: unary_expression -> DEC_OPtok unary_expression");
   }
   | unary_operator cast_expression {
       reductionOut("[p]: unary_expression -> unary_operator cast_expression");
   }
   | SIZEOFtok unary_expression {
-      $$ = new unary_expression_node(UnaryOpType::SIZEOF,dynamic_cast<unary_expression_node*>($2));
+      $$ = new unary_expression_node(OpType::SIZEOF,dynamic_cast<unary_expression_node*>($2));
       reductionOut("[p]: unary_expression -> SIZEOFtok unary_expression");
   }
   | SIZEOFtok OPEN_PARENtok type_name CLOSE_PARENtok {
@@ -1103,21 +1119,27 @@ unary_expression
 
 unary_operator
   : UNARY_ANDtok {
+      $$ = new unary_operator_node(OpType::AND);
       reductionOut("[p]: unary_operator -> UNARY_ANDtok");
   }
   | UNARY_ASTERISKtok {
+      $$ = new unary_operator_node(OpType::ASTERISK);
       reductionOut("[p]: unary_operator -> UNARY_ASTERISKtok");
   }
   | UNARY_PLUStok {
+      $$ = new unary_operator_node(OpType::PLUS);
       reductionOut("[p]: unary_operator -> UNARY_PLUStok");
   }
   | UNARY_MINUStok {
+      $$ = new unary_operator_node(OpType::MINUS);
       reductionOut("[p]: unary_operator -> UNARY_MINUStok");
   }
   | UNARY_TILDEtok {
+      $$ = new unary_operator_node(OpType::TILDE);
       reductionOut("[p]: unary_operator -> UNARY_TILDEtok");
   }
   | UNARY_BANGtok {
+      $$ = new unary_operator_node(OpType::BANG);
       reductionOut("[p]: unary_operator -> UNARY_BANGtok");
   }
   ;
