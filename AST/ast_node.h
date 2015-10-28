@@ -61,6 +61,7 @@ class logical_or_expression_node;
 class logical_and_expression_node;
 class inclusive_or_expression_node;
 class exclusive_or_expression_node;
+class and_expression_node;
 class equality_expression_node;
 class relational_expression_node;
 class shift_expression_node;
@@ -78,17 +79,14 @@ class string_node;
 class identifier_node;
 
 namespace OpType{
-  enum Unary{NONE, INC, DEC, SIZEOF,
+  enum Type{NONE, PERIOD,PTR_OP,
+            INC, DEC, SIZEOF,
             MUL, DIV, PLUS, MINUS,
-            ASTERISK, MOD, UP_CARROT,
-            AND, OR, TILDE, BANG,
-            LEFT_OP, RIGHT_OP, QUESTION};
-  enum Cond{
-    L, G, GE, LE, EQ
-  };
-}
-namespace PostOpType{
-  enum Type{NONE,PERIOD,PTR_OP,INC,DEC};
+            ASTERISK, MOD, PIPE,
+            AND, UP_CARROT, TILDE, BANG,
+            LEFT_OP, RIGHT_OP, QUESTION,
+            L, G, GE, LE, EQ, NE, AND_OP, OR_OP
+          };
 }
 
 class ast_node {
@@ -168,8 +166,8 @@ class declaration_list_node : public ast_node {
     declaration_list_node(declaration_node* child);
     void addDecl(declaration_node* child);
     std::vector<declaration_node*> getChildren() const;
-  void print();
-  void generateCode();
+    void print();
+    void generateCode();
   private:
     std::vector<declaration_node*> children;
 };//n
@@ -398,94 +396,166 @@ class assignment_operator_node : public ast_node {
     int op;
 };
 
-class conditional_expression_node : public ast_node {
-  public:
-  private:
-};
-
 class constant_expression_node : public ast_node {
   public:
+    constant_expression_node(conditional_expression_node* condExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    conditional_expression_node* condExpr;
+};
+
+class conditional_expression_node : public ast_node {
+  public:
+    conditional_expression_node(logical_or_expression_node* logOrExpr);
+    conditional_expression_node(logical_or_expression_node* logOrExpr, expression_node* expr, conditional_expression_node* condExpr);
+    void init();
+    void print();
+    void generateCode();
+  private:
+    conditional_expression_node* condExpr;
+    expression_node* expr;
+    logical_or_expression_node* logOrExpr;
+    int mode;
 };
 
 class logical_or_expression_node : public ast_node {
   public:
+    logical_or_expression_node(logical_and_expression_node* logAndExpr);
+    logical_or_expression_node(logical_or_expression_node* logOrExpr, OpType::Type op, logical_and_expression_node* logAndExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    logical_and_expression_node* logAndExpr;
+    logical_or_expression_node* logOrExpr;
+    OpType::Type op;
+    int mode;
 };
 
 class logical_and_expression_node : public ast_node {
   public:
+    logical_and_expression_node(inclusive_or_expression_node* iorExpr);
+    logical_and_expression_node(logical_and_expression_node* logAndExpr, OpType::Type op, inclusive_or_expression_node* iorExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    inclusive_or_expression_node* iorExpr;
+    logical_and_expression_node* logAndExpr;
+    OpType::Type op;
+    int mode;
 };
 
 class inclusive_or_expression_node : public ast_node {
   public:
+    inclusive_or_expression_node(exclusive_or_expression_node* exorExpr);
+    inclusive_or_expression_node(inclusive_or_expression_node* iorExpr, OpType::Type op, exclusive_or_expression_node* exorExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    exclusive_or_expression_node* exorExpr;
+    inclusive_or_expression_node* iorExpr;
+    OpType::Type op;
+    int mode;
 };
 
 class exclusive_or_expression_node : public ast_node {
   public:
+    exclusive_or_expression_node(and_expression_node* andExpr);
+    exclusive_or_expression_node(exclusive_or_expression_node* exorExpr, OpType::Type op, and_expression_node* andExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    and_expression_node* andExpr;
+    exclusive_or_expression_node* exorExpr;
+    OpType::Type op;
+    int mode;
+};
+class and_expression_node : public ast_node {
+  public:
+    and_expression_node(equality_expression_node* equalExpr);
+    and_expression_node(and_expression_node* andExpr, OpType::Type op, equality_expression_node* equalExpr);
+    void init();
+    void print();
+    void generateCode();
+  private:
+    and_expression_node* andExpr;
+    equality_expression_node* equalExpr;
+    OpType::Type op;
+    int mode;
 };
 
 class equality_expression_node : public ast_node {
   public:
+    equality_expression_node(relational_expression_node* relExpr);
+    equality_expression_node(equality_expression_node* equalExpr, OpType::Type op, relational_expression_node* relExpr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    equality_expression_node* equalExpr;
+    relational_expression_node* relExpr;
+    OpType::Type op;
+    int mode;
 };
 
 class relational_expression_node : public ast_node {
   public:
     relational_expression_node(shift_expression_node* shiftExpr);
-    relational_expression_node(relational_expression_node* relExpr, OpType::Unary op, shift_expression_node* shiftExpr);
+    relational_expression_node(relational_expression_node* relExpr, OpType::Type op, shift_expression_node* shiftExpr);
     void init();
     void print();
     void generateCode();
   private:
     relational_expression_node* relExpr;
     shift_expression_node* shiftExpr;
-    OpType::Cond op;
+    OpType::Type op;
     int mode;
 };
 
 class shift_expression_node : public ast_node {
   public:
     shift_expression_node(additive_expression_node* addExpr);
-    shift_expression_node(shift_expression_node* shiftExpr, OpType::Unary op, additive_expression_node* addExpr);
+    shift_expression_node(shift_expression_node* shiftExpr, OpType::Type op, additive_expression_node* addExpr);
     void init();
     void print();
     void generateCode();
   private:
     shift_expression_node* shiftExpr;
     additive_expression_node* addExpr;
-    OpType::Unary op;
+    OpType::Type op;
     int mode;
 };
 
 class additive_expression_node : public ast_node {
   public:
     additive_expression_node(multiplicative_expression_node* multiExpr);
-    additive_expression_node(additive_expression_node* addExpr, OpType::Unary op, multiplicative_expression_node* multiExpr);
+    additive_expression_node(additive_expression_node* addExpr, OpType::Type op, multiplicative_expression_node* multiExpr);
     void init();
     void print();
     void generateCode();
   private:
     multiplicative_expression_node* multiExpr;
     additive_expression_node* addExpr;
-    OpType::Unary op;
+    OpType::Type op;
     int mode;
 };
 
 class multiplicative_expression_node : public ast_node {
   public:
     multiplicative_expression_node(cast_expression_node* castExpr);
-    multiplicative_expression_node(multiplicative_expression_node* multiExpr, OpType::Unary op, cast_expression_node* castExpr);
+    multiplicative_expression_node(multiplicative_expression_node* multiExpr, OpType::Type op, cast_expression_node* castExpr);
     void init();
     void print();
     void generateCode();
   private:
     cast_expression_node* castExpr;
     multiplicative_expression_node* multiExpr;
-    OpType::Unary op;
+    OpType::Type op;
     int mode;
 };
 
@@ -501,23 +571,23 @@ class cast_expression_node : public ast_node {
 class unary_expression_node : public ast_node {
   public:
     unary_expression_node(postfix_expression_node* postExpr);
-    unary_expression_node(OpType::Unary op, unary_expression_node* unaryExpr);
+    unary_expression_node(OpType::Type op, unary_expression_node* unaryExpr);
     void print();
     void generateCode();
   private:
     postfix_expression_node* postExpr;
-    OpType::Unary op;
+    OpType::Type op;
     unary_expression_node* unaryExpr;
     int mode;
 };
 
 class unary_operator_node : public ast_node {
   public:
-    unary_operator_node(OpType::Unary op);
+    unary_operator_node(OpType::Type op);
     void print();
     void generateCode();
   private:
-    OpType::Unary op;
+    OpType::Type op;
 };
 
 class postfix_expression_node : public ast_node {
@@ -526,8 +596,8 @@ class postfix_expression_node : public ast_node {
     postfix_expression_node(postfix_expression_node* postExpr, expression_node* expr); // array
     postfix_expression_node(postfix_expression_node* postExpr); // array w/o expr
     postfix_expression_node(postfix_expression_node* postExpr, argument_expression_list_node* argExpr); // function call
-    postfix_expression_node(postfix_expression_node* postExpr, PostOpType::Type op, std::string identifier); // ptr or dot
-    postfix_expression_node(postfix_expression_node* postExpr, PostOpType::Type op); // inc or dec
+    postfix_expression_node(postfix_expression_node* postExpr, OpType::Type op, std::string identifier); // ptr or dot
+    postfix_expression_node(postfix_expression_node* postExpr, OpType::Type op); // inc or dec
     void init();
     void print();
     void generateCode();
@@ -537,7 +607,7 @@ class postfix_expression_node : public ast_node {
     postfix_expression_node* postExpr;
     expression_node* expr;
     argument_expression_list_node* argExpr;
-    PostOpType::Type op;
+    OpType::Type op;
     std::string identifier;
 };
 

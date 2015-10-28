@@ -938,71 +938,86 @@ assignment_operator
   }
   ;
 
-conditional_expression
-  : logical_or_expression {
-      reductionOut("[p]: conditional_expression -> logical_or_expression");
-  }
-  | logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression {
-      reductionOut("[p]: conditional_expression -> logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression");
+constant_expression
+  : conditional_expression {
+      $$ = new constant_expression_node(dynamic_cast<conditional_expression_node*>($1));
+      reductionOut("[p]: constant_expression -> conditional_expression");
   }
   ;
 
-constant_expression
-  : conditional_expression {
-      reductionOut("[p]: constant_expression -> conditional_expression");
+conditional_expression
+  : logical_or_expression {
+      $$ = new conditional_expression_node(dynamic_cast<logical_or_expression_node*>($1));
+      reductionOut("[p]: conditional_expression -> logical_or_expression");
+  }
+  | logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression {
+      $$ = new conditional_expression_node(dynamic_cast<logical_or_expression_node*>($1),dynamic_cast<expression_node*>($3),dynamic_cast<conditional_expression_node*>($5));
+      reductionOut("[p]: conditional_expression -> logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression");
   }
   ;
 
 logical_or_expression
   : logical_and_expression {
+      $$ = new logical_or_expression_node(dynamic_cast<logical_and_expression_node*>($1));
       reductionOut("[p]: logical_or_expression -> logical_and_expression");
   }
   | logical_or_expression OR_OPtok logical_and_expression {
+      $$ = new logical_or_expression_node(dynamic_cast<logical_or_expression_node*>($1),OpType::OR_OP,dynamic_cast<logical_and_expression_node*>($3));
       reductionOut("[p]: logical_or_expression -> logical_or_expression OR_OPtok logical_and_expression");
   }
   ;
 
 logical_and_expression
   : inclusive_or_expression {
+      $$ = new logical_and_expression_node(dynamic_cast<inclusive_or_expression_node*>($1));
       reductionOut("[p]: logical_and_expression -> inclusive_or_expression");
   }
   | logical_and_expression AND_OPtok inclusive_or_expression {
+      $$ = new logical_and_expression_node(dynamic_cast<logical_and_expression_node*>($1),OpType::AND_OP,dynamic_cast<inclusive_or_expression_node*>($3));
       reductionOut("[p]: logical_and_expression -> logical_and_expression AND_OPtok inclusive_or_expression");
   }
   ;
 
 inclusive_or_expression
   : exclusive_or_expression {
+      $$ = new inclusive_or_expression_node(dynamic_cast<exclusive_or_expression_node*>($1));
       reductionOut("[p]: inclusive_or_expression -> exclusive_or_expression");
   }
   | inclusive_or_expression PIPEtok exclusive_or_expression {
+      $$ = new inclusive_or_expression_node(dynamic_cast<inclusive_or_expression_node*>($1),OpType::PIPE,dynamic_cast<exclusive_or_expression_node*>($3));
       reductionOut("[p]: inclusive_or_expression -> inclusive_or_expression PIPEtok exclusive_or_expression");
   }
   ;
 
 exclusive_or_expression
   : and_expression {
+      $$ = new exclusive_or_expression_node(dynamic_cast<and_expression_node*>($1));
       reductionOut("[p]: exclusive_or_expression -> and_expression");
   }
   | exclusive_or_expression UP_CARROTtok and_expression {
+      $$ = new exclusive_or_expression_node(dynamic_cast<exclusive_or_expression_node*>($1),OpType::UP_CARROT,dynamic_cast<and_expression_node*>($3));
       reductionOut("[p]: exclusive_or_expression -> exclusive_or_expression UP_CARROTtok and_expression");
   }
   ;
 
 and_expression
   : equality_expression {
+      $$ = new and_expression_node(dynamic_cast<equality_expression_node*>($1));
       reductionOut("[p]: and_expression -> equality_expression");
   }
   | and_expression UNARY_ANDtok equality_expression {
+      $$ = new and_expression_node(dynamic_cast<and_expression_node*>($1),OpType::AND,dynamic_cast<equality_expression_node*>($3));
       reductionOut("[p]: and_expression -> and_expression UNARY_ANDtok equality_expression");
   }
   ;
 
 equality_expression
   : relational_expression {
+      $$ = new equality_expression_node(dynamic_cast<relational_expression_node*>($1));
       reductionOut("[p]: equality_expression -> relational_expression");
   }
   | equality_expression EQ_OPtok relational_expression {
+      $$ = new equality_expression_node(dynamic_cast<equality_expression_node*>($1),OpType::EQ,dynamic_cast<relational_expression_node*>($3));
       reductionOut("[p]: equality_expression -> equality_expression EQ_OPtok relational_expression");
   }
   | equality_expression NE_OPtok relational_expression {
@@ -1016,19 +1031,19 @@ relational_expression
       reductionOut("[p]: relational_expression -> shift_expression");
   }
   | relational_expression LEFT_ANGLEtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::L,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::L,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression LEFT_ANGLEtok shift_expression");
   }
   | relational_expression RIGHT_ANGLEtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::G,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::G,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression RIGHT_ANGLEtok shift_expression");
   }
   | relational_expression LE_OPtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::LE,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::LE,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression LE_OPtok shift_expression");
   }
   | relational_expression GE_OPtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($3),OpType::GE,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::GE,dynamic_cast<shift_expression_node*>($3));
       reductionOut("[p]: relational_expression -> relational_expression GE_OPtok shift_expression");
   }
   ;
@@ -1162,19 +1177,19 @@ postfix_expression
       reductionOut("[p]: postfix_expression -> postfix_expression OPEN_PARENtok argument_expression_list CLOSE_PARENtok");
   }
   | postfix_expression PERIODtok identifier {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),PostOpType::PERIOD,$3);
+      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),OpType::PERIOD,$3);
       reductionOut("[p]: postfix_expression -> postfix_expression PERIODtok identifier");
   }
   | postfix_expression PTR_OPtok identifier {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),PostOpType::PTR_OP,$3);
+      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),OpType::PTR_OP,$3);
       reductionOut("[p]: postfix_expression -> postfix_expression PTR_OPtok identifier");
   }
   | postfix_expression INC_OPtok {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),PostOpType::INC);
+      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),OpType::INC);
       reductionOut("[p]: postfix_expression -> postfix_expression INC_OPtok");
   }
   | postfix_expression DEC_OPtok {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),PostOpType::DEC);
+      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),OpType::DEC);
       reductionOut("[p]: postfix_expression -> postfix_expression DEC_OPtok");
   }
   ;
