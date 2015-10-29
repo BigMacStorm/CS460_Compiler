@@ -125,7 +125,7 @@ class program_node : public ast_node {
   void generateCode();
   private:
     translation_unit_node* translationUnit;
-};//n
+};
 
 class translation_unit_node : public ast_node {
   public:
@@ -137,7 +137,7 @@ class translation_unit_node : public ast_node {
     void generateCode();
   private:
     std::vector<external_declaration_node*> children;
-};//n
+};
 
 class external_declaration_node : public ast_node {
   public:
@@ -149,18 +149,34 @@ class external_declaration_node : public ast_node {
   private:
     function_definition_node* functionChild;
     declaration_node* declChild;
-};//n
+};
 
 class function_definition_node : public ast_node {
   public:
+    function_definition_node();
+    function_definition_node(declaration_specifiers_node* spec,
+                             declarator_node* dec,
+                             declaration_list_node* dlist,
+                             compound_statement_node* stmts);
+    void print();
+    void generateCode();
   private:
-};//n
+    declaration_specifiers_node* specifiers;
+    declarator_node* decl;
+    declaration_list_node* decList;
+    compound_statement_node* compStmt;
+};
 
-//pretty sure the ';' to mark the end of a line doesn't really mean anything for mips?
 class declaration_node : public ast_node {
   public:
+    declaration_node();
+    declaration_node(declaration_specifiers_node* spec, init_declarator_list_node* dlist);
+    void print();
+    void generateCode();
   private:
-};//n
+    declaration_specifiers_node* specifier;
+    init_declarator_list_node* decList;
+};
 
 class declaration_list_node : public ast_node {
   public:
@@ -172,22 +188,22 @@ class declaration_list_node : public ast_node {
     void generateCode();
   private:
     std::vector<declaration_node*> children;
-};//n
+};
 
 class init_declarator_node : public ast_node {
   public:
   private:
-};//n
+};
 
 class init_declarator_list_node : public ast_node {
   public:
   private:
-};//n
+};
 
 class declaration_specifiers_node : public ast_node {
   public:
   private:
-};//n
+};
 
 namespace StorageSpecifier{
   enum Store{AUTO, REGISTER, STATIC, EXTERN, TYPEDEF};
@@ -200,7 +216,7 @@ class storage_class_specifier_node : public ast_node {
     void generateCode();
   private:
     int storeType;
-};//n
+};
 
 //could be enum for type_specifiers but should also includes struct and union (extra credit)
 namespace TypeSpecifier{
@@ -215,7 +231,7 @@ class type_specifier_node : public ast_node {
     void generateCode();
   private:
     int type;
-};//n
+};
 
 namespace TypeQualifier{
   enum Qual{CONST, VOLATILE};
@@ -228,7 +244,7 @@ class type_qualifier_node : public ast_node {
     void generateCode();
   private:
     int qual;
-};//n
+};
 
 /* 
 leaving struct related classes commented out unless we decide to implement them
@@ -276,22 +292,34 @@ class specifier_qualifier_list_node : public ast_node {
     void generateCode();
   private:
     std::vector<ast_node*> children;
-};//n
+};
 
 class declarator_list_node : public ast_node {
   public:
   private:
-};//n
+};
 
 class enum_specifier_node : public ast_node {
   public:
+    enum_specifier_node();
+    //init as null if not used
+    enum_specifier_node(identifier_node* id, enumerator_list_node* enm);
   private:
-};//n
+    enumerator_list_node* enumList
+    identifier_node* id
+};
 
 class enumerator_list_node : public ast_node {
   public:
+    enumerator_list_node();
+    enumerator_list_node(enum_specifier_node* child);
+    void addEnumSpec(enum_specifier_node* child);
+    std::vector<enum_specifier_node*> getChildren() const;
+    void print();
+    void generateCode();
   private:
-};//n
+    std::vector<enum_specifier_node*> children;
+};//
 
 class enumerator_node : public ast_node {
   public:
