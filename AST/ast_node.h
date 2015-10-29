@@ -177,34 +177,73 @@ class declaration_list_node : public ast_node {
 class init_declarator_node : public ast_node {
   public:
   private:
-};
+};//n
+
+class init_declarator_list_node : public ast_node {
+  public:
+  private:
+};//n
 
 class declaration_specifiers_node : public ast_node {
   public:
   private:
-};
+};//n
 
+namespace StorageSpecifier{
+  enum Store{AUTO, REGISTER, STATIC, EXTERN, TYPEDEF};
+}
 class storage_class_specifier_node : public ast_node {
   public:
+    type_specifier_node();
+    type_specifier_node(StorageSpecifier::Store storeType);
+    void print();
+    void generateCode();
   private:
-};
+    int storeType;
+};//n
 
+//could be enum for type_specifiers but should also includes struct and union (extra credit)
+namespace TypeSpecifier{
+  enum Type{VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED
+            UNSIGNED, TYPEDEF_NAME};
+}
 class type_specifier_node : public ast_node {
   public:
+    type_specifier_node();
+    type_specifier_node(TypeSpecifier::Type type);
+    void print();
+    void generateCode();
   private:
-};
+    int type;
+};//n
 
+namespace TypeQualifier{
+  enum Qual{CONST, VOLATILE};
+}
 class type_qualifier_node : public ast_node {
   public:
+    type_specifier_node();
+    type_specifier_node(TypeQualifier::Qual qual);
+    void print();
+    void generateCode();
   private:
-};
+    int qual;
+};//n
 
-class union_specifier_node : public ast_node {
+/* 
+leaving struct related classes commented out unless we decide to implement them
+
+class struct_or_union_specifier_node : public ast_node {
   public:
   private:
 };
 
-class or_union_node : public ast_node {
+class struct_or_union_node : public ast_node {
+  public:
+  private:
+};
+
+class struct_declaration_list_node : public ast_node {
   public:
   private:
 };
@@ -214,12 +253,7 @@ class struct_declaration_node : public ast_node {
   private:
 };
 
-class qualifier_list_node : public ast_node {
-  public:
-  private:
-};
-
-class declarator_list_node : public ast_node {
+class struct_declarator_list_node : public ast_node {
   public:
   private:
 };
@@ -228,16 +262,36 @@ class struct_declarator_node : public ast_node {
   public:
   private:
 };
+*/
+
+class specifier_qualifier_list_node : public ast_node {
+  public:
+    qualifier_list_node();
+    qualifier_list_node(type_specifier_node* child);
+    //type is ast_node as it should accept both type specifiers and quantifiers
+    void addTypeSpecifier(ast_node* child);
+    //only one vector as order of type specifiers and quantifiers should be preserved??
+    std::vector<ast_node*> getChildren() const;
+    void print();
+    void generateCode();
+  private:
+    std::vector<ast_node*> children;
+};//n
+
+class declarator_list_node : public ast_node {
+  public:
+  private:
+};//n
 
 class enum_specifier_node : public ast_node {
   public:
   private:
-};
+};//n
 
 class enumerator_list_node : public ast_node {
   public:
   private:
-};
+};//n
 
 class enumerator_node : public ast_node {
   public:
