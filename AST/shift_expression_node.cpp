@@ -4,7 +4,7 @@ shift_expression_node::shift_expression_node(additive_expression_node* addExpr){
   this->addExpr = addExpr;
   mode = 0;
 }
-shift_expression_node::shift_expression_node(shift_expression_node* shiftExpr, OpType::Unary op, additive_expression_node* addExpr){
+shift_expression_node::shift_expression_node(shift_expression_node* shiftExpr, OpType::Type op, additive_expression_node* addExpr){
   init();
   this->shiftExpr = shiftExpr;
   this->op = op;

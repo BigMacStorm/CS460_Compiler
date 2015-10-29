@@ -21,14 +21,14 @@ postfix_expression_node::postfix_expression_node(postfix_expression_node* postEx
   this->argExpr = argExpr;
   this->mode = 3;
 }
-postfix_expression_node::postfix_expression_node(postfix_expression_node* postExpr, PostOpType::Type op, std::string identifier){
+postfix_expression_node::postfix_expression_node(postfix_expression_node* postExpr, OpType::Type op, std::string identifier){
   init();
   this->postExpr = postExpr;
   this->op = op;
   this->identifier = identifier;
   this->mode = 4;
 }
-postfix_expression_node::postfix_expression_node(postfix_expression_node* postExpr, PostOpType::Type op){
+postfix_expression_node::postfix_expression_node(postfix_expression_node* postExpr, OpType::Type op){
   init();
   this->postExpr = postExpr;
   this->op = op;
@@ -39,7 +39,7 @@ void postfix_expression_node::init(){
   this->postExpr = NULL;
   this->expr = NULL;
   this->argExpr = NULL;
-  this->op = PostOpType::NONE;
+  this->op = OpType::NONE;
   this->identifier ="";
 }
 void postfix_expression_node::print(){

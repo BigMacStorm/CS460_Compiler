@@ -4,7 +4,7 @@ additive_expression_node::additive_expression_node(multiplicative_expression_nod
   this->multiExpr = multiExpr;
   this->mode = 0;
 }
-additive_expression_node::additive_expression_node(additive_expression_node* addExpr, UnaryOpType::Type op, multiplicative_expression_node* multiExpr){
+additive_expression_node::additive_expression_node(additive_expression_node* addExpr, OpType::Type op, multiplicative_expression_node* multiExpr){
   init();
   this->addExpr = addExpr;
   this->op = op;
@@ -14,7 +14,7 @@ additive_expression_node::additive_expression_node(additive_expression_node* add
 void additive_expression_node::init(){
   this->addExpr = NULL;
   this->multiExpr = NULL;
-  this->op = UnaryOpType::NONE;
+  this->op = OpType::NONE;
   this->mode = -1;
 }
 void additive_expression_node::print(){
