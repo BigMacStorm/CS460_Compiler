@@ -98,7 +98,9 @@ class ast_node {
       this->parent = NULL;
       this->source = "";
     };
-    virtual ~ast_node(){};
+    virtual ~ast_node(){
+      //delete children then itself, is this defined in each specific class?
+    };
 
     virtual void print()=0;
     virtual void generateCode()=0;
@@ -133,8 +135,8 @@ class translation_unit_node : public ast_node {
     translation_unit_node(external_declaration_node* child);
     void addExternDecl(external_declaration_node* child);
     std::vector<external_declaration_node*> getChildren() const;
-  void print();
-  void generateCode();
+    void print();
+    void generateCode();
   private:
     std::vector<external_declaration_node*> children;
 };//n
@@ -144,11 +146,11 @@ class external_declaration_node : public ast_node {
     external_declaration_node();
     external_declaration_node(function_definition_node* child);
     external_declaration_node(declaration_node* child);
+    void print();
+    void generateCode();
   private:
-    union child{
-      function_definition_node* functionChild;
-      declaration_node* declChild;
-    };
+    function_definition_node* functionChild;
+    declaration_node* declChild;
 };//n
 
 class function_definition_node : public ast_node {
@@ -168,8 +170,8 @@ class declaration_list_node : public ast_node {
     declaration_list_node(declaration_node* child);
     void addDecl(declaration_node* child);
     std::vector<declaration_node*> getChildren() const;
-  void print();
-  void generateCode();
+    void print();
+    void generateCode();
   private:
     std::vector<declaration_node*> children;
 };//n
