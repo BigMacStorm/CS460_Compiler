@@ -1,0 +1,8 @@
+digraph AST
+{
+  ast0 [label="AST1"];
+  ast0 -> ast1;
+  ast1 [label="AST2"];
+  ast0 -> ast2;
+  ast2 [label="AST3"];
+}
