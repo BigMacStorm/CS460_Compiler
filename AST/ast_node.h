@@ -20,6 +20,7 @@ class function_definition_node;
 class declaration_node;
 class declaration_list_node;
 class init_declarator_node;
+class init_declarator_list_node;
 class declaration_specifiers_node;
 class storage_class_specifier_node;
 class type_specifier_node;
@@ -72,7 +73,6 @@ class unary_expression_node;
 class unary_operator_node;
 class postfix_expression_node;
 class primary_expression_node;
-class expression_list_node;
 class argument_expression_list_node;
 class constant_node;
 class string_node;
@@ -103,6 +103,13 @@ class ast_node {
     virtual void print()=0;
     virtual void generateCode()=0;
 
+    static int getTempNum(){
+      return ++ast_node::tempNum;
+    }
+    static int getLabelNum(){
+      return ++ast_node::labelNum;
+    }
+
     // If we need polymorphism
     //virtual std::vector<ast_node*> getChildren();
     // Otherwise, have specialized children getters
@@ -111,6 +118,10 @@ class ast_node {
     std::string name;
     ast_node* parent;
     std::string source;
+
+    // for 3AC
+    static int tempNum;
+    static int labelNum;
 };
 
 //may not need this node as its a unit production program -> translation_unit
@@ -246,7 +257,7 @@ class type_qualifier_node : public ast_node {
     int qual;
 };
 
-/* 
+/*
 leaving struct related classes commented out unless we decide to implement them
 
 class struct_or_union_specifier_node : public ast_node {
@@ -305,8 +316,8 @@ class enum_specifier_node : public ast_node {
     //init as null if not used
     enum_specifier_node(identifier_node* id, enumerator_list_node* enm);
   private:
-    enumerator_list_node* enumList
-    identifier_node* id
+    enumerator_list_node* enumList;
+    identifier_node* id;
 };
 
 class enumerator_list_node : public ast_node {
