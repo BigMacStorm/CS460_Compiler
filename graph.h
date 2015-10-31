@@ -5,7 +5,7 @@
 
 class Graph{
     public:
-        Graph(std::string filename = "graph.dot",std::string graph_name = "Graph");
+        Graph(std::string filename = "graph.dot",std::string graph_name = "g");
         ~Graph();
         void setVisualizer(bool on_off);
         void startBuild();

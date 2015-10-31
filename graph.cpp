@@ -12,7 +12,12 @@ Graph::Graph(std::string filename, std::string graph_name){
 }
 Graph::~Graph(){
   // destructor
-    this->visualizer.debug("}");
+  this->visualizer.debug("}");
+
+  std::stringstream ss;
+  ss << "dot -Tpng ";
+  ss << this->filename << " -o graph.png";
+  system(ss.str().c_str());
 }
 void Graph::setVisualizer(bool on_off){
   // on/off visualizer
