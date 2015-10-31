@@ -1,10 +1,10 @@
 #include "ast_node.h"
-shift_expression_node::shift_expression_node(additive_expression_node* addExpr){
+shift_expression_node::shift_expression_node(additive_expression_node* addExpr): ast_node(){
   init();
   this->addExpr = addExpr;
   mode = 0;
 }
-shift_expression_node::shift_expression_node(shift_expression_node* shiftExpr, OpType::Type op, additive_expression_node* addExpr){
+shift_expression_node::shift_expression_node(shift_expression_node* shiftExpr, OpType::Type op, additive_expression_node* addExpr): ast_node(){
   init();
   this->shiftExpr = shiftExpr;
   this->op = op;
@@ -18,8 +18,35 @@ void shift_expression_node::init(){
   mode = -1;
 }
 void shift_expression_node::print(){
+    switch(this->mode){
+      case 0:
+        if(this->addExpr!=NULL){
+          this->addExpr->setPID(this->pid);
+          this->addExpr->print();
+        }
+      break;
+      case 1:
+        if(this->op == OpType::LEFT_OP){
+          visualizer.addNode(this->id,"<<");
+        }else{
+          visualizer.addNode(this->id,">>");
+        }
+        visualizer.addEdge(this->pid,this->id);
 
-}
+        if(this->shiftExpr!=NULL){
+          this->shiftExpr->setPID(this->id);
+          this->shiftExpr->print();
+        }
+        if(this->addExpr!=NULL){
+          this->addExpr->setPID(this->id);
+          this->addExpr->print();
+        }
+      break;
+      default:
+        std::cout << "ERROR: unknown shift expression type" << std::endl;
+      break;
+    }
+  }
 void shift_expression_node::generateCode(){
 
 }

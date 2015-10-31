@@ -1,5 +1,7 @@
 #include "SymbolTable.h"
 #include "Debugger.h"
+#include "AST/ast_node.h"
+#include "graph.h"
 #include <sstream>
 #include <iostream>
 
@@ -7,7 +9,12 @@ extern "C"{
   int yyparse();
   int yylex();
 }
+int ast_node::tempNum;
+int ast_node::labelNum;
+int ast_node::unique_id;
+
 SymbolTable symTable = *SymbolTable::getInstance();
+Graph visualizer;
 Debugger lexDebugger;
 Debugger lexSymbolDebugger;
 Debugger reductionDebugger;
@@ -17,9 +24,10 @@ extern std::string listFileName;
 int main(int argc, char** argv){
   bool sdebug = false, ldebug = false, pdebug = false;
   std::string logFile = "log.txt";
-  std::string symTableLogFile = "symTableLog.txt";
+  const std::string symTableLogFile = "symTableLog.txt";
   //const std::string listFileName = "list_file";
   const std::string LEX_FILE = "list_file";
+  const std::string GRAPH_DOT_FILE = "graph.dot";
 
   std::vector<std::string> args(argv, argv+argc);
   for (int arg = 1; arg < (int)args.size()-1; ++arg) {
@@ -49,6 +57,7 @@ int main(int argc, char** argv){
   std::remove(symTableLogFile.c_str());
   std::remove(listFileName.c_str());
   std::remove(LEX_FILE.c_str());
+  std::remove(GRAPH_DOT_FILE.c_str());
 
   lexDebugger.setFileName(logFile);
   lexDebugger.setDebug(ldebug);
@@ -61,6 +70,9 @@ int main(int argc, char** argv){
   symTable.setFileName(symTableLogFile);
   symTable.getDebugger()->setFileName(logFile);
   symTable.getDebugger()->setDebug(sdebug);
+
+  visualizer.setVisualizer(true);
+  visualizer.startBuild();
 
   symTable.pushTable();
   yyparse();

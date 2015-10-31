@@ -1,7 +1,4 @@
-int t;
-int foo(int x, int y){
-  int a;
-  int w;
-  int z = w;
-  //!!S
+int main(){
+  int x;
+  x = 10 * 20 / (4 + 5);
 }

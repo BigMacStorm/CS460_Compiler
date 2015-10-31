@@ -1,13 +1,13 @@
 #include "ast_node.h"
-constant_node::constant_node(int ival){
+constant_node::constant_node(int ival): ast_node(){
   this->type = ConstType::INT;
   this->ival = ival;
 }
-constant_node::constant_node(char cval){
+constant_node::constant_node(char cval): ast_node(){
   this->type = ConstType::CHAR;
   this->cval = cval;
 }
-constant_node::constant_node(float fval){
+constant_node::constant_node(float fval): ast_node(){
   this->type = ConstType::FLOAT;
   this->fval = fval;
 }
@@ -30,15 +30,22 @@ void constant_node::setFval(float fval){
   this->fval = fval;
 }
 void constant_node::print(){
+  std::stringstream ss;
   switch(this->type){
     case ConstType::INT:
-      std::cout << this->ival;
+      ss << this->ival;
+      visualizer.addNode(this->id,ss.str());
+      visualizer.addEdge(this->pid,this->id);
     break;
     case ConstType::CHAR:
-      std::cout << this->cval;
+      ss << this->cval;
+      visualizer.addNode(this->id,ss.str());
+      visualizer.addEdge(this->pid,this->id);
     break;
     case ConstType::FLOAT:
-      std::cout << this->fval;
+      ss << this->fval;
+      visualizer.addNode(this->id,ss.str());
+      visualizer.addEdge(this->pid,this->id);
     break;
     default:
       std::cout <<"ERROR: Unknown constant type";

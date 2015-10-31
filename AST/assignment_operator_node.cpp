@@ -1,42 +1,53 @@
 #include "ast_node.h"
-assignment_operator_node::assignment_operator_node(){}
-assignment_operator_node::assignment_operator_node(AssignType::Type op){
+assignment_operator_node::assignment_operator_node(): ast_node(){}
+assignment_operator_node::assignment_operator_node(AssignType::Type op): ast_node(){
   this->op = op;
 }
 void assignment_operator_node::print(){
   switch(this->op){
     case AssignType::EQUAL:
-      std::cout << "=";
+      visualizer.addNode(this->id,"=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::MUL_ASSIGN:
-      std::cout << "*=";
+      visualizer.addNode(this->id,"*=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::DIV_ASSIGN:
-      std::cout << "/=";
+      visualizer.addNode(this->id,"/=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::MOD_ASSIGN:
-      std::cout << "%%=";
+      visualizer.addNode(this->id,"%%=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::ADD_ASSIGN:
-      std::cout << "+=";
+      visualizer.addNode(this->id,"+=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::SUB_ASSIGN:
-      std::cout << "-=";
+      visualizer.addNode(this->id,"-=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::LEFT_ASSIGN:
-      std::cout << "<<=";
+      visualizer.addNode(this->id,"<<=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::RIGHT_ASSIGN:
-      std::cout << ">>=";
+      visualizer.addNode(this->id,">>=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::AND_ASSIGN:
-      std::cout << "&=";
+      visualizer.addNode(this->id,"&=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::XOR_ASSIGN:
-      std::cout << "^=";
+      visualizer.addNode(this->id,"^=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     case AssignType::OR_ASSIGN:
-      std::cout << "|=";
+      visualizer.addNode(this->id,"|=");
+      visualizer.addEdge(this->pid,this->id);
     break;
     default:
       std::cout << "ERROR Unknown assignment operator type";

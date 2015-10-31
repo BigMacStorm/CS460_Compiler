@@ -781,6 +781,7 @@ expression_statement
   }
   | expression SEMItok {
       reductionOut("[p]: expression_statement -> expression SEMItok");
+    $1->print();
   }
   ;
 
@@ -873,16 +874,19 @@ jump_statement
 
 expression
   : assignment_expression {
+      $$ = new expression_node(dynamic_cast<assignment_expression_node*>($1));
       reductionOut("[p]: expression -> assignment_expression");
   }
   | expression COMMAtok assignment_expression {
+      dynamic_cast<expression_node*>($1)->addAssignmentExpr(dynamic_cast<assignment_expression_node*>($3));
+      $$ = $1;
       reductionOut("[p]: expression -> expression COMMAtok assignment_expression");
   }
   ;
 
 assignment_expression
   : conditional_expression {
-      //$$ = new assignment_expression_node(dynamic_cast<conditional_expression_node*>($1));
+      $$ = new assignment_expression_node(dynamic_cast<conditional_expression_node*>($1));
       reductionOut("[p]: assignment_expression -> conditional_expression");
   }
   | unary_expression assignment_operator assignment_expression {

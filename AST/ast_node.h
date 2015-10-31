@@ -3,6 +3,9 @@
 #include <string>
 #include <iostream>
 #include "../SymbolNode.h"
+#include "../graph.h"
+
+extern Graph visualizer;
 
 // Comment your name under nodes that you'll work on
 // Assignments (roughly):
@@ -95,33 +98,40 @@ class ast_node {
       this->name = "";
       this->parent = NULL;
       this->source = "";
+      setID();
     };
-    virtual ~ast_node(){
+    ~ast_node(){
       //delete children then itself, is this defined in each specific class?
     };
-
     virtual void print()=0;
     virtual void generateCode()=0;
+    static int getTempNum(){ return tempNum++; }
+    static int getLabelNum(){ return labelNum++; }
+    static int getUID(){ return unique_id++; }
 
-    static int getTempNum(){
-      return ++ast_node::tempNum;
-    }
-    static int getLabelNum(){
-      return ++ast_node::labelNum;
-    }
-
-    // If we need polymorphism
-    //virtual std::vector<ast_node*> getChildren();
-    // Otherwise, have specialized children getters
+    void setID(){ this->id = getUID(); };
+    int getID(){ return this->id; }
+    int getPID(){ return this->pid; }
+    void setPID(int pid){this->pid = pid;};
 
   private:
     std::string name;
     ast_node* parent;
     std::string source;
-
     // for 3AC
-    static int tempNum;
-    static int labelNum;
+    static int tempNum;   // 0
+    static int labelNum;  // 0
+
+    // for graphviz
+    static int unique_id;  // 0
+
+  protected:
+    int id;
+    int pid;
+
+    // If we need polymorphism
+    //virtual std::vector<ast_node*> getChildren();
+    // Otherwise, have specialized children getters
 };
 
 //may not need this node as its a unit production program -> translation_unit
@@ -221,8 +231,8 @@ namespace StorageSpecifier{
 }
 class storage_class_specifier_node : public ast_node {
   public:
-    type_specifier_node();
-    type_specifier_node(StorageSpecifier::Store storeType);
+    storage_class_specifier_node();
+    storage_class_specifier_node(StorageSpecifier::Store storeType);
     void print();
     void generateCode();
   private:
@@ -231,7 +241,7 @@ class storage_class_specifier_node : public ast_node {
 
 //could be enum for type_specifiers but should also includes struct and union (extra credit)
 namespace TypeSpecifier{
-  enum Type{VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED
+  enum Type{VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED,
             UNSIGNED, TYPEDEF_NAME};
 }
 class type_specifier_node : public ast_node {
@@ -249,8 +259,8 @@ namespace TypeQualifier{
 }
 class type_qualifier_node : public ast_node {
   public:
-    type_specifier_node();
-    type_specifier_node(TypeQualifier::Qual qual);
+    type_qualifier_node();
+    type_qualifier_node(TypeQualifier::Qual qual);
     void print();
     void generateCode();
   private:
@@ -293,8 +303,8 @@ class struct_declarator_node : public ast_node {
 
 class specifier_qualifier_list_node : public ast_node {
   public:
-    qualifier_list_node();
-    qualifier_list_node(type_specifier_node* child);
+    specifier_qualifier_list_node();
+    specifier_qualifier_list_node(type_specifier_node* child);
     //type is ast_node as it should accept both type specifiers and quantifiers
     void addTypeSpecifier(ast_node* child);
     //only one vector as order of type specifiers and quantifiers should be preserved??
@@ -472,7 +482,6 @@ class assignment_expression_node : public ast_node {
     unary_expression_node* unary_expr;
     assignment_operator_node* assign_op;
     assignment_expression_node* assign_expr;
-    bool isConditionalExpr;
     int mode;
 };
 
@@ -667,6 +676,7 @@ class unary_expression_node : public ast_node {
   public:
     unary_expression_node(postfix_expression_node* postExpr);
     unary_expression_node(OpType::Type op, unary_expression_node* unaryExpr);
+    std::string getOpStr() const;
     void print();
     void generateCode();
   private:
