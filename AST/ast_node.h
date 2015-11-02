@@ -81,6 +81,17 @@ class constant_node;
 class string_node;
 class identifier_node;
 
+namespace TypeQualifier{
+  enum Qual{CONST, VOLATILE};
+}
+namespace StorageSpecifier{
+  enum Store{AUTO, REGISTER, STATIC, EXTERN, TYPEDEF};
+}
+//could be enum for type_specifiers but should also includes struct and union (extra credit)
+namespace TypeSpecifier{
+  enum Type{VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED,
+            UNSIGNED, TYPEDEF_NAME};
+}
 namespace OpType{
   enum Type{NONE, PERIOD,PTR_OP,
             INC, DEC, SIZEOF,
@@ -238,9 +249,6 @@ class declaration_specifiers_node : public ast_node {
   private:
 };
 
-namespace StorageSpecifier{
-  enum Store{AUTO, REGISTER, STATIC, EXTERN, TYPEDEF};
-}
 class storage_class_specifier_node : public ast_node {
   public:
     storage_class_specifier_node();
@@ -251,11 +259,6 @@ class storage_class_specifier_node : public ast_node {
     int storeType;
 };
 
-//could be enum for type_specifiers but should also includes struct and union (extra credit)
-namespace TypeSpecifier{
-  enum Type{VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED,
-            UNSIGNED, TYPEDEF_NAME};
-}
 class type_specifier_node : public ast_node {
   public:
     type_specifier_node();
@@ -266,9 +269,6 @@ class type_specifier_node : public ast_node {
     int type;
 };
 
-namespace TypeQualifier{
-  enum Qual{CONST, VOLATILE};
-}
 class type_qualifier_node : public ast_node {
   public:
     type_qualifier_node();
@@ -337,6 +337,8 @@ class enum_specifier_node : public ast_node {
     enum_specifier_node();
     //init as null if not used
     enum_specifier_node(identifier_node* id, enumerator_list_node* enm);
+    void print();
+    void generateCode();
   private:
     enumerator_list_node* enumList;
     identifier_node* id;
@@ -356,7 +358,13 @@ class enumerator_list_node : public ast_node {
 
 class enumerator_node : public ast_node {
   public:
+    enumerator_node();
+    enumerator_node(identifier_node* id, constant_expression_node, expr);
+    void print();
+    void generateCode();
   private:
+    identifier_node* id;
+    constant_expression_node* constExpr;
 };
 
 class declarator_node : public ast_node {
