@@ -1297,13 +1297,11 @@ string
 identifier
   : IDENTIFIERtok {
       // save to use later in declaration.cpp
-      std::string id_name = std::string(yylval.sval);
-      decl.pushID(id_name);
+      decl.pushID(std::string(yylval.sval));
       decl.pushLine(linenum);
       decl.pushCol(colnum);
 
-      // Change this to put symbol table node in second argument
-      $$ = new identifier_node(id_name, NULL);
+      strcpy($$, $1);
       reductionOut("[p]: identifier -> IDENTIFIERtok");
   }
   ;
