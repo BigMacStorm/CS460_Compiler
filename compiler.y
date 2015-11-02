@@ -371,11 +371,6 @@ type_qualifier
 struct_or_union_specifier
   : struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok");
-
-      if(symTable.lookupTopTable($2))
-        error("error: redefinition"); // Redefinition; fatal error
-      else
-        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1)));
   }
   | struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
       // struct {...}
@@ -384,11 +379,6 @@ struct_or_union_specifier
   | struct_or_union identifier {
       // forward declaration  struct id;
       reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier");
-
-      if(symTable.lookupTopTable($2))
-        error("error: redefinition"); // Redefinition; fatal error
-      else
-        symTable.insertSymbol($2, new SymbolNode($2, new Spec($1)));
   }
   ;
 
@@ -397,13 +387,11 @@ struct_or_union
       reductionOut("[p]: struct_or_union -> STRUCTtok");
       decl.pushKind(SpecName::Struct);
       decl.setMode(DeclMode::Struct);
-      $$ = SpecName::Struct;
   }
   | UNIONtok {
       reductionOut("[p]: struct_or_union -> UNIONtok");
       decl.pushKind(SpecName::Union);
       decl.setMode(DeclMode::Union);
-      $$ = SpecName::Union;
   }
   ;
 
@@ -993,6 +981,7 @@ conditional_expression
   }
   ;
 
+/********************** Begin binary operations *********************/
 logical_or_expression
   : logical_and_expression {
       $$ = new logical_or_expression_node((logical_and_expression_node*)$1);
@@ -1133,6 +1122,7 @@ multiplicative_expression
       reductionOut("[p]: multiplicative_expression -> multiplicative_expression PERCENTtok cast_expression");
   }
   ;
+/********************** End binary operations *********************/
 
 cast_expression
   : unary_expression {

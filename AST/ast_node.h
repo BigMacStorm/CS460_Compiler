@@ -609,7 +609,8 @@ class conditional_expression_node : public ast_node {
 class logical_or_expression_node : public ast_node {
   public:
     logical_or_expression_node(logical_and_expression_node* logAndExpr);
-    logical_or_expression_node(logical_or_expression_node* logOrExpr, OpType::Type op, logical_and_expression_node* logAndExpr);
+    logical_or_expression_node(logical_or_expression_node* logOrExpr,
+            OpType::Type op, logical_and_expression_node* logAndExpr);
     void init();
     void print();
     void generateCode();
