@@ -61,6 +61,9 @@ class assignment_expression_node;
 class assignment_operator_node;
 class conditional_expression_node;
 class constant_expression_node;
+
+// Grouping this off to note that they are all binary operations,
+// which we may want to collapse all into something like a binary_operation_node
 class logical_or_expression_node;
 class logical_and_expression_node;
 class inclusive_or_expression_node;
@@ -71,6 +74,7 @@ class relational_expression_node;
 class shift_expression_node;
 class additive_expression_node;
 class multiplicative_expression_node;
+
 class cast_expression_node;
 class unary_expression_node;
 class unary_operator_node;
@@ -592,6 +596,8 @@ class conditional_expression_node : public ast_node {
     int mode;
 };
 
+
+//////////////////// Beginning of binary operations ////////////////////////////
 class logical_or_expression_node : public ast_node {
   public:
     logical_or_expression_node(logical_and_expression_node* logAndExpr);
@@ -730,6 +736,8 @@ class multiplicative_expression_node : public ast_node {
     OpType::Type op;
     int mode;
 };
+////////////////////////////////////////////////////////////////////////////////
+
 
 class cast_expression_node : public ast_node {
   public:
