@@ -91,6 +91,18 @@ namespace OpType{
             L, G, GE, LE, EQ, NE, AND_OP, OR_OP
           };
 }
+namespace JumpType{
+  enum Type{NONE, RETURN, BREAK, CONTINUE};
+}
+namespace IterType{
+  enum Type{NONE, WHILE, DO, FOR};
+}
+namespace SelecType{
+  enum Type{NONE, IF, SWITCH};
+}
+namespace LabelType{
+  enum Type{NONE, CASE, DEFAULT};
+}
 
 class ast_node {
   public:
@@ -404,22 +416,60 @@ class abstract_declarator_node : public ast_node {
 
 class statement_node : public ast_node {
   public:
+    statement_node(labeled_statement_node* labelStmt);
+    statement_node(compound_statement_node* compStmt);
+    statement_node(expression_statement_node* exprStmt);
+    statement_node(selection_statement_node* selectStmt);
+    statement_node(iteration_statement_node* iterStmt);
+    statement_node(jump_statement_node* jumpStmt);
+    void init();
+    void print();
+    void generateCode();
   private:
+    labeled_statement_node* labelStmt;
+    compound_statement_node* compStmt;
+    expression_statement_node* exprStmt;
+    selection_statement_node* selectStmt;
+    iteration_statement_node* iterStmt;
+    jump_statement_node* jumpStmt;
+    int mode;
 };
+
 
 class labeled_statement_node : public ast_node {
   public:
+    labeled_statement_node(std::string identifier, statement_node* statement);
+    labeled_statement_node(LabelType::Type label_type, constant_expression_node* constExpr, statement_node* statement);
+    void init();
+    void print();
+    void generateCode();
   private:
+    LabelType::Type label_type;
+    std::string identifier;
+    constant_expression_node* constExpr;
+    statement_node* statement;
 };
 
 class expression_statement_node : public ast_node {
   public:
+    expression_statement_node();
+    expression_statement_node(expression_node* expr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    expression_node* expr;
 };
 
 class compound_statement_node : public ast_node {
   public:
+    compound_statement_node(declaration_list_node* declList, statement_list_node* stateList);
+    void init();
+    void print();
+    void generateCode();
   private:
+    statement_list_node* stateList;
+    declaration_list_node* declList;
 };
 
 class statement_list_node : public ast_node {
@@ -429,32 +479,50 @@ class statement_list_node : public ast_node {
 
 class selection_statement_node : public ast_node {
   public:
+    selection_statement_node(SelecType::Type selec_type, expression_node* expr,
+      statement_node* statement1,statement_node* statement2);
+    void init();
+    void print();
+    void generateCode();
+
   private:
+    SelecType::Type selec_type;
+    expression_node* expr;
+    statement_node *statement1, *statement2;
+    int else_id;
 };
 
 class iteration_statement_node : public ast_node {
   public:
-    /*
-    iteration_statement_node();
-    ~iteration_statement_node();
+    iteration_statement_node(IterType::Type iter_type, expression_node* expr1,
+      statement_node* statement);
+    iteration_statement_node(IterType::Type iter_type, expression_node* expr1,
+      expression_node* expr2,expression_node* expr3,statement_node* statement);
+    void init();
+    void print();
+    void generateCode();
 
-    void print() {
-        // Print name
-        // And more?
-    }
-
-    void generateCode() {
-        // Don't worry about it for now
-    }
-
-    */
   private:
-    //ast_node* a, b, c, d;
+    IterType::Type iter_type;
+    expression_node *expr1, *expr2, *expr3;
+    statement_node* statement;
+    int mode;
 };
 
 class jump_statement_node : public ast_node {
   public:
+    jump_statement_node(std::string identifier);
+    jump_statement_node(JumpType::Type jump_type);
+    jump_statement_node(expression_node* expr);
+    void init();
+    void print();
+    void generateCode();
   private:
+    std::string identifier;
+    expression_node* expr;
+    JumpType::Type jump_type;
+    int mode;
+    int label_id;
 };
 
 class expression_node: public ast_node {
@@ -676,13 +744,18 @@ class unary_expression_node : public ast_node {
   public:
     unary_expression_node(postfix_expression_node* postExpr);
     unary_expression_node(OpType::Type op, unary_expression_node* unaryExpr);
+    unary_expression_node(unary_operator_node* unaryOp, cast_expression_node* castExpr);
+
     std::string getOpStr() const;
+    void init();
     void print();
     void generateCode();
   private:
     postfix_expression_node* postExpr;
     OpType::Type op;
+    unary_operator_node* unaryOp;
     unary_expression_node* unaryExpr;
+    cast_expression_node* castExpr;
     int mode;
 };
 

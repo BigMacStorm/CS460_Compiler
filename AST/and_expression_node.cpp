@@ -28,7 +28,7 @@ void and_expression_node::print(){
       }
     break;
     case 1:
-      visualizer.addNode(this->id,"+");
+      visualizer.addNode(this->id,"&");
       visualizer.addEdge(this->pid,this->id);
 
       if(this->andExpr!=NULL){
