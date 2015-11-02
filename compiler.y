@@ -85,7 +85,7 @@ bool insert_mode = true;
 
 %token ERRORtok
 
-%type <astnode> constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression
+%type <astnode> program translation_unit external_declaration function_definition declaration declaration_list init_declarator_list init_declarator constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression statement statement_list labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement
 
 %start program
 
@@ -744,58 +744,73 @@ direct_abstract_declarator
 
 statement
   : labeled_statement {
+      $$ = new statement_node((labeled_statement_node*)$1);
       reductionOut("[p]: statement -> labeled_statement");
   }
   | compound_statement {
+      $$ = new statement_node((compound_statement_node*)$1);
       reductionOut("[p]: statement -> compound_statement");
   }
   | expression_statement {
+      $$ = new statement_node((expression_statement_node*)$1);
       reductionOut("[p]: statement -> expression_statement");
+      $1->print();
   }
   | selection_statement {
+      $$ = new statement_node((selection_statement_node*)$1);
       reductionOut("[p]: statement -> selection_statement");
   }
   | iteration_statement {
+      $$ = new statement_node((iteration_statement_node*)$1);
       reductionOut("[p]: statement -> iteration_statement");
   }
   | jump_statement {
+      $$ = new statement_node((jump_statement_node*)$1);
       reductionOut("[p]: statement -> jump_statement");
   }
   ;
 
 labeled_statement
   : identifier COLONtok statement {
+      $$ = new labeled_statement_node($1,(statement_node*)$3);
       reductionOut("[p]: labeled_statement -> identifier COLONtok statement");
   }
   | CASEtok constant_expression COLONtok statement {
+      $$ = new labeled_statement_node(LabelType::CASE, (constant_expression_node*)$2,(statement_node*)$4);
       reductionOut("[p]: labeled_statement -> CASEtok constant_expression COLONtok statement");
   }
   | DEFAULTtok COLONtok statement {
+      $$ = new labeled_statement_node(LabelType::DEFAULT, NULL,(statement_node*)$3);
       reductionOut("[p]: labeled_statement -> DEFAULTtok COLONtok statement");
   }
   ;
 
 expression_statement
   : SEMItok {
+      $$ = new expression_statement_node();
       reductionOut("[p]: expression_statement -> SEMItok");
   }
   | expression SEMItok {
+      $$ = new expression_statement_node((expression_node*)$1);
       reductionOut("[p]: expression_statement -> expression SEMItok");
-    $1->print();
   }
   ;
 
 compound_statement
   : OPEN_CURLYtok enter_scope CLOSE_CURLYtok end_scope{
+      $$ = new compound_statement_node(NULL, NULL);
       reductionOut("[p]: compound_statement -> OPEN_CURLYtok CLOSE_CURLYtok");
   }
   | OPEN_CURLYtok enter_scope statement_list CLOSE_CURLYtok end_scope{
+      $$ = new compound_statement_node(NULL, (statement_list_node*)$3);
       reductionOut("[p]: compound_statement -> OPEN_CURLYtok statement_list CLOSE_CURLYtok");
   }
   | OPEN_CURLYtok enter_scope declaration_list CLOSE_CURLYtok end_scope{
+      $$ = new compound_statement_node((declaration_list_node*)$3, NULL);
       reductionOut("[p]: compound_statement -> OPEN_CURLYtok declaration_list CLOSE_CURLYtok");
   }
   | OPEN_CURLYtok enter_scope declaration_list statement_list CLOSE_CURLYtok end_scope{
+      $$ = new compound_statement_node((declaration_list_node*)$3, (statement_list_node*)$4);
       reductionOut("[p]: compound_statement -> OPEN_CURLYtok declaration_list statement_list CLOSE_CURLYtok");
   }
   ;
@@ -811,74 +826,92 @@ statement_list
 
 selection_statement
   : IFtok OPEN_PARENtok expression CLOSE_PARENtok statement {
+      $$ = new selection_statement_node(SelecType::IF, (expression_node*)$3, (statement_node*)$5, NULL);
       reductionOut("[p]: selection_statement -> IFtok OPEN_PARENtok expression CLOSE_PARENtok statement");
   }
   | IFtok OPEN_PARENtok expression CLOSE_PARENtok statement ELSEtok statement {
+      $$ = new selection_statement_node(SelecType::IF, (expression_node*)$3, (statement_node*)$5, (statement_node*)$5);
       reductionOut("[p]: selection_statement -> IFtok OPEN_PARENtok expression CLOSE_PARENtok statement ELSEtok statement");
   }
   | SWITCHtok OPEN_PARENtok expression CLOSE_PARENtok statement {
+      $$ = new selection_statement_node(SelecType::SWITCH, (expression_node*)$3, (statement_node*)$5, NULL);
       reductionOut("[p]: selection_statement -> SWITCHtok OPEN_PARENtok expression CLOSE_PARENtok statement");
   }
   ;
 
 iteration_statement
   : WHILEtok OPEN_PARENtok expression CLOSE_PARENtok statement {
+      $$ = new iteration_statement_node(IterType::WHILE, (expression_node*)$3, (statement_node*)$5);
       reductionOut("[p]: iteration_statement -> WHILEtok OPEN_PARENtok expression CLOSE_PARENtok statement");
   }
   | DOtok statement WHILEtok OPEN_PARENtok expression CLOSE_PARENtok SEMItok {
+      $$ = new iteration_statement_node(IterType::DO, (expression_node*)$5, (statement_node*)$2);
       reductionOut("[p]: iteration_statement -> DOtok statement WHILEtok OPEN_PARENtok expression CLOSE_PARENtok SEMItok");
   }
   | FORtok OPEN_PARENtok SEMItok SEMItok CLOSE_PARENtok statement {
+      $$ = new iteration_statement_node(IterType::FOR, NULL, NULL, NULL, (statement_node*)$6);
       reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok SEMItok CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok SEMItok SEMItok expression CLOSE_PARENtok statement {
+      $$ = new iteration_statement_node(IterType::FOR, NULL, NULL, (expression_node*)$5, (statement_node*)$7);
       reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok SEMItok expression CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok SEMItok expression SEMItok CLOSE_PARENtok statement {
+      $$ = new iteration_statement_node(IterType::FOR, NULL, NULL, (expression_node*)$4, (statement_node*)$7);
       reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok expression SEMItok CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok SEMItok expression SEMItok expression CLOSE_PARENtok statement {
+      $$ = new iteration_statement_node(IterType::FOR, NULL, (expression_node*)$4, (expression_node*)$6, (statement_node*)$8);
       reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok SEMItok expression SEMItok expression CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok expression SEMItok SEMItok CLOSE_PARENtok statement {
+      $$ = new iteration_statement_node(IterType::FOR, (expression_node*)$3, NULL, NULL, (statement_node*)$7);
       reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok SEMItok CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok expression SEMItok SEMItok expression CLOSE_PARENtok statement {
+      $$ = new iteration_statement_node(IterType::FOR, (expression_node*)$3, NULL, (expression_node*)$6, (statement_node*)$8);
       reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok SEMItok expression CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok expression SEMItok expression SEMItok CLOSE_PARENtok statement {
+      $$ = new iteration_statement_node(IterType::FOR, (expression_node*)$3, (expression_node*)$5, NULL, (statement_node*)$8);
       reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok expression SEMItok CLOSE_PARENtok statement");
   }
   | FORtok OPEN_PARENtok expression SEMItok expression SEMItok expression CLOSE_PARENtok statement {
+      $$ = new iteration_statement_node(IterType::FOR, (expression_node*)$3, (expression_node*)$5, (expression_node*)$7, (statement_node*)$9);
       reductionOut("[p]: iteration_statement -> FORtok OPEN_PARENtok expression SEMItok expression SEMItok expression CLOSE_PARENtok statement");
   }
   ;
 
 jump_statement
   : GOTOtok identifier SEMItok {
+      $$ = new jump_statement_node($2);
       reductionOut("[p]: jump_statement -> GOTOtok identifier SEMItok");
   }
   | CONTINUEtok SEMItok {
+      $$ = new jump_statement_node(JumpType::CONTINUE);
       reductionOut("[p]: jump_statement -> CONTINUEtok SEMItok");
   }
   | BREAKtok SEMItok {
+      $$ = new jump_statement_node(JumpType::BREAK);
       reductionOut("[p]: jump_statement -> BREAKtok SEMItok");
   }
   | RETURNtok SEMItok {
+      $$ = new jump_statement_node(JumpType::RETURN);
       reductionOut("[p]: jump_statement ->  RETURNtok SEMItok");
   }
   | RETURNtok expression SEMItok {
+      $$ = new jump_statement_node((expression_node*)$2);
       reductionOut("[p]: jump_statement -> RETURNtok expression SEMItok");
   }
   ;
 
 expression
   : assignment_expression {
-      $$ = new expression_node(dynamic_cast<assignment_expression_node*>($1));
+      $$ = new expression_node((assignment_expression_node*)$1);
       reductionOut("[p]: expression -> assignment_expression");
   }
   | expression COMMAtok assignment_expression {
-      dynamic_cast<expression_node*>($1)->addAssignmentExpr(dynamic_cast<assignment_expression_node*>($3));
+      dynamic_cast<expression_node*>($1)->addAssignmentExpr((assignment_expression_node*)$3);
       $$ = $1;
       reductionOut("[p]: expression -> expression COMMAtok assignment_expression");
   }
@@ -886,11 +919,11 @@ expression
 
 assignment_expression
   : conditional_expression {
-      $$ = new assignment_expression_node(dynamic_cast<conditional_expression_node*>($1));
+      $$ = new assignment_expression_node((conditional_expression_node*)$1);
       reductionOut("[p]: assignment_expression -> conditional_expression");
   }
   | unary_expression assignment_operator assignment_expression {
-      $$ = new assignment_expression_node(dynamic_cast<unary_expression_node*>($1),dynamic_cast<assignment_operator_node*>($2),dynamic_cast<assignment_expression_node*>($3));
+      $$ = new assignment_expression_node((unary_expression_node*)$1,(assignment_operator_node*)$2,(assignment_expression_node*)$3);
       reductionOut("[p]: assignment_expression -> unary_expression assignment_operator assignment_expression");
   }
   ;
@@ -944,84 +977,84 @@ assignment_operator
 
 constant_expression
   : conditional_expression {
-      $$ = new constant_expression_node(dynamic_cast<conditional_expression_node*>($1));
+      $$ = new constant_expression_node((conditional_expression_node*)$1);
       reductionOut("[p]: constant_expression -> conditional_expression");
   }
   ;
 
 conditional_expression
   : logical_or_expression {
-      $$ = new conditional_expression_node(dynamic_cast<logical_or_expression_node*>($1));
+      $$ = new conditional_expression_node((logical_or_expression_node*)$1);
       reductionOut("[p]: conditional_expression -> logical_or_expression");
   }
   | logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression {
-      $$ = new conditional_expression_node(dynamic_cast<logical_or_expression_node*>($1),dynamic_cast<expression_node*>($3),dynamic_cast<conditional_expression_node*>($5));
+      $$ = new conditional_expression_node((logical_or_expression_node*)$1,(expression_node*)$3,(conditional_expression_node*)$5);
       reductionOut("[p]: conditional_expression -> logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression");
   }
   ;
 
 logical_or_expression
   : logical_and_expression {
-      $$ = new logical_or_expression_node(dynamic_cast<logical_and_expression_node*>($1));
+      $$ = new logical_or_expression_node((logical_and_expression_node*)$1);
       reductionOut("[p]: logical_or_expression -> logical_and_expression");
   }
   | logical_or_expression OR_OPtok logical_and_expression {
-      $$ = new logical_or_expression_node(dynamic_cast<logical_or_expression_node*>($1),OpType::OR_OP,dynamic_cast<logical_and_expression_node*>($3));
+      $$ = new logical_or_expression_node((logical_or_expression_node*)$1,OpType::OR_OP,(logical_and_expression_node*)$3);
       reductionOut("[p]: logical_or_expression -> logical_or_expression OR_OPtok logical_and_expression");
   }
   ;
 
 logical_and_expression
   : inclusive_or_expression {
-      $$ = new logical_and_expression_node(dynamic_cast<inclusive_or_expression_node*>($1));
+      $$ = new logical_and_expression_node((inclusive_or_expression_node*)$1);
       reductionOut("[p]: logical_and_expression -> inclusive_or_expression");
   }
   | logical_and_expression AND_OPtok inclusive_or_expression {
-      $$ = new logical_and_expression_node(dynamic_cast<logical_and_expression_node*>($1),OpType::AND_OP,dynamic_cast<inclusive_or_expression_node*>($3));
+      $$ = new logical_and_expression_node((logical_and_expression_node*)$1,OpType::AND_OP,(inclusive_or_expression_node*)$3);
       reductionOut("[p]: logical_and_expression -> logical_and_expression AND_OPtok inclusive_or_expression");
   }
   ;
 
 inclusive_or_expression
   : exclusive_or_expression {
-      $$ = new inclusive_or_expression_node(dynamic_cast<exclusive_or_expression_node*>($1));
+      $$ = new inclusive_or_expression_node((exclusive_or_expression_node*)$1);
       reductionOut("[p]: inclusive_or_expression -> exclusive_or_expression");
   }
   | inclusive_or_expression PIPEtok exclusive_or_expression {
-      $$ = new inclusive_or_expression_node(dynamic_cast<inclusive_or_expression_node*>($1),OpType::PIPE,dynamic_cast<exclusive_or_expression_node*>($3));
+      $$ = new inclusive_or_expression_node((inclusive_or_expression_node*)$1,OpType::PIPE,(exclusive_or_expression_node*)$3);
       reductionOut("[p]: inclusive_or_expression -> inclusive_or_expression PIPEtok exclusive_or_expression");
   }
   ;
 
 exclusive_or_expression
   : and_expression {
-      $$ = new exclusive_or_expression_node(dynamic_cast<and_expression_node*>($1));
+      $$ = new exclusive_or_expression_node((and_expression_node*)$1);
       reductionOut("[p]: exclusive_or_expression -> and_expression");
   }
   | exclusive_or_expression UP_CARROTtok and_expression {
-      $$ = new exclusive_or_expression_node(dynamic_cast<exclusive_or_expression_node*>($1),OpType::UP_CARROT,dynamic_cast<and_expression_node*>($3));
+      $$ = new exclusive_or_expression_node((exclusive_or_expression_node*)$1,OpType::UP_CARROT,(and_expression_node*)$3);
       reductionOut("[p]: exclusive_or_expression -> exclusive_or_expression UP_CARROTtok and_expression");
   }
   ;
 
 and_expression
   : equality_expression {
-      $$ = new and_expression_node(dynamic_cast<equality_expression_node*>($1));
+      $$ = new and_expression_node((equality_expression_node*)$1);
       reductionOut("[p]: and_expression -> equality_expression");
   }
   | and_expression UNARY_ANDtok equality_expression {
-      $$ = new and_expression_node(dynamic_cast<and_expression_node*>($1),OpType::AND,dynamic_cast<equality_expression_node*>($3));
+      $$ = new and_expression_node((and_expression_node*)$1,OpType::AND,(equality_expression_node*)$3);
       reductionOut("[p]: and_expression -> and_expression UNARY_ANDtok equality_expression");
   }
   ;
 
 equality_expression
   : relational_expression {
-      $$ = new equality_expression_node(dynamic_cast<relational_expression_node*>($1));
+      $$ = new equality_expression_node((relational_expression_node*)$1);
       reductionOut("[p]: equality_expression -> relational_expression");
   }
   | equality_expression EQ_OPtok relational_expression {
-      $$ = new equality_expression_node(dynamic_cast<equality_expression_node*>($1),OpType::EQ,dynamic_cast<relational_expression_node*>($3));
+      $$ = new equality_expression_node((equality_expression_node*)$1,OpType::EQ,(relational_expression_node*)$3);
       reductionOut("[p]: equality_expression -> equality_expression EQ_OPtok relational_expression");
   }
   | equality_expression NE_OPtok relational_expression {
@@ -1031,79 +1064,79 @@ equality_expression
 
 relational_expression
   : shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<shift_expression_node*>($1));
+      $$ = new relational_expression_node((shift_expression_node*)$1);
       reductionOut("[p]: relational_expression -> shift_expression");
   }
   | relational_expression LEFT_ANGLEtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::L,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node((relational_expression_node*)$1,OpType::L,(shift_expression_node*)$3);
       reductionOut("[p]: relational_expression -> relational_expression LEFT_ANGLEtok shift_expression");
   }
   | relational_expression RIGHT_ANGLEtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::G,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node((relational_expression_node*)$1,OpType::G,(shift_expression_node*)$3);
       reductionOut("[p]: relational_expression -> relational_expression RIGHT_ANGLEtok shift_expression");
   }
   | relational_expression LE_OPtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::LE,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node((relational_expression_node*)$1,OpType::LE,(shift_expression_node*)$3);
       reductionOut("[p]: relational_expression -> relational_expression LE_OPtok shift_expression");
   }
   | relational_expression GE_OPtok shift_expression {
-      $$ = new relational_expression_node(dynamic_cast<relational_expression_node*>($1),OpType::GE,dynamic_cast<shift_expression_node*>($3));
+      $$ = new relational_expression_node((relational_expression_node*)$1,OpType::GE,(shift_expression_node*)$3);
       reductionOut("[p]: relational_expression -> relational_expression GE_OPtok shift_expression");
   }
   ;
 
 shift_expression
   : additive_expression {
-      $$ = new shift_expression_node(dynamic_cast<additive_expression_node*>($1));
+      $$ = new shift_expression_node((additive_expression_node*)$1);
       reductionOut("[p]: shift_expression -> additive_expression");
   }
   | shift_expression LEFT_OPtok additive_expression {
-      $$ = new shift_expression_node(dynamic_cast<shift_expression_node*>($1),OpType::LEFT_OP, dynamic_cast<additive_expression_node*>($3));
+      $$ = new shift_expression_node((shift_expression_node*)$1,OpType::LEFT_OP, (additive_expression_node*)$3);
       reductionOut("[p]: shift_expression -> shift_expression LEFT_OPtok additive_expression");
   }
   | shift_expression RIGHT_OPtok additive_expression {
-      $$ = new shift_expression_node(dynamic_cast<shift_expression_node*>($1),OpType::RIGHT_OP, dynamic_cast<additive_expression_node*>($3));
+      $$ = new shift_expression_node((shift_expression_node*)$1,OpType::RIGHT_OP, (additive_expression_node*)$3);
       reductionOut("[p]: shift_expression -> shift_expression RIGHT_OPtok additive_expression");
   }
   ;
 
 additive_expression
   : multiplicative_expression {
-      $$ = new additive_expression_node(dynamic_cast<multiplicative_expression_node*>($1));
+      $$ = new additive_expression_node((multiplicative_expression_node*)$1);
       reductionOut("[p]: additive_expression -> multiplicative_expression");
   }
   | additive_expression UNARY_PLUStok multiplicative_expression {
-      $$ = new additive_expression_node(dynamic_cast<additive_expression_node*>($1),OpType::PLUS,dynamic_cast<multiplicative_expression_node*>($3));
+      $$ = new additive_expression_node((additive_expression_node*)$1,OpType::PLUS,(multiplicative_expression_node*)$3);
       reductionOut("[p]: additive_expression -> additive_expression UNARY_PLUStok multiplicative_expression");
   }
   | additive_expression UNARY_MINUStok multiplicative_expression {
-      $$ = new additive_expression_node(dynamic_cast<additive_expression_node*>($1),OpType::MINUS,dynamic_cast<multiplicative_expression_node*>($3));
+      $$ = new additive_expression_node((additive_expression_node*)$1,OpType::MINUS,(multiplicative_expression_node*)$3);
       reductionOut("[p]: additive_expression -> additive_expression UNARY_MINUStok multiplicative_expression");
   }
   ;
 
 multiplicative_expression
   : cast_expression {
-      $$ = new multiplicative_expression_node(dynamic_cast<cast_expression_node*>($1));
+      $$ = new multiplicative_expression_node((cast_expression_node*)$1);
       reductionOut("[p]: multiplicative_expression -> cast_expression");
   }
   | multiplicative_expression UNARY_ASTERISKtok cast_expression {
-      $$ = new multiplicative_expression_node(dynamic_cast<multiplicative_expression_node*>($1),OpType::ASTERISK,dynamic_cast<cast_expression_node*>($3));
+      $$ = new multiplicative_expression_node((multiplicative_expression_node*)$1,OpType::ASTERISK,(cast_expression_node*)$3);
       reductionOut("[p]: multiplicative_expression -> multiplicative_expression UNARY_ASTERISKtok cast_expression");
   }
   | multiplicative_expression FORWARD_SLASHtok cast_expression {
-      $$ = new multiplicative_expression_node(dynamic_cast<multiplicative_expression_node*>($1),OpType::DIV,dynamic_cast<cast_expression_node*>($3));
+      $$ = new multiplicative_expression_node((multiplicative_expression_node*)$1,OpType::DIV,(cast_expression_node*)$3);
       reductionOut("[p]: multiplicative_expression -> multiplicative_expression FORWARD_SLASHtok cast_expression");
   }
   | multiplicative_expression PERCENTtok cast_expression {
-      $$ = new multiplicative_expression_node(dynamic_cast<multiplicative_expression_node*>($1),OpType::MOD,dynamic_cast<cast_expression_node*>($3));
+      $$ = new multiplicative_expression_node((multiplicative_expression_node*)$1,OpType::MOD,(cast_expression_node*)$3);
       reductionOut("[p]: multiplicative_expression -> multiplicative_expression PERCENTtok cast_expression");
   }
   ;
 
 cast_expression
   : unary_expression {
-      $$ = new cast_expression_node(dynamic_cast<unary_expression_node*>($1));
+      $$ = new cast_expression_node((unary_expression_node*)$1);
       reductionOut("[p]: cast_expression -> unary_expression");
   }
   | OPEN_PARENtok type_name CLOSE_PARENtok cast_expression {
@@ -1113,25 +1146,27 @@ cast_expression
 
 unary_expression
   : postfix_expression {
-      $$ = new unary_expression_node(dynamic_cast<postfix_expression_node*>($1));
+      $$ = new unary_expression_node((postfix_expression_node*)$1);
       reductionOut("[p]: unary_expression -> postfix_expression");
   }
   | INC_OPtok unary_expression {
-      $$ = new unary_expression_node(OpType::INC,dynamic_cast<unary_expression_node*>($2));
+      $$ = new unary_expression_node(OpType::INC,(unary_expression_node*)$2);
       reductionOut("[p]: unary_expression -> INC_OPtok unary_expression");
   }
   | DEC_OPtok unary_expression {
-      $$ = new unary_expression_node(OpType::DEC,dynamic_cast<unary_expression_node*>($2));
+      $$ = new unary_expression_node(OpType::DEC,(unary_expression_node*)$2);
       reductionOut("[p]: unary_expression -> DEC_OPtok unary_expression");
   }
   | unary_operator cast_expression {
+      $$ = new unary_expression_node((unary_operator_node*)$1, (cast_expression_node*)$2);
       reductionOut("[p]: unary_expression -> unary_operator cast_expression");
   }
   | SIZEOFtok unary_expression {
-      $$ = new unary_expression_node(OpType::SIZEOF,dynamic_cast<unary_expression_node*>($2));
+      $$ = new unary_expression_node(OpType::SIZEOF,(unary_expression_node*)$2);
       reductionOut("[p]: unary_expression -> SIZEOFtok unary_expression");
   }
   | SIZEOFtok OPEN_PARENtok type_name CLOSE_PARENtok {
+      //$$ = new unary_expression_node((type_name_node*)$1);
       reductionOut("[p]: unary_expression -> SIZEOFtok OPEN_PARENtok type_name CLOSE_PARENtok");
   }
   ;
@@ -1165,35 +1200,35 @@ unary_operator
 
 postfix_expression
   : primary_expression {
-      $$ = new postfix_expression_node(dynamic_cast<primary_expression_node*>($1));
+      $$ = new postfix_expression_node((primary_expression_node*)$1);
       reductionOut("[p]: postfix_expression -> primary_expression");
   }
   | postfix_expression OPEN_SQUAREtok expression CLOSE_SQUAREtok {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),dynamic_cast<expression_node*>($3));
+      $$ = new postfix_expression_node((postfix_expression_node*)$1,(expression_node*)$3);
       reductionOut("[p]: postfix_expression -> postfix_expression OPEN_SQUAREtok expression CLOSE_SQUAREtok");
   }
   | postfix_expression OPEN_PARENtok CLOSE_PARENtok {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1));
+      $$ = new postfix_expression_node((postfix_expression_node*)$1);
       reductionOut("[p]: postfix_expression -> postfix_expression OPEN_PARENtok CLOSE_PARENtok");
   }
   | postfix_expression OPEN_PARENtok argument_expression_list CLOSE_PARENtok {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),dynamic_cast<argument_expression_list_node*>($3));
+      $$ = new postfix_expression_node((postfix_expression_node*)$1,(argument_expression_list_node*)$3);
       reductionOut("[p]: postfix_expression -> postfix_expression OPEN_PARENtok argument_expression_list CLOSE_PARENtok");
   }
   | postfix_expression PERIODtok identifier {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),OpType::PERIOD,$3);
+      $$ = new postfix_expression_node((postfix_expression_node*)$1,OpType::PERIOD,$3);
       reductionOut("[p]: postfix_expression -> postfix_expression PERIODtok identifier");
   }
   | postfix_expression PTR_OPtok identifier {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),OpType::PTR_OP,$3);
+      $$ = new postfix_expression_node((postfix_expression_node*)$1,OpType::PTR_OP,$3);
       reductionOut("[p]: postfix_expression -> postfix_expression PTR_OPtok identifier");
   }
   | postfix_expression INC_OPtok {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),OpType::INC);
+      $$ = new postfix_expression_node((postfix_expression_node*)$1,OpType::INC);
       reductionOut("[p]: postfix_expression -> postfix_expression INC_OPtok");
   }
   | postfix_expression DEC_OPtok {
-      $$ = new postfix_expression_node(dynamic_cast<postfix_expression_node*>($1),OpType::DEC);
+      $$ = new postfix_expression_node((postfix_expression_node*)$1,OpType::DEC);
       reductionOut("[p]: postfix_expression -> postfix_expression DEC_OPtok");
   }
   ;
@@ -1219,26 +1254,26 @@ primary_expression
       reductionOut("[p]: primary_expression -> identifier");
   }
   | constant {
-      $$ = new primary_expression_node(dynamic_cast<constant_node*>($1));
+      $$ = new primary_expression_node((constant_node*)$1);
       reductionOut("[p]: primary_expression -> constant");
   }
   | string {
-      $$ = new primary_expression_node(dynamic_cast<string_node*>($1));
+      $$ = new primary_expression_node((string_node*)$1);
       reductionOut("[p]: primary_expression -> string");
   }
   | OPEN_PARENtok expression CLOSE_PARENtok {
-      $$ = new primary_expression_node(dynamic_cast<expression_node*>($2));
+      $$ = new primary_expression_node((expression_node*)$2);
       reductionOut("[p]: primary_expression -> OPEN_PARENtok expression CLOSE_PARENtok");
   }
   ;
 
 argument_expression_list
   : assignment_expression {
-      $$ = new argument_expression_list_node(dynamic_cast<assignment_expression_node*>($1));
+      $$ = new argument_expression_list_node((assignment_expression_node*)$1);
       reductionOut("[p]: argument_expression_list -> assignment_expression");
   }
   | argument_expression_list COMMAtok assignment_expression {
-      dynamic_cast<argument_expression_list_node*>($1)->addAssignmentExpr(dynamic_cast<assignment_expression_node*>($3));
+      dynamic_cast<argument_expression_list_node*>($1)->addAssignmentExpr((assignment_expression_node*)$3);
       $$ = $1;
       reductionOut("[p]: argument_expression_list -> argument_expression_list COMMAtok assignment_expression");
   }
