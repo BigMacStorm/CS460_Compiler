@@ -1413,7 +1413,7 @@ void warning(const std::string& message){
 void reductionOut(const char* reductionCStr) {
     // Append the reduction to listFileName
     std::ofstream fout;
-    fout.open(listFileName, std::ofstream::out | std::ofstream::app);
+    fout.open(listFileName.c_str(), std::ofstream::out | std::ofstream::app);
     fout << reductionCStr << std::endl;
     fout.close();
 

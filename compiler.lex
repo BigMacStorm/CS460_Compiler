@@ -90,7 +90,7 @@ scomment "//".*
 
                // Print the line of source code
                std::ofstream fout;
-               fout.open(listFileName, std::ofstream::out | std::ofstream::app);
+               fout.open(listFileName.c_str(), std::ofstream::out | std::ofstream::app);
                for(int i = 0; i < sourceLine.size(); ++i)
                    fout << sourceLine[i] << " ";
                fout << std::endl;
