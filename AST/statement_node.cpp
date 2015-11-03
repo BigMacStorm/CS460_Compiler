@@ -1,30 +1,30 @@
 #include "ast_node.h"
-statement_node::statement_node(labeled_statement_node* labelStmt){
+statement_node::statement_node(labeled_statement_node* labelStmt): ast_node(){
   init();
   this->labelStmt = labelStmt;
   this->mode = 0;
  }
-statement_node::statement_node(compound_statement_node* compStmt){
+statement_node::statement_node(compound_statement_node* compStmt): ast_node(){
   init();
   this->compStmt = compStmt;
   this->mode = 1;
  }
-statement_node::statement_node(expression_statement_node* exprStmt){
+statement_node::statement_node(expression_statement_node* exprStmt): ast_node(){
   init();
   this->exprStmt = exprStmt;
   this->mode = 2;
  }
-statement_node::statement_node(selection_statement_node* selectStmt){
+statement_node::statement_node(selection_statement_node* selectStmt): ast_node(){
   init();
   this->selectStmt = selectStmt;
   this->mode = 3;
  }
-statement_node::statement_node(iteration_statement_node* iterStmt){
+statement_node::statement_node(iteration_statement_node* iterStmt): ast_node(){
   init();
   this->iterStmt = iterStmt;
   this->mode = 4;
  }
-statement_node::statement_node(jump_statement_node* jumpStmt){
+statement_node::statement_node(jump_statement_node* jumpStmt): ast_node(){
   init();
   this->jumpStmt = jumpStmt;
   this->mode = 5;
@@ -39,6 +39,8 @@ void statement_node::init(){
   mode = -1;
 }
 void statement_node::print(){
+  visualizer.addNode(this->id,"statement");
+  visualizer.addEdge(this->pid,this->id);
   switch(this->mode){
     case 0:
       if(this->labelStmt != NULL){

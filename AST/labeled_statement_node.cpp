@@ -1,10 +1,10 @@
 #include "ast_node.h"
-labeled_statement_node::labeled_statement_node(std::string identifier, statement_node* statement){
+labeled_statement_node::labeled_statement_node(std::string identifier, statement_node* statement): ast_node(){
   init();
   this->identifier = identifier;
   this->statement = statement;
 }
-labeled_statement_node::labeled_statement_node(LabelType::Type label_type, constant_expression_node* constExpr, statement_node* statement){
+labeled_statement_node::labeled_statement_node(LabelType::Type label_type, constant_expression_node* constExpr, statement_node* statement): ast_node(){
   init();
   this->label_type = label_type;
   this->constExpr = constExpr;
