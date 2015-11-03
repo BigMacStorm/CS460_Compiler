@@ -161,20 +161,6 @@ class ast_node {
     // Otherwise, have specialized children getters
 };
 
-//may not need this node as its a unit production program -> translation_unit
-class program_node : public ast_node {
-  public:
-    program_node();
-    program_node(translation_unit_node* child);
-    //should only be on translation unit node so this add function could be removed ??
-    void addTranslationUnit(translation_unit_node* child);
-    translation_unit_node* getChild() const;
-  void print();
-  void generateCode();
-  private:
-    translation_unit_node* translationUnit;
-};
-
 class translation_unit_node : public ast_node {
   public:
     translation_unit_node();
@@ -240,12 +226,25 @@ class declaration_list_node : public ast_node {
 
 class init_declarator_node : public ast_node {
   public:
+    init_declarator_node();
+    init_declarator_node(declarator_node* decl, initializer_node* init);
+    void print();
+    void generateCode();
   private:
+    declarator_node* decl;
+    initializer_node* initializer;
 };
 
 class init_declarator_list_node : public ast_node {
   public:
+    init_declarator_list_node();
+    init_declarator_list_node(init_declarator_node* child);
+    void addDecl(init_declarator_node* child);
+    std::vector<init_declarator_node*> getChildren() const;
+    void print();
+    void generateCode();
   private:
+    std::vector<init_declarator_node*> children;
 };
 
 class declaration_specifiers_node : public ast_node {

@@ -32,6 +32,8 @@ void reductionOut(const char* reductionCStr);
 Declaration decl; // holds info about a current declaration
 bool insert_mode = true;
 
+//global tree node
+ast_node* treeHanger;
 %}
 
 %union{
@@ -95,22 +97,28 @@ bool insert_mode = true;
 program
   : translation_unit{
     std::cout << "Success!" << std::endl;
+    //$1.setParent(treeHanger);
   }
 translation_unit
   : external_declaration {
      reductionOut("[p]: translation_unit -> external_declaration");
+     $$ = new translation_unit_node((external_declaration_node*)$1);
   }
   | translation_unit external_declaration {
-    reductionOut("[p]: translation_unit -> translation_unit external_declaration");
+     reductionOut("[p]: translation_unit -> translation_unit external_declaration");
+     dynamic_cast<translation_unit_node*>($1)->addExternDecl((external_declaration_node*)$2);
+     $$ = $1;
   }
   ;
 
 external_declaration
   : function_definition{
     reductionOut("[p]: external_declaration -> function_definition");
+    $$ = new external_declaration_node((function_definition_node*)$1);
   }
   | declaration  {
     reductionOut("[p]: external_declaration -> declaration");
+    $$ = new external_declaration_node((declaration_node*)$1);
   }
   ;
 
@@ -151,15 +159,32 @@ end_scope
 function_definition
   : declarator compound_statement {
       reductionOut("[p]: function_definition -> declarator compound_statement");
+      $$ = new function_definition_node(NULL,
+                                        (declarator_node*)$2,
+                                        NULL,
+                                        (compound_statement_node*)$4);
+      
       }
   | declarator declaration_list compound_statement {
       reductionOut("[p]: function_definition -> declarator declaration_list compound_statement");
+      $$ = new function_definition_node(NULL,
+                                        (declarator_node*)$2,
+                                        (declaration_list_node*)$3,
+                                        (compound_statement_node*)$4);
       }
   | declaration_specifiers declarator compound_statement {
       reductionOut("[p]: function_definition -> declaration_specifiers declarator compound_statement");
+      $$ = new function_definition_node((declaration_specifiers_node*)$1,
+                                        (declarator_node*)$2,
+                                        NULL,
+                                        (compound_statement_node*)$4);
     }
   | declaration_specifiers declarator declaration_list compound_statement {
-       reductionOut("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement");
+      reductionOut("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement");
+      $$ = new function_definition_node((declaration_specifiers_node*)$1,
+                                        (declarator_node*)$2,
+                                        (declaration_list_node*)$3,
+                                        (compound_statement_node*)$4);
     }
   ;
 
@@ -168,11 +193,13 @@ declaration
       reductionOut("[p]: declaration -> declaration_specifiers SEMItok");
       insert_mode = true;
       decl.clear();
+      $$ = new declaration_node((declaration_specifiers_node*)$1, NULL);
   }
   | declaration_specifiers init_declarator_list SEMItok{
       reductionOut("[p]: declaration -> declaration_specifiers init_declarator_list SEMItok");
       insert_mode = true;
       decl.clear();
+      $$ = new declaration_node((declaration_specifiers_node*)$1, (init_declarator_list_node*)$2);
   }
   ;
 
