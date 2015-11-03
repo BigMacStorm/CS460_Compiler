@@ -32,6 +32,9 @@ void reductionOut(const char* reductionCStr);
 Declaration decl; // holds info about a current declaration
 bool insert_mode = true;
 
+//global tree node
+ast_node* treeHanger = NULL;
+
 %}
 
 %union{
@@ -85,7 +88,7 @@ bool insert_mode = true;
 
 %token ERRORtok
 
-%type <astnode> program translation_unit external_declaration function_definition declaration declaration_list init_declarator_list init_declarator constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression statement statement_list labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement
+%type <astnode> translation_unit external_declaration function_definition declaration declaration_list init_declarator_list init_declarator declarator declaration_specifiers storage_class_specifier type_specifier type_qualifier type_qualifier_list specifier_qualifier_list enum_specifier enumerator_list enumerator direct_declarator pointer parameter_type_list parameter_list parameter_declaration identifier_list initializer initializer_list type_name abstract_declarator constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression statement statement_list labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement
 
 %start program
 
@@ -93,23 +96,31 @@ bool insert_mode = true;
 %%
 
 program
-  : translation_unit{
+  : translation_unit {
+    treeHanger = $1;
+    treeHanger->print(); // traverse print functions
     std::cout << "Success!" << std::endl;
   }
+
 translation_unit
   : external_declaration {
+     $$ = new translation_unit_node((external_declaration_node*)$1);
      reductionOut("[p]: translation_unit -> external_declaration");
   }
   | translation_unit external_declaration {
+    dynamic_cast<translation_unit_node*>($1)->addExternDecl((external_declaration_node*)$2);
+    $$ = $1;
     reductionOut("[p]: translation_unit -> translation_unit external_declaration");
   }
   ;
 
 external_declaration
   : function_definition{
+    $$ = new external_declaration_node((function_definition_node*)$1);
     reductionOut("[p]: external_declaration -> function_definition");
   }
   | declaration  {
+    $$ = new external_declaration_node((declaration_node*)$1);
     reductionOut("[p]: external_declaration -> declaration");
   }
   ;
@@ -150,26 +161,32 @@ end_scope
 
 function_definition
   : declarator compound_statement {
+      $$ = new function_definition_node(NULL,(declarator_node*)$1,NULL,(compound_statement_node*)$2);
       reductionOut("[p]: function_definition -> declarator compound_statement");
       }
   | declarator declaration_list compound_statement {
+      $$ = new function_definition_node(NULL,(declarator_node*)$1,(declaration_list_node*)$2,(compound_statement_node*)$3);
       reductionOut("[p]: function_definition -> declarator declaration_list compound_statement");
       }
   | declaration_specifiers declarator compound_statement {
+      $$ = new function_definition_node((declaration_specifiers_node*)$1,(declarator_node*)$2,NULL,(compound_statement_node*)$3);
       reductionOut("[p]: function_definition -> declaration_specifiers declarator compound_statement");
     }
   | declaration_specifiers declarator declaration_list compound_statement {
+       $$ = new function_definition_node((declaration_specifiers_node*)$1,(declarator_node*)$2,(declaration_list_node*)$3,(compound_statement_node*)$4);
        reductionOut("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement");
     }
   ;
 
 declaration
   : declaration_specifiers SEMItok{
+      $$ = new declaration_node((declaration_specifiers_node*)$1,NULL);
       reductionOut("[p]: declaration -> declaration_specifiers SEMItok");
       insert_mode = true;
       decl.clear();
   }
   | declaration_specifiers init_declarator_list SEMItok{
+      $$ = new declaration_node((declaration_specifiers_node*)$1,(init_declarator_list_node*)$2);
       reductionOut("[p]: declaration -> declaration_specifiers init_declarator_list SEMItok");
       insert_mode = true;
       decl.clear();
@@ -178,9 +195,12 @@ declaration
 
 declaration_list
   : declaration{
+      $$ = new declaration_list_node((declaration_node*)$1);
       reductionOut("[p]: declaration_list -> declaration");
   }
   | declaration_list declaration{
+      dynamic_cast<declaration_list_node*>($1)->addDecl((declaration_node*)$2);
+      $$ = $1;
       reductionOut("[p]: declaration_list -> declaration_list declaration");
   }
   ;
@@ -188,10 +208,13 @@ declaration_list
 init_declarator_list
   : init_declarator {
       // a single variable declaration
+      $$ = new init_declarator_list_node((init_declarator_node*)$1);
       reductionOut("[p]: init_declarator_list -> init_declarator");
   }
   | init_declarator_list COMMAtok init_declarator {
       // multiple single line declarations
+      dynamic_cast<init_declarator_list_node*>($1)->addInitDecl((init_declarator_node*)$3);
+      $$ = $1;
       reductionOut("[p]: init_declarator_list -> init_declarator_list COMMAtok init_declarator");
   }
   ;
@@ -199,11 +222,13 @@ init_declarator_list
 init_declarator
   : declarator{
       // declaration
+      $$ = new init_declarator_node((declarator_node*)$1, NULL);
       reductionOut("[p]: init_declarator -> declarator");
       decl.complete();
   }
   | declarator EQUALtok initializer {
       // initialization
+      $$ = new init_declarator_node((declarator_node*)$1, (initializer_node*)$3);
       reductionOut("[p]: init_declarator -> declarator EQUALtok initializer");
       decl.complete();
   }
@@ -213,21 +238,27 @@ init_declarator
 *****************************************************************************/
 declaration_specifiers
   : storage_class_specifier {
+      $$ = new declaration_specifiers_node((storage_class_specifier_node*)$1,NULL);
       reductionOut("[p]: declaration_specifiers -> storage_class_specifier");
   }
   | storage_class_specifier declaration_specifiers  {
+      $$ = new declaration_specifiers_node((storage_class_specifier_node*)$1,(declaration_specifiers_node*)$2);
       reductionOut("[p]: declaration_specifiers -> storage_class_specifier declaration_specifiers");
   }
   | type_specifier  {
+      $$ = new declaration_specifiers_node((type_specifier_node*)$1,NULL);
       reductionOut("[p]: declaration_specifiers -> type_specifier");
   }
   | type_specifier declaration_specifiers  {
+      $$ = new declaration_specifiers_node((type_specifier_node*)$1,(declaration_specifiers_node*)$2);
       reductionOut("[p]: declaration_specifiers -> type_specifier declaration_specifiers");
   }
   | type_qualifier  {
+      $$ = new declaration_specifiers_node((type_qualifier_node*)$1,NULL);
       reductionOut("[p]: declaration_specifiers -> type_qualifier");
   }
   | type_qualifier declaration_specifiers  {
+      $$ = new declaration_specifiers_node((type_qualifier_node*)$1,(declaration_specifiers_node*)$2);
       reductionOut("[p]: declaration_specifiers -> type_qualifier declaration_specifiers");
   }
   ;
@@ -261,22 +292,27 @@ typedef specifier
 
 storage_class_specifier
   : AUTOtok {
+    $$ = new storage_class_specifier_node(StorageSpecifier::AUTO);
     reductionOut("[p]: storage_class_specifier -> AUTOtok");
     decl.pushStorage(SpecName::Auto);
   }
   | REGISTERtok {
+    $$ = new storage_class_specifier_node(StorageSpecifier::REGISTER);
     reductionOut("[p]: storage_class_specifier -> REGISTERtok");
     decl.pushStorage(SpecName::Register);
   }
   | STATICtok {
+    $$ = new storage_class_specifier_node(StorageSpecifier::STATIC);
     reductionOut("[p]: storage_class_specifier -> STATICtok");
     decl.pushStorage(SpecName::Static);
   }
   | EXTERNtok {
+    $$ = new storage_class_specifier_node(StorageSpecifier::EXTERN);
     reductionOut("[p]: storage_class_specifier -> EXTERNtok");
     decl.pushStorage(SpecName::Extern);
   }
   | TYPEDEFtok {
+    $$ = new storage_class_specifier_node(StorageSpecifier::TYPEDEF);
     reductionOut("[p]: storage_class_specifier -> TYPEDEFtok");
     decl.pushStorage(SpecName::Typedef);
   }
@@ -294,52 +330,61 @@ The keyword void has three uses:
 type_specifier
   :
     VOIDtok {
+    $$ = new type_specifier_node(TypeSpecifier::VOID);
     reductionOut("[p]: type_specifier -> VOIDtok");
     decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Void);
   }
   | CHARtok {
+    $$ = new type_specifier_node(TypeSpecifier::CHAR);
     reductionOut("[p]: type_specifier -> CHARtok");
     decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Char);
   }
   | SHORTtok {
+    $$ = new type_specifier_node(TypeSpecifier::SHORT);
     reductionOut("[p]: type_specifier -> SHORTtok");
     decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Short);
   }
   | INTtok {
+    $$ = new type_specifier_node(TypeSpecifier::INT);
     reductionOut("[p]: type_specifier -> INTtok");
     decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Int);
   }
   | LONGtok  {
+    $$ = new type_specifier_node(TypeSpecifier::LONG);
     reductionOut("[p]: type_specifier -> LONGtok");
     decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Long);
   }
   | FLOATtok  {
+    $$ = new type_specifier_node(TypeSpecifier::FLOAT);
     reductionOut("[p]: type_specifier -> FLOATtok");
     decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Float);
   }
   | DOUBLEtok  {
+    $$ = new type_specifier_node(TypeSpecifier::DOUBLE);
     reductionOut("[p]: type_specifier -> DOUBLEtok");
     decl.setMode(DeclMode::Basic);
     decl.pushKind(SpecName::Basic);
     decl.pushBase(SpecName::Double);
   }
   | SIGNEDtok  {
+    $$ = new type_specifier_node(TypeSpecifier::SIGNED);
     reductionOut("[p]: type_specifier -> SIGNEDtok");
     decl.pushSign(SpecName::Signed);
   }
   | UNSIGNEDtok  {
+    $$ = new type_specifier_node(TypeSpecifier::UNSIGNED);
     reductionOut("[p]: type_specifier -> UNSIGNEDtok");
     decl.pushSign(SpecName::Unsigned);
   }
@@ -359,10 +404,12 @@ type_specifier
 
 type_qualifier
   : CONSTtok {
+    $$ = new type_qualifier_node(TypeQualifier::CONST);
     reductionOut("[p]: type_qualifier -> CONSTtok");
     decl.pushQualifier(SpecName::Const);
   }
   | VOLATILEtok {
+    $$ = new type_qualifier_node(TypeQualifier::VOLATILE);
     reductionOut("[p]: type_qualifier -> VOLATILEtok");
     decl.pushQualifier(SpecName::Volatile);
   }
@@ -478,7 +525,6 @@ enumerator
 
 declarator
   : direct_declarator {
-      reductionOut("[p]: declarator -> direct_declarator");
       insert_mode = true;
 
       decl.pushKind(SpecName::NoKind);
@@ -490,10 +536,12 @@ declarator
       if(decl.isMode(DeclMode::Array)){
          decl.setNextArray();
       }
+      $$ = new declarator_node(NULL,(direct_declarator_node*)$1);
+      reductionOut("[p]: declarator -> direct_declarator");
   }
   | pointer direct_declarator {
       // pointer mode
-      reductionOut("[p]: declarator -> pointer direct_declarator");
+
       decl.setNextPtr();
 
       decl.pushKind(SpecName::NoKind);
@@ -505,16 +553,20 @@ declarator
       if(decl.isMode(DeclMode::Array)){
          decl.setNextArray();
       }
+      $$ = new declarator_node((pointer_node*)$1,(direct_declarator_node*)$2);
+      reductionOut("[p]: declarator -> pointer direct_declarator");
   }
   ;
 
 direct_declarator
   : identifier {
-      reductionOut("[p]: direct_declarator -> identifier");
       // for no return type
       if(decl.getBasesNum() > 0){
         decl.setHasType();
       }
+
+      $$ = new direct_declarator_node($1);
+      reductionOut("[p]: direct_declarator -> identifier");
   }
   | OPEN_PARENtok declarator CLOSE_PARENtok {
       // e.g., (*a)[COLS]
@@ -522,17 +574,21 @@ direct_declarator
   }
   | direct_declarator OPEN_SQUAREtok CLOSE_SQUAREtok {
       // array mode - e.g., foo[]
-      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok CLOSE_SQUAREtok");
       decl.setMode(DeclMode::Array);
       decl.pushArraySize(1); // if there is initialization, warning: tentative array definition assumed to have one element
       decl.pushKind(SpecName::Array);
+
+      $$ = new direct_declarator_node(DirectType::ARRAY, (direct_declarator_node*)$1);
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok CLOSE_SQUAREtok");
   }
   | direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok {
       // array mode - e.g., type foo[size], foo[s1][s2]
-      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
       decl.setMode(DeclMode::Array);
       decl.pushArraySize(yylval.ival);
       decl.pushKind(SpecName::Array);
+
+      $$ = new direct_declarator_node(DirectType::ARRAY, (direct_declarator_node*)$1, (constant_expression_node*)$3);
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_SQUAREtok constant_expression CLOSE_SQUAREtok");
   }
   | direct_declarator OPEN_PARENtok {
 
@@ -544,9 +600,11 @@ direct_declarator
 
   } CLOSE_PARENtok{
       // function mode - e.g., foo()
-      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok");
       decl.setMode(DeclMode::Function);
       decl.pushKind(SpecName::Function);
+
+      $$ = new direct_declarator_node(DirectType::FUNCTION, (direct_declarator_node*)$1);
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok");
   }
   | direct_declarator OPEN_PARENtok {
 
@@ -558,59 +616,75 @@ direct_declarator
 
   } parameter_type_list CLOSE_PARENtok{
       // function mode - e.g., foo(type a, type b)
-      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
       decl.setMode(DeclMode::Function);
       decl.pushKind(SpecName::Function);
+
+      //$$ = new direct_declarator_node(DirectType::FUNCTION, (direct_declarator_node*)$1, (parameter_type_list_node*)$3);
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
   }
   | direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok{
       // function call - e.g., foo(x,y)
-      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok");
       decl.setMode(DeclMode::FunctionCall);
+
+      $$ = new direct_declarator_node(DirectType::FUNCTION_CALL, (direct_declarator_node*)$1, (identifier_list_node*)$3);
+      reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok");
   }
   ;
 
 pointer
   : UNARY_ASTERISKtok {
       // *
-      reductionOut("[p]: pointer -> UNARY_ASTERISKtok");
       decl.setMode(DeclMode::Pointer);
       decl.pushKind(SpecName::Pointer);
       decl.incPtrLevel();
+
+      $$ = new pointer_node(NULL,NULL);
+      reductionOut("[p]: pointer -> UNARY_ASTERISKtok");
   }
   | UNARY_ASTERISKtok type_qualifier_list {
       // * const/volatile
-      reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list");
       decl.setMode(DeclMode::Pointer);
       decl.pushKind(SpecName::Pointer);
       decl.incPtrLevel();
+
+      $$ = new pointer_node((type_qualifier_list_node*)$2,NULL);
+      reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list");
   }
   | UNARY_ASTERISKtok pointer {
       // ** ...
-      reductionOut("[p]: pointer -> UNARY_ASTERISKtok pointer");
       decl.setMode(DeclMode::Pointer);
       decl.pushKind(SpecName::Pointer);
       decl.incPtrLevel();
+
+      $$ = new pointer_node(NULL,(pointer_node*)$2);
+      reductionOut("[p]: pointer -> UNARY_ASTERISKtok pointer");
   }
   | UNARY_ASTERISKtok type_qualifier_list pointer {
       // * const/volatile * ...
-      reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list pointer");
       decl.setMode(DeclMode::Pointer);
       decl.pushKind(SpecName::Pointer);
       decl.incPtrLevel();
+
+      $$ = new pointer_node((type_qualifier_list_node*)$2,(pointer_node*)$3);
+      reductionOut("[p]: pointer -> UNARY_ASTERISKtok type_qualifier_list pointer");
   }
   ;
 
 type_qualifier_list
   : type_qualifier {
+      $$ = new type_qualifier_list_node((type_qualifier_node*)$1);
       reductionOut("[p]: type_qualifier_list -> type_qualifier");
   }
   | type_qualifier_list type_qualifier {
+      dynamic_cast<type_qualifier_list_node*>($1)->addQual((type_qualifier_node*)$2);
+      $$ = $1;
       reductionOut("[p]: type_qualifier_list -> type_qualifier_list type_qualifier");
   }
   ;
 
 parameter_type_list
   : parameter_list {
+      $$ = new parameter_type_list_node((parameter_list_node*)$1);
       reductionOut("[p]: parameter_type_list -> parameter_list");
   }
   | parameter_list COMMAtok ELIPSIStok {
@@ -620,10 +694,13 @@ parameter_type_list
 
 parameter_list
   : parameter_declaration {
+      $$ = new parameter_list_node((parameter_declaration_node*)$1);
       reductionOut("[p]: parameter_list -> parameter_declaration");
       decl.incArgSize();
   }
   | parameter_list COMMAtok parameter_declaration {
+      dynamic_cast<parameter_list_node*>($1)->addParamDecl((parameter_declaration_node*)$3);
+      $$ = $1;
       reductionOut("[p]: parameter_list -> parameter_list COMMAtok parameter_declaration");
       decl.incArgSize();
   }
@@ -632,49 +709,61 @@ parameter_list
 parameter_declaration
   : declaration_specifiers declarator {
       // e.g., int x, int *x
+      $$ = new parameter_declaration_node((declaration_specifiers_node*)$1,(declarator_node*)$2);
       reductionOut("[p]: parameter_declaration -> declaration_specifiers declarator");
   }
   | declaration_specifiers {
       // e.g., int
-      reductionOut("[p]: parameter_declaration -> declaration_specifiers");
       decl.pushKind(SpecName::NoKind);
       decl.pushBase(SpecName::NoType);
       decl.pushSign(SpecName::NoSign);
       decl.pushQualifier(SpecName::NoQualifier);
       decl.pushStorage(SpecName::NoStorage);
+
+      $$ = new parameter_declaration_node((declaration_specifiers_node*)$1);
+      reductionOut("[p]: parameter_declaration -> declaration_specifiers");
   }
   | declaration_specifiers abstract_declarator {
       // e.g., ?
+      $$ = new parameter_declaration_node((declaration_specifiers_node*)$1,(abstract_declarator_node*)$2);
       reductionOut("[p]: parameter_declaration -> declaration_specifiers abstract_declarator");
   }
   ;
 
 identifier_list
   : identifier {
+      $$ = new identifier_list_node($1);
       reductionOut("[p]: identifier_list -> identifier");
   }
   | identifier_list COMMAtok identifier {
-      reductionOut("[p]: identifier_list -> ");
+      dynamic_cast<identifier_list_node*>($1)->addIdentifier($3);
+      $$ = $1;
+      reductionOut("[p]: identifier_list -> identifier_list COMMAtok identifier");
   }
   ;
 
 initializer
   : assignment_expression {
+      $$ = new initializer_node((assignment_expression_node*)$1);
       reductionOut("[p]: initializer -> assignment_expression");
   }
   | OPEN_CURLYtok initializer_list CLOSE_CURLYtok {
+      $$ = new initializer_node((initializer_list_node*)$2);
       reductionOut("[p]: initializer -> OPEN_CURLYtok initializer_list CLOSE_CURLYtok");
   }
   | OPEN_CURLYtok initializer_list COMMAtok CLOSE_CURLYtok {
+      $$ = new initializer_node((initializer_list_node*)$2);
       reductionOut("[p]: initializer -> OPEN_CURLYtok initializer_list COMMAtok CLOSE_CURLYtok");
   }
   ;
 
 initializer_list
   : initializer {
+      $$ = new initializer_list_node((initializer_node*)$1);
       reductionOut("[p]: initializer_list -> initializer");
   }
   | initializer_list COMMAtok initializer {
+      dynamic_cast<initializer_list_node*>($1)->addInit((initializer_node*)$3);
       reductionOut("[p]: initializer_list -> initializer_list COMMAtok initializer");
   }
   ;
@@ -742,7 +831,6 @@ statement
   | expression_statement {
       $$ = new statement_node((expression_statement_node*)$1);
       reductionOut("[p]: statement -> expression_statement");
-      $1->print();
   }
   | selection_statement {
       $$ = new statement_node((selection_statement_node*)$1);
@@ -805,9 +893,12 @@ compound_statement
 
 statement_list
   : statement {
+      $$ = new statement_list_node((statement_node*)$1);
       reductionOut("[p]: statement_list -> statement");
   }
   | statement_list statement {
+      dynamic_cast<statement_list_node*>($1)->addStmt((statement_node*)$2);
+      $$ = $1;
       reductionOut("[p]: statement_list -> statement_list statement");
   }
   ;
