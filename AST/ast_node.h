@@ -256,10 +256,7 @@ class declaration_specifiers_node : public ast_node {
     declaration_specifiers_node(storage_class_specifier_node* storage, declaration_specifiers_node* declSpec);
     declaration_specifiers_node(type_specifier_node* typeSpec, declaration_specifiers_node* declSpec);
     declaration_specifiers_node(type_qualifier_node* qualifier, declaration_specifiers_node* declSpec);
-<<<<<<< HEAD
-=======
     void init();
->>>>>>> symbol
     void print();
     void generateCode();
   private:
