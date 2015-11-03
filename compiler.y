@@ -292,29 +292,29 @@ typedef specifier
 
 storage_class_specifier
   : AUTOtok {
+    decl.pushStorage(SpecName::Auto);
     $$ = new storage_class_specifier_node(StorageSpecifier::AUTO);
     reductionOut("[p]: storage_class_specifier -> AUTOtok");
-    decl.pushStorage(SpecName::Auto);
   }
   | REGISTERtok {
+    decl.pushStorage(SpecName::Register);
     $$ = new storage_class_specifier_node(StorageSpecifier::REGISTER);
     reductionOut("[p]: storage_class_specifier -> REGISTERtok");
-    decl.pushStorage(SpecName::Register);
   }
   | STATICtok {
+    decl.pushStorage(SpecName::Static);
     $$ = new storage_class_specifier_node(StorageSpecifier::STATIC);
     reductionOut("[p]: storage_class_specifier -> STATICtok");
-    decl.pushStorage(SpecName::Static);
   }
   | EXTERNtok {
+    decl.pushStorage(SpecName::Extern);
     $$ = new storage_class_specifier_node(StorageSpecifier::EXTERN);
     reductionOut("[p]: storage_class_specifier -> EXTERNtok");
-    decl.pushStorage(SpecName::Extern);
   }
   | TYPEDEFtok {
+    decl.pushStorage(SpecName::Typedef);
     $$ = new storage_class_specifier_node(StorageSpecifier::TYPEDEF);
     reductionOut("[p]: storage_class_specifier -> TYPEDEFtok");
-    decl.pushStorage(SpecName::Typedef);
   }
   ;
 

@@ -16,6 +16,9 @@ void type_specifier_node::print(){
     case TypeSpecifier::SHORT:
       type = "short";
     break;
+    case TypeSpecifier::LONG:
+      type = "long";
+    break;
     case TypeSpecifier::INT:
       type = "int";
     break;
