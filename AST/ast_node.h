@@ -7,13 +7,6 @@
 
 extern Graph visualizer;
 
-// Comment your name under nodes that you'll work on
-// Assignments (roughly):
-// 1-20 - Niki
-// 21-40 - David
-// 41-60 - Yuta
-// 61-80 - Aaron
-
 // forward declaration
 class ast_node;
 class translation_unit_node;
