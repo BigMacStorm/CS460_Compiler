@@ -13,6 +13,10 @@ std::vector<init_declarator_node*> init_declarator_list_node::getChildren() cons
 void init_declarator_list_node::print(){
   visualizer.addNode(this->id,"init_declarator_list");
   visualizer.addEdge(this->pid,this->id);
+<<<<<<< HEAD
+=======
+
+>>>>>>> symbol
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
       this->children[child]->setPID(this->id);

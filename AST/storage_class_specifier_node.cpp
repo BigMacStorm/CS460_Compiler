@@ -23,6 +23,10 @@ void storage_class_specifier_node::print(){
       type = "typedef";
     break;
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> symbol
   visualizer.addNode(this->id,type);
   visualizer.addEdge(this->pid,this->id);
 }

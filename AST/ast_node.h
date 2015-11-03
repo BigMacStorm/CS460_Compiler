@@ -139,10 +139,10 @@ class ast_node {
     static int getLabelNum(){ return labelNum++; }
     static int getUID(){ return unique_id++; }
 
-    void setID(){ this->id = getUID(); };
+    void setID(){ this->id = getUID(); }
     int getID(){ return this->id; }
     int getPID(){ return this->pid; }
-    void setPID(int pid){this->pid = pid;};
+    void setPID(int pid){this->pid = pid; }
 
   private:
     std::string name;
@@ -256,6 +256,10 @@ class declaration_specifiers_node : public ast_node {
     declaration_specifiers_node(storage_class_specifier_node* storage, declaration_specifiers_node* declSpec);
     declaration_specifiers_node(type_specifier_node* typeSpec, declaration_specifiers_node* declSpec);
     declaration_specifiers_node(type_qualifier_node* qualifier, declaration_specifiers_node* declSpec);
+<<<<<<< HEAD
+=======
+    void init();
+>>>>>>> symbol
     void print();
     void generateCode();
   private:

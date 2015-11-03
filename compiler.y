@@ -34,7 +34,12 @@ bool insert_mode = true;
 
 //global tree node
 <<<<<<< HEAD
+<<<<<<< HEAD
 ast_node* treeHanger;
+=======
+ast_node* treeHanger = NULL;
+
+>>>>>>> symbol
 =======
 ast_node* treeHanger = NULL;
 
@@ -115,10 +120,13 @@ translation_unit
   }
   | translation_unit external_declaration {
 <<<<<<< HEAD
+<<<<<<< HEAD
      reductionOut("[p]: translation_unit -> translation_unit external_declaration");
      dynamic_cast<translation_unit_node*>($1)->addExternDecl((external_declaration_node*)$2);
      $$ = $1;
 =======
+=======
+>>>>>>> symbol
     dynamic_cast<translation_unit_node*>($1)->addExternDecl((external_declaration_node*)$2);
     $$ = $1;
     reductionOut("[p]: translation_unit -> translation_unit external_declaration");
@@ -201,12 +209,15 @@ function_definition
     }
   | declaration_specifiers declarator declaration_list compound_statement {
 <<<<<<< HEAD
+<<<<<<< HEAD
       reductionOut("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement");
       $$ = new function_definition_node((declaration_specifiers_node*)$1,
                                         (declarator_node*)$2,
                                         (declaration_list_node*)$3,
                                         (compound_statement_node*)$4);
 =======
+=======
+>>>>>>> symbol
        $$ = new function_definition_node((declaration_specifiers_node*)$1,(declarator_node*)$2,(declaration_list_node*)$3,(compound_statement_node*)$4);
        reductionOut("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement");
 >>>>>>> symbol
@@ -329,29 +340,54 @@ typedef specifier
 
 storage_class_specifier
   : AUTOtok {
+<<<<<<< HEAD
     $$ = new storage_class_specifier_node(StorageSpecifier::AUTO);
     reductionOut("[p]: storage_class_specifier -> AUTOtok");
+=======
+>>>>>>> symbol
     decl.pushStorage(SpecName::Auto);
+    $$ = new storage_class_specifier_node(StorageSpecifier::AUTO);
+    reductionOut("[p]: storage_class_specifier -> AUTOtok");
   }
   | REGISTERtok {
+<<<<<<< HEAD
     $$ = new storage_class_specifier_node(StorageSpecifier::REGISTER);
     reductionOut("[p]: storage_class_specifier -> REGISTERtok");
+=======
+>>>>>>> symbol
     decl.pushStorage(SpecName::Register);
+    $$ = new storage_class_specifier_node(StorageSpecifier::REGISTER);
+    reductionOut("[p]: storage_class_specifier -> REGISTERtok");
   }
   | STATICtok {
+<<<<<<< HEAD
     $$ = new storage_class_specifier_node(StorageSpecifier::STATIC);
     reductionOut("[p]: storage_class_specifier -> STATICtok");
+=======
+>>>>>>> symbol
     decl.pushStorage(SpecName::Static);
+    $$ = new storage_class_specifier_node(StorageSpecifier::STATIC);
+    reductionOut("[p]: storage_class_specifier -> STATICtok");
   }
   | EXTERNtok {
+<<<<<<< HEAD
     $$ = new storage_class_specifier_node(StorageSpecifier::EXTERN);
     reductionOut("[p]: storage_class_specifier -> EXTERNtok");
+=======
+>>>>>>> symbol
     decl.pushStorage(SpecName::Extern);
+    $$ = new storage_class_specifier_node(StorageSpecifier::EXTERN);
+    reductionOut("[p]: storage_class_specifier -> EXTERNtok");
   }
   | TYPEDEFtok {
+<<<<<<< HEAD
     $$ = new storage_class_specifier_node(StorageSpecifier::TYPEDEF);
     reductionOut("[p]: storage_class_specifier -> TYPEDEFtok");
+=======
+>>>>>>> symbol
     decl.pushStorage(SpecName::Typedef);
+    $$ = new storage_class_specifier_node(StorageSpecifier::TYPEDEF);
+    reductionOut("[p]: storage_class_specifier -> TYPEDEFtok");
   }
   ;
 

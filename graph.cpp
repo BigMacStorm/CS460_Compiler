@@ -1,4 +1,5 @@
 #include "graph.h"
+#include <iostream>
 /**
 @file graph.cpp
 @author Yuta Miyake
@@ -36,10 +37,12 @@ void Graph::addNode(int id, std::string label){
   std::stringstream ss;
   ss << id << " [label=\"" << label << "\"];" << std::endl;
   this->visualizer.debug(ss.str());
+  //std::cout <<"[graphviz]: add " << label << std::endl;
 }
 void Graph::addEdge(int pid, int cid){
   // add new edge between two nodes into the dot file
   std::stringstream ss;
   ss << pid << " -> " << cid << ";" << std::endl;
   this->visualizer.debug(ss.str());
+  //std::cout <<"[graphviz]: add edge " << pid << " -> " << cid << std::endl;
 }
