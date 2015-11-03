@@ -19,11 +19,14 @@ external_declaration_node::external_declaration_node(
 //print name and name of child
 void external_declaration_node::print(){
     //print own info
-    if (functionChild == NULL) {
-        declChild->print();
+    if (this->functionChild == NULL) {
+        this->declChild->setPID(this->pid);
+        this->declChild->print();
     }
-    else
-        functionChild->print();
+    else{
+      this->functionChild->setPID(this->pid);
+      this->functionChild->print();
+    }
 }
 
 //later

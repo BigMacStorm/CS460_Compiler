@@ -16,7 +16,6 @@ extern Graph visualizer;
 
 // forward declaration
 class ast_node;
-class program_node;
 class translation_unit_node;
 class external_declaration_node;
 class function_definition_node;
@@ -28,6 +27,7 @@ class declaration_specifiers_node;
 class storage_class_specifier_node;
 class type_specifier_node;
 class type_qualifier_node;
+class type_qualifier_list_node;
 class union_specifier_node;
 class or_union_node;
 class struct_declaration_node;
@@ -40,7 +40,7 @@ class enumerator_node;
 class declarator_node;
 class direct_declarator_node;
 class pointer_node;
-class type_list_node;
+class parameter_type_list_node;
 class parameter_list_node;
 class parameter_declaration_node;
 class identifier_list_node;
@@ -85,6 +85,9 @@ class constant_node;
 class string_node;
 class identifier_node;
 
+namespace DirectType{
+  enum Type{NONE, ARRAY, FUNCTION, FUNCTION_CALL};
+}
 namespace TypeQualifier{
   enum Qual{CONST, VOLATILE};
 }
@@ -188,10 +191,10 @@ class external_declaration_node : public ast_node {
 class function_definition_node : public ast_node {
   public:
     function_definition_node();
-    function_definition_node(declaration_specifiers_node* spec,
-                             declarator_node* dec,
-                             declaration_list_node* dlist,
-                             compound_statement_node* stmts);
+    function_definition_node(declaration_specifiers_node* specifiers,
+                            declarator_node* decl,
+                            declaration_list_node* decList,
+                            compound_statement_node* compStmt);
     void print();
     void generateCode();
   private:
@@ -204,12 +207,13 @@ class function_definition_node : public ast_node {
 class declaration_node : public ast_node {
   public:
     declaration_node();
-    declaration_node(declaration_specifiers_node* spec, init_declarator_list_node* dlist);
+    declaration_node(declaration_specifiers_node* specifier, init_declarator_list_node* decList);
     void print();
     void generateCode();
   private:
     declaration_specifiers_node* specifier;
     init_declarator_list_node* decList;
+    int spec_id;
 };
 
 class declaration_list_node : public ast_node {
@@ -226,30 +230,39 @@ class declaration_list_node : public ast_node {
 
 class init_declarator_node : public ast_node {
   public:
-    init_declarator_node();
-    init_declarator_node(declarator_node* decl, initializer_node* init);
+    init_declarator_node(declarator_node* declarator, initializer_node* initializer);
     void print();
     void generateCode();
   private:
-    declarator_node* decl;
+    int equal_id;
+    declarator_node* declarator;
     initializer_node* initializer;
 };
 
 class init_declarator_list_node : public ast_node {
-  public:
-    init_declarator_list_node();
-    init_declarator_list_node(init_declarator_node* child);
-    void addDecl(init_declarator_node* child);
-    std::vector<init_declarator_node*> getChildren() const;
-    void print();
-    void generateCode();
-  private:
-    std::vector<init_declarator_node*> children;
+public:
+  init_declarator_list_node();
+  init_declarator_list_node(init_declarator_node* child);
+  void addInitDecl(init_declarator_node* child);
+  std::vector<init_declarator_node*> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<init_declarator_node*> children;
 };
 
 class declaration_specifiers_node : public ast_node {
   public:
+    declaration_specifiers_node(storage_class_specifier_node* storage, declaration_specifiers_node* declSpec);
+    declaration_specifiers_node(type_specifier_node* typeSpec, declaration_specifiers_node* declSpec);
+    declaration_specifiers_node(type_qualifier_node* qualifier, declaration_specifiers_node* declSpec);
+    void print();
+    void generateCode();
   private:
+    storage_class_specifier_node* storage;
+    type_specifier_node* typeSpec;
+    type_qualifier_node* qualifier;
+    declaration_specifiers_node* declSpec;
 };
 
 class storage_class_specifier_node : public ast_node {
@@ -259,7 +272,7 @@ class storage_class_specifier_node : public ast_node {
     void print();
     void generateCode();
   private:
-    int storeType;
+    StorageSpecifier::Store storeType;
 };
 
 class type_specifier_node : public ast_node {
@@ -269,7 +282,7 @@ class type_specifier_node : public ast_node {
     void print();
     void generateCode();
   private:
-    int type;
+    TypeSpecifier::Type type;
 };
 
 class type_qualifier_node : public ast_node {
@@ -279,7 +292,18 @@ class type_qualifier_node : public ast_node {
     void print();
     void generateCode();
   private:
-    int qual;
+    TypeQualifier::Qual qual;
+};
+class type_qualifier_list_node : public ast_node {
+public:
+  type_qualifier_list_node();
+  type_qualifier_list_node(type_qualifier_node* child);
+  void addQual(type_qualifier_node* child);
+  std::vector<type_qualifier_node*> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<type_qualifier_node*> children;
 };
 
 /*
@@ -330,21 +354,16 @@ class specifier_qualifier_list_node : public ast_node {
     std::vector<ast_node*> children;
 };
 
-class declarator_list_node : public ast_node {
-  public:
-  private:
-};
-
 class enum_specifier_node : public ast_node {
   public:
     enum_specifier_node();
     //init as null if not used
-    enum_specifier_node(identifier_node* id, enumerator_list_node* enm);
+    enum_specifier_node(identifier_node* identifier, enumerator_list_node* enm);
     void print();
     void generateCode();
   private:
     enumerator_list_node* enumList;
-    identifier_node* id;
+    identifier_node* identifier;
 };
 
 class enumerator_list_node : public ast_node {
@@ -362,57 +381,124 @@ class enumerator_list_node : public ast_node {
 class enumerator_node : public ast_node {
   public:
     enumerator_node();
-    enumerator_node(identifier_node* id, constant_expression_node, expr);
+    enumerator_node(identifier_node* identifier, constant_expression_node* constExpr);
     void print();
     void generateCode();
   private:
-    identifier_node* id;
+    identifier_node* identifier;
     constant_expression_node* constExpr;
 };
 
 class declarator_node : public ast_node {
   public:
+    declarator_node(pointer_node* pointer, direct_declarator_node* directDecl);
+    void print();
+    void generateCode();
   private:
+    direct_declarator_node* directDecl;
+    pointer_node* pointer;
 };
 
 class direct_declarator_node : public ast_node {
   public:
+    direct_declarator_node(std::string identifier);
+    direct_declarator_node(DirectType::Type direct_type, direct_declarator_node* direct_declarator, constant_expression_node* constExpr);
+    direct_declarator_node(DirectType::Type direct_type, direct_declarator_node* direct_declarator);
+    direct_declarator_node(DirectType::Type direct_type, direct_declarator_node* direct_declarator, parameter_type_list_node* paramList);
+    direct_declarator_node(DirectType::Type direct_type, direct_declarator_node* direct_declarator, identifier_list_node* idList);
+    void init();
+    void print();
+    void generateCode();
+
   private:
+    std::string identifier;
+    declarator_node* declarator;
+    direct_declarator_node* direct_declarator;
+    constant_expression_node* constExpr;
+    parameter_type_list_node* paramList;
+    identifier_list_node* idList;
+    DirectType::Type direct_type;
 };
 
 class pointer_node : public ast_node {
   public:
+    pointer_node(type_qualifier_list_node* typeQualList, pointer_node* pointer);
+    void print();
+    void generateCode();
+
   private:
+    type_qualifier_list_node* typeQualList;
+    pointer_node* pointer;
 };
 
-class type_list_node : public ast_node {
+class parameter_type_list_node : public ast_node {
   public:
+    parameter_type_list_node(parameter_list_node* paramList);
+    void print();
+    void generateCode();
   private:
+    parameter_list_node* paramList;
 };
 
 class parameter_list_node : public ast_node {
-  public:
-  private:
+public:
+  parameter_list_node();
+  parameter_list_node(parameter_declaration_node* child);
+  void addParamDecl(parameter_declaration_node* child);
+  std::vector<parameter_declaration_node*> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<parameter_declaration_node*> children;
 };
 
 class parameter_declaration_node : public ast_node {
   public:
+    parameter_declaration_node(declaration_specifiers_node* declSpec);
+    parameter_declaration_node(declaration_specifiers_node* declSpec, declarator_node* decl);
+    parameter_declaration_node(declaration_specifiers_node* declSpec, abstract_declarator_node* absDecl);
+    void print();
+    void generateCode();
   private:
+    declaration_specifiers_node* declSpec;
+    declarator_node* decl;
+    abstract_declarator_node* absDecl;
 };
 
 class identifier_list_node : public ast_node {
-  public:
-  private:
+public:
+  identifier_list_node();
+  identifier_list_node(std::string child);
+  void addIdentifier(std::string child);
+  std::vector<std::string> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<std::string> children;
 };
 
 class initializer_node : public ast_node {
   public:
+    initializer_node(assignment_expression_node* assignExpr);
+    initializer_node(initializer_list_node* initList);
+    void print();
+    void generateCode();
+
   private:
+    assignment_expression_node* assignExpr;
+    initializer_list_node* initList;
 };
 
 class initializer_list_node : public ast_node {
-  public:
-  private:
+ public:
+   initializer_list_node();
+   initializer_list_node(initializer_node* child);
+   void addInit(initializer_node* child);
+   std::vector<initializer_node*> getChildren() const;
+   void print();
+   void generateCode();
+ private:
+   std::vector<initializer_node*> children;
 };
 
 class type_name_node : public ast_node {
@@ -484,8 +570,15 @@ class compound_statement_node : public ast_node {
 };
 
 class statement_list_node : public ast_node {
-  public:
-  private:
+ public:
+   statement_list_node();
+   statement_list_node(statement_node* child);
+   void addStmt(statement_node* child);
+   std::vector<statement_node*> getChildren() const;
+   void print();
+   void generateCode();
+ private:
+   std::vector<statement_node*> children;
 };
 
 class selection_statement_node : public ast_node {
@@ -803,6 +896,7 @@ class postfix_expression_node : public ast_node {
     argument_expression_list_node* argExpr;
     OpType::Type op;
     std::string identifier;
+    int op_node_id;
 };
 
 class primary_expression_node: public ast_node {

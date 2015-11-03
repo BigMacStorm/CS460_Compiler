@@ -43,7 +43,6 @@ void postfix_expression_node::init(){
   this->identifier ="";
 }
 void postfix_expression_node::print(){
-  int op_node_id;
   switch(this->mode){
     case 0:
       if(primayExpr!=NULL){
@@ -84,18 +83,19 @@ void postfix_expression_node::print(){
       }
     break;
     case 5:
-      if(postExpr!=NULL){
-        postExpr->setPID(this->pid);
-        postExpr->print();
-      }
-      op_node_id = ast_node::getUID();
+      this->op_node_id = ast_node::getUID();
       if(this->op == OpType::INC){
-        visualizer.addNode(op_node_id,"++");
+        visualizer.addNode(this->op_node_id,"++");
       }
       else{
-        visualizer.addNode(op_node_id,"--");
+        visualizer.addNode(this->op_node_id,"--");
       }
-      visualizer.addEdge(this->pid,this->pid);
+      visualizer.addEdge(this->pid,this->op_node_id);
+
+      if(postExpr!=NULL){
+        postExpr->setPID(this->op_node_id);
+        postExpr->print();
+      }
     break;
     default:
       std::cout << "ERROR: unknown postfix expression type";
