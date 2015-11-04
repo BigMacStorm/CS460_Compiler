@@ -17,13 +17,14 @@ Graph::~Graph(){
 
   std::stringstream ss;
 
-  // Wrap the 'dot' command in a 'command -v' which tells us if we have graphviz
-  ss << "command -v ";
-  ss << "dot -Tpng ";
-  ss << this->filename << " -o graph.png";
-  ss << " >/dev/null 2>&1 || { echo >&2 "
+  // Wrap the 'dot' command in an if/else which tells us if we have graphviz
+  ss << "if hash dot 2>/dev/null; then\n";
+  ss << "\tdot -Tpng ";
+  ss << this->filename << " -o graph.png\n";
+  ss << "else\n\t{ echo >&2 "
      << "\"graphviz not installed on this machine. "
-     << "Graph will not be generated.\"; exit 1; }";
+     << "Graph will not be generated.\"; exit 1; }\n";
+  ss << "fi";
 
   system(ss.str().c_str());
 }
