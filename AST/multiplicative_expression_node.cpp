@@ -74,6 +74,7 @@ Spec* multiplicative_expression_node::getSpec(){
         if(left != right){
           // implicit conversion to float
           if(left == SpecName::Float || right == SpecName::Float){
+            warning("[A] WARNING: implicit conversion to 'float'");
             return new TypeBasic(SpecName::Float);
           }
         }
@@ -85,6 +86,7 @@ Spec* multiplicative_expression_node::getSpec(){
         if(left != right){
           // implicit conversion to float
           if(left == SpecName::Float || right == SpecName::Float){
+            warning("[A] WARNING: implicit conversion to 'float'");
             return new TypeBasic(SpecName::Float);
           }
         }

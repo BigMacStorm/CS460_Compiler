@@ -43,6 +43,7 @@ void postfix_expression_node::init(){
   this->identifier ="";
 }
 void postfix_expression_node::print(){
+  int array_id;
   switch(this->mode){
     case 0:
       if(primayExpr!=NULL){
@@ -51,12 +52,15 @@ void postfix_expression_node::print(){
       }
     break;
     case 1:
+      array_id = ast_node::getUID();
+      visualizer.addNode(array_id,"[]");
+      visualizer.addEdge(this->pid,array_id);
       if(postExpr!=NULL){
-        postExpr->setPID(this->pid);
+        postExpr->setPID(array_id);
         postExpr->print();
       }
       if(expr!=NULL){
-        expr->setPID(this->pid);
+        expr->setPID(array_id);
         expr->print();
       }
     break;
@@ -106,11 +110,25 @@ Spec* postfix_expression_node::getSpec(){
   switch(this->mode){
     case 0:
       return this->primayExpr->getSpec();
-    break;
+
+    // array mode
     case 1:
+      // check if the size is int
+      if(this->expr!=NULL){
+        if(this->expr->getSpec()->getBaseType() != SpecName::Int){
+          error("[a] ERROR: array size must be integer");
+        }
+      }
+       // bounds checking
     case 2:
+       // array w/o size
     case 3:
+      // function mode
+      // argument type checking
     case 4:
+      // pointer mode
+      if(this->op == OpType::PTR_OP){
+      }
     case 5:
       if(this->postExpr!=NULL){
         return this->postExpr->getSpec();
@@ -120,42 +138,6 @@ Spec* postfix_expression_node::getSpec(){
     default:
       return NULL;
   }
-}
-Spec * postfix_expression_node::getSpecForIdentifier(){
-  Spec* spec = this->postExpr->getSpec();
-  SpecName::TypeKind kind = spec->getTypeKind();
-
-  // constant numerical value (not identifier)
-  if(spec->isValue()){
-    return spec;
-  }
-
-  // basic
-  if(kind == SpecName::Basic){
-   return spec;
-  }
-
-  // array
-  if(kind == SpecName::Array){
-    // check if the size is int
-    if(this->expr!=NULL){
-      if(this->expr->getSpec()->getBaseType() != SpecName::Int){
-        error("[a] ERROR: array size must be integer");
-      }
-    }
-     // bounds checking
-     return new TypeBasic(spec->getBaseType());
-   }
-  // pointer
-  if(kind == SpecName::Pointer){
-   return new TypeBasic(spec->getBaseType());
-  }
-  // function
-  if(kind == SpecName::Function){
-    // function argument type checking
-   return new TypeBasic(spec->getBaseType());
-  }
-  return NULL;
 }
 void postfix_expression_node::generateCode(){
 
