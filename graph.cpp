@@ -16,8 +16,15 @@ Graph::~Graph(){
   this->visualizer.debug("}");
 
   std::stringstream ss;
+
+  // Wrap the 'dot' command in a 'command -v' which tells us if we have graphviz
+  ss << "command -v ";
   ss << "dot -Tpng ";
   ss << this->filename << " -o graph.png";
+  ss << " >/dev/null 2>&1 || { echo >&2 "
+     << "\"graphviz not installed on this machine. "
+     << "Graph will not be generated.\"; exit 1; }";
+
   system(ss.str().c_str());
 }
 void Graph::setVisualizer(bool on_off){
