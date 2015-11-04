@@ -46,6 +46,18 @@ void logical_and_expression_node::print(){
     break;
   }
 }
+Spec* logical_and_expression_node::getSpec(){
+// fow now
+  switch(this->mode){
+    case 0:
+      return this->iorExpr->getSpec();
+    break;
+    case 1:
+      return this->logAndExpr->getSpec();
+    break;
+  }
+  return NULL;
+}
 void logical_and_expression_node::generateCode(){
 
 }

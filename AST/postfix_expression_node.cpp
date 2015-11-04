@@ -102,6 +102,61 @@ void postfix_expression_node::print(){
     break;
   }
 }
+Spec* postfix_expression_node::getSpec(){
+  switch(this->mode){
+    case 0:
+      return this->primayExpr->getSpec();
+    break;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+      if(this->postExpr!=NULL){
+        return this->postExpr->getSpec();
+      }
+      return NULL;
+
+    default:
+      return NULL;
+  }
+}
+Spec * postfix_expression_node::getSpecForIdentifier(){
+  Spec* spec = this->postExpr->getSpec();
+  SpecName::TypeKind kind = spec->getTypeKind();
+
+  // constant numerical value (not identifier)
+  if(spec->isValue()){
+    return spec;
+  }
+
+  // basic
+  if(kind == SpecName::Basic){
+   return spec;
+  }
+
+  // array
+  if(kind == SpecName::Array){
+    // check if the size is int
+    if(this->expr!=NULL){
+      if(this->expr->getSpec()->getBaseType() != SpecName::Int){
+        error("[a] ERROR: array size must be integer");
+      }
+    }
+     // bounds checking
+     return new TypeBasic(spec->getBaseType());
+   }
+  // pointer
+  if(kind == SpecName::Pointer){
+   return new TypeBasic(spec->getBaseType());
+  }
+  // function
+  if(kind == SpecName::Function){
+    // function argument type checking
+   return new TypeBasic(spec->getBaseType());
+  }
+  return NULL;
+}
 void postfix_expression_node::generateCode(){
 
 }

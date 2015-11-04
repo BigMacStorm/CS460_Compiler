@@ -45,6 +45,16 @@ void and_expression_node::print(){
     break;
   }
 }
+Spec* and_expression_node::getSpec(){
+// fow now
+  switch(this->mode){
+    case 0:
+      return this->equalExpr->getSpec();
+    case 1:
+      return this->andExpr->getSpec();
+  }
+  return NULL;
+}
 void and_expression_node::generateCode(){
 
 }

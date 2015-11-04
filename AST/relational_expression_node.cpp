@@ -53,6 +53,16 @@ void relational_expression_node::print(){
     break;
   }
 }
+Spec* relational_expression_node::getSpec(){
+// fow now
+  switch(this->mode){
+    case 0:
+      return this->shiftExpr->getSpec();
+    case 1:
+      return this->relExpr->getSpec();
+  }
+  return NULL;
+}
 void relational_expression_node::generateCode(){
 
 }

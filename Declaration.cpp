@@ -300,7 +300,7 @@ bool Declaration::buildSign(Spec* spec, std::vector<SpecName::Sign> signs){
 bool Declaration::complete(){
   bool complete = false;
   std::string name = this->ids[0];
-  std::cout << "ID: \'" << name << "\'" << std::endl;
+  //std::cout << "ID: \'" << name << "\'" << std::endl;
   //std::cout << "Mode: " << mode <<std::endl;
 
   if(isMode(DeclMode::Basic)){

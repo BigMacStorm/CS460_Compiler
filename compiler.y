@@ -293,27 +293,27 @@ typedef specifier
 storage_class_specifier
   : AUTOtok {
     decl.pushStorage(SpecName::Auto);
-    $$ = new storage_class_specifier_node(StorageSpecifier::AUTO);
+    $$ = new storage_class_specifier_node(SpecName::Auto);
     reductionOut("[p]: storage_class_specifier -> AUTOtok");
   }
   | REGISTERtok {
     decl.pushStorage(SpecName::Register);
-    $$ = new storage_class_specifier_node(StorageSpecifier::REGISTER);
+    $$ = new storage_class_specifier_node(SpecName::Register);
     reductionOut("[p]: storage_class_specifier -> REGISTERtok");
   }
   | STATICtok {
     decl.pushStorage(SpecName::Static);
-    $$ = new storage_class_specifier_node(StorageSpecifier::STATIC);
+    $$ = new storage_class_specifier_node(SpecName::Static);
     reductionOut("[p]: storage_class_specifier -> STATICtok");
   }
   | EXTERNtok {
     decl.pushStorage(SpecName::Extern);
-    $$ = new storage_class_specifier_node(StorageSpecifier::EXTERN);
+    $$ = new storage_class_specifier_node(SpecName::Extern);
     reductionOut("[p]: storage_class_specifier -> EXTERNtok");
   }
   | TYPEDEFtok {
     decl.pushStorage(SpecName::Typedef);
-    $$ = new storage_class_specifier_node(StorageSpecifier::TYPEDEF);
+    $$ = new storage_class_specifier_node(SpecName::Typedef);
     reductionOut("[p]: storage_class_specifier -> TYPEDEFtok");
   }
   ;
@@ -404,12 +404,12 @@ type_specifier
 
 type_qualifier
   : CONSTtok {
-    $$ = new type_qualifier_node(TypeQualifier::CONST);
+    $$ = new type_qualifier_node(SpecName::Const);
     reductionOut("[p]: type_qualifier -> CONSTtok");
     decl.pushQualifier(SpecName::Const);
   }
   | VOLATILEtok {
-    $$ = new type_qualifier_node(TypeQualifier::VOLATILE);
+    $$ = new type_qualifier_node(SpecName::Volatile);
     reductionOut("[p]: type_qualifier -> VOLATILEtok");
     decl.pushQualifier(SpecName::Volatile);
   }
@@ -459,15 +459,19 @@ struct_declaration
 
 specifier_qualifier_list
   : type_specifier {
+      //$$ = new specifier_qualifier_list_node((type_specifier_node*)$1,NULL);
       reductionOut("[p]: specifier_qualifier_list -> type_specifier");
   }
   | type_specifier specifier_qualifier_list {
+      //$$ = new specifier_qualifier_list_node((type_specifier_node*)$1,(specifier_qualifier_list_node*)$2);
       reductionOut("[p]: specifier_qualifier_list -> type_specifier specifier_qualifier_list");
   }
   | type_qualifier {
+      //$$ = new specifier_qualifier_list_node((type_qualifier_node*)$1,NULL);
       reductionOut("[p]: specifier_qualifier_list -> type_qualifier");
   }
   | type_qualifier specifier_qualifier_list {
+      //$$ = new specifier_qualifier_list_node((type_qualifier_node*)$1,(specifier_qualifier_list_node*)$2);
       reductionOut("[p]: specifier_qualifier_list -> type_qualifier specifier_qualifier_list");
   }
   ;
@@ -770,9 +774,11 @@ initializer_list
 
 type_name
   : specifier_qualifier_list {
+      //$$ = new type_name_node((specifier_qualifier_list_node*)$1, NULL);
       reductionOut("[p]: type_name -> specifier_qualifier_list");
   }
   | specifier_qualifier_list abstract_declarator {
+      //$$ = new type_name_node((specifier_qualifier_list_node*)$1, (abstract_declarator_node*)$2);
       reductionOut("[p]: type_name -> specifier_qualifier_list abstract_declarator");
   }
   ;
@@ -1067,6 +1073,7 @@ conditional_expression
       reductionOut("[p]: conditional_expression -> logical_or_expression");
   }
   | logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression {
+      // shorthand  A ? : B : C
       $$ = new conditional_expression_node((logical_or_expression_node*)$1,(expression_node*)$3,(conditional_expression_node*)$5);
       reductionOut("[p]: conditional_expression -> logical_or_expression QUESTION_MARKtok expression COLONtok conditional_expression");
   }
@@ -1221,6 +1228,7 @@ cast_expression
       reductionOut("[p]: cast_expression -> unary_expression");
   }
   | OPEN_PARENtok type_name CLOSE_PARENtok cast_expression {
+      //$$ = new cast_expression_node((type_name_node*)$1,(unary_expression_node*)$2);
       reductionOut("[p]: cast_expression -> OPEN_PARENtok type_name CLOSE_PARENtok cast_expression");
   }
   ;

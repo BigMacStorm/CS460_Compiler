@@ -39,6 +39,7 @@ public:
   virtual ~Spec();
   virtual std::string toString() const;
   virtual std::string toTypeString() const;
+  virtual SpecName::BaseType getBaseType() const;
 
   std::string getTypeKindStr() const;
   std::string getStorageClassStr() const;
@@ -54,11 +55,13 @@ public:
   void setStorage(SpecName::Storage storage);
   void setQualifier(SpecName::Qualifier qualifier);
   void setSign(SpecName::Sign sign);
+  void setValue(bool is_value);
 
   bool isTypeKind(SpecName::TypeKind) const;
   bool isStorageClass(SpecName::Storage) const;
   bool isTypeQualifier(SpecName::Qualifier) const;
   bool isSign(SpecName::Sign) const;
+  bool isValue() const;  // for constant value
 
 protected:
   SpecName::TypeKind typekind;
@@ -66,11 +69,13 @@ protected:
   SpecName::Qualifier qualifier;
   SpecName::Sign sign;
   SpecName::BaseType baseType;
+  bool is_value; // for constant value
 };
 
 // basic -----------------------------------------------
 class TypeBasic: public Spec{
  public:
+  TypeBasic(SpecName::BaseType baseType);
   TypeBasic(SpecName::Storage = SpecName::NoStorage, SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
   ~TypeBasic();
   std::string toString() const;
@@ -110,6 +115,7 @@ class TypeArray: public Spec{
    std::string toString() const;
    std::string toTypeString() const;
 
+   SpecName::BaseType getBaseType() const;
    std::string getElemTypeName() const;
    int getSize(int n) const;
    int getDim() const;
@@ -130,6 +136,8 @@ public:
 
     void insertArg(Spec* argSpec);
     void setReturnSpec(Spec* returnSpec);
+
+    SpecName::BaseType getBaseType() const;
     int getArgSize() const;
     std::string getArgTypeName(int nth) const;
     std::string getReturnSpecName() const;
@@ -162,6 +170,8 @@ class TypePointer: public Spec{
    TypePointer(SpecName::Storage = SpecName::NoStorage,SpecName::Qualifier = SpecName::NoQualifier, SpecName::Sign = SpecName::NoSign);
    std::string toString() const;
    std::string toTypeString() const;
+
+   SpecName::BaseType getBaseType() const;
    Spec* getTargetSpec() const;
    std::string getTargetTypeName() const;
    int getLevels() const;

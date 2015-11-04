@@ -66,6 +66,28 @@ void unary_expression_node::print(){
     break;
   }
 }
+Spec* unary_expression_node::getSpec(){
+  switch(this->mode){
+    case 0:
+      if(this->postExpr != NULL){
+        return this->postExpr->getSpec();
+      }
+      return NULL;
+    case 1:
+     if(this->unaryExpr != NULL){
+       return this->unaryExpr->getSpec();
+     }
+     return NULL;
+    case 2:
+     if(this->castExpr != NULL){
+       return this->castExpr->getSpec();
+     }
+     return NULL;
+    default:
+      return NULL;
+  }
+}
+
 void unary_expression_node::generateCode(){
 
 }

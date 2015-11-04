@@ -48,9 +48,24 @@ void constant_node::print(){
       visualizer.addEdge(this->pid,this->id);
     break;
     default:
-      std::cout <<"ERROR: Unknown constant type";
+      std::cout <<"ERROR: Unknown constant type while print";
     break;
   }
+}
+Spec* constant_node::getSpec(){
+  TypeBasic* typebasic = NULL;
+  switch(this->type){
+    case ConstType::INT:
+      typebasic = new TypeBasic(SpecName::Int);
+      typebasic->setValue(true);
+    case ConstType::CHAR:
+      typebasic = new TypeBasic(SpecName::Char);
+      typebasic->setValue(true);
+    case ConstType::FLOAT:
+      typebasic = new TypeBasic(SpecName::Float);
+      typebasic->setValue(true);
+  }
+  return typebasic;
 }
 void constant_node::generateCode(){
 

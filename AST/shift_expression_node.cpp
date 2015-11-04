@@ -47,6 +47,16 @@ void shift_expression_node::print(){
       break;
     }
   }
+Spec* shift_expression_node::getSpec(){
+// fow now
+  switch(this->mode){
+    case 0:
+      return this->addExpr->getSpec();
+    case 1:
+      return this->shiftExpr->getSpec();
+  }
+  return NULL;
+}
 void shift_expression_node::generateCode(){
 
 }

@@ -51,6 +51,18 @@ void conditional_expression_node::print(){
     break;
   }
 }
+Spec* conditional_expression_node::getSpec(){
+// fow now
+  switch(this->mode){
+    case 0:
+      return this->logOrExpr->getSpec();
+    break;
+    case 1:
+      return this->condExpr->getSpec();
+    break;
+  }
+  return NULL;
+}
 void conditional_expression_node::generateCode(){
 
 }

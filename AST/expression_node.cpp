@@ -15,8 +15,16 @@ void expression_node::print(){
     if(this->children[child]!=NULL){
       this->children[child]->setPID(this->pid);
       this->children[child]->print();
+      this->children[child]->getSpec();
     }
   }
+}
+Spec* expression_node::getSpec(){
+// this is called only if there is one child?
+  if(this->children[0]!=NULL){
+    return this->children[0]->getSpec();
+  }
+  return NULL;
 }
 void expression_node::generateCode(){
 }

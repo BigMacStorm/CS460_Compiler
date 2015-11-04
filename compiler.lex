@@ -612,7 +612,7 @@ scomment "//".*
                   }
 {char_const}      {
                     dumpNextSymbol("CHARACTER_CONSTANTtok");
-                    yylval.cval = *yytext;
+                    // yylval.cval = *yytext; wrong
                     addCol(yyleng);
                     sourceLine.push_back(yytext);
                     return(CHARACTER_CONSTANTtok);
