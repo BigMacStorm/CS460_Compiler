@@ -2,6 +2,7 @@
 #define __AST_NODE__H__
 #include <string>
 #include <iostream>
+#include <cstdlib>
 #include "../SymbolTable.h"
 #include "../SymbolNode.h"
 #include "../graph.h"
