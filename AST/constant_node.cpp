@@ -58,12 +58,15 @@ Spec* constant_node::getSpec(){
     case ConstType::INT:
       typebasic = new TypeBasic(SpecName::Int);
       typebasic->setValue(true);
+    break;
     case ConstType::CHAR:
       typebasic = new TypeBasic(SpecName::Char);
       typebasic->setValue(true);
+    break;
     case ConstType::FLOAT:
       typebasic = new TypeBasic(SpecName::Float);
       typebasic->setValue(true);
+    break;
   }
   return typebasic;
 }

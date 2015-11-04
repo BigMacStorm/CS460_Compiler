@@ -67,6 +67,8 @@ Spec *leftSpec, *rightSpec;
           left = leftSpec->getBaseType();
           right = rightSpec->getBaseType();
 
+          std::cout << left << " " << right << std::endl;
+
           // check if assignable
           if(leftSpec->isValue()){
             error("[A] ERROR: expression is not assignable");
