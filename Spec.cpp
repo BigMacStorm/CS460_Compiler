@@ -6,6 +6,7 @@ Spec::Spec(SpecName::TypeKind tk, SpecName::Storage sc,
   this->qualifier = tq;
   this->sign = sign;
   this->baseType = SpecName::NoType;
+  this->is_value = false; // assume it is an identifier
 }
 Spec::~Spec(){}
 std::string Spec::toTypeString() const{
@@ -19,18 +20,7 @@ std::string Spec::toString() const{
      << " Sign: "<< this->getSignStr();
   return ss.str();
 }
-SpecName::TypeKind Spec::getTypeKind() const{
-  return this->typekind;
-}
-SpecName::Storage Spec::getStorage() const{
-  return this->storage;
-}
-SpecName::Qualifier Spec::getQualifier() const{
-  return this->qualifier;
-}
-SpecName::Sign Spec::getSign() const{
-  return this->sign;
-}
+// setters  -------------------------------------------
 void Spec::setTypeKind(SpecName::TypeKind typekind){
   this->typekind = typekind;
 }
@@ -43,6 +33,27 @@ void Spec::setQualifier(SpecName::Qualifier qualifier){
 void Spec::setSign(SpecName::Sign sign){
   this->sign = sign;
 }
+void Spec::setValue(bool is_value){
+  this->is_value = is_value;
+}
+
+// getters  -------------------------------------------
+SpecName::BaseType Spec::getBaseType() const{
+  return this->baseType;
+}
+SpecName::TypeKind Spec::getTypeKind() const{
+  return this->typekind;
+}
+SpecName::Storage Spec::getStorage() const{
+  return this->storage;
+}
+SpecName::Qualifier Spec::getQualifier() const{
+  return this->qualifier;
+}
+SpecName::Sign Spec::getSign() const{
+  return this->sign;
+}
+
 bool Spec::isTypeKind(SpecName::TypeKind type) const {
   return this->typekind == type;
 }
@@ -55,6 +66,10 @@ bool Spec::isTypeQualifier(SpecName::Qualifier type) const {
 bool Spec::isSign(SpecName::Sign type) const {
   return this->sign == type;
 }
+bool Spec::isValue() const{
+  return this->is_value;
+}
+
 std::string Spec::getTypeKindStr() const{
   std::string result;
   if(this->typekind == SpecName::NoKind){
@@ -151,6 +166,10 @@ std::string Spec::getSignStr() const{
   return result;
 }
 // Basic -------------------------------------------------------------------
+TypeBasic::TypeBasic(SpecName::BaseType baseType){
+  this->typekind = SpecName::Basic;
+  this->baseType = baseType;
+}
 TypeBasic::TypeBasic(SpecName::Storage sc,SpecName::Qualifier tq, SpecName::Sign sign){
   this->typekind = SpecName::Basic;
   this->storage = sc;
@@ -225,6 +244,7 @@ std::string TypeBasic::getTypeName() const{
   }
   return result;
 }
+
 SpecName::BaseType TypeBasic::getBaseType() const{
   return this->baseType;
 }
@@ -295,6 +315,9 @@ void TypeArray::setElemSpec(Spec* elemSpec){
 void TypeArray::setArraySizes(std::vector<int>& arraySizes){
   this->arraySizes = arraySizes;
 }
+SpecName::BaseType TypeArray::getBaseType() const{
+  return this->elemSpec->getBaseType();
+}
 std::string TypeArray::getElemTypeName() const{
   if(this->elemSpec!=NULL){
     return this->elemSpec->toString();
@@ -345,6 +368,9 @@ void TypeFunction::insertArg(Spec* argSpec){
 }
 void TypeFunction::setReturnSpec(Spec*  returnSpec){
   this->returnSpec = returnSpec;
+}
+SpecName::BaseType TypeFunction::getBaseType() const{
+  return this->returnSpec->getBaseType();
 }
 int TypeFunction::getArgSize() const{
   return this->argSpecs.size();
@@ -414,6 +440,9 @@ std::string TypePointer::toString() const{
     ss << " " + temp;
   }
   return ss.str();
+}
+SpecName::BaseType TypePointer::getBaseType() const{
+  return this->targetSpec->getBaseType();
 }
 std::string TypePointer::getTargetTypeName() const{
   return this->targetSpec->toTypeString();

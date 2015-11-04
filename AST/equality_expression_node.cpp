@@ -45,9 +45,19 @@ void equality_expression_node::print(){
       }
     break;
     default:
-      std::cout << "ERROR: unknown equality expression type" << std::endl;
+      error("[A] ERROR: unknown equality expression type while print");
     break;
   }
+}
+Spec* equality_expression_node::getSpec(){
+// fow now
+  switch(this->mode){
+    case 0:
+      return this->relExpr->getSpec();
+    case 1:
+      return this->equalExpr->getSpec();
+  }
+  return NULL;
 }
 void equality_expression_node::generateCode(){
 

@@ -266,7 +266,7 @@ extern double long edl [ 10 ] ;
 [p]: declaration -> declaration_specifiers init_declarator_list SEMItok
 [p]: external_declaration -> declaration
 [p]: translation_unit -> translation_unit external_declaration
-float f2d [ 20 ] ; 
+float f1d [ 20 ] ; 
 [p]: type_specifier -> INTtok
 [p]: declaration_specifiers -> type_specifier
 [p]: identifier -> IDENTIFIERtok
@@ -690,7 +690,6 @@ double * * apd [ 10 ] ;
 [p]: declaration -> declaration_specifiers init_declarator_list SEMItok
 [p]: declaration_list -> declaration_list declaration
 long long * llp2d [ 10 ] [ 10 ] ; 
-
 
 [p]: constant -> INTEGER_CONSTANTtok
 [p]: primary_expression -> constant

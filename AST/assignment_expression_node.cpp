@@ -44,9 +44,51 @@ void assignment_expression_node::print(){
       }
     break;
     default:
-      std::cout << "ERROR: unknown assignment expression type" << std::endl;
+      error("[A] ERROR: unknown assignment expression type while print");
     break;
   }
+}
+Spec* assignment_expression_node::getSpec(){
+SpecName::BaseType left = SpecName::NoType;
+SpecName::BaseType right = SpecName::NoType;
+Spec *leftSpec, *rightSpec;
+
+// fow now
+  switch(this->mode){
+    case 0:
+      return this->cond_expr->getSpec();
+
+    case 1:
+      if(this->unary_expr!=NULL && this->assign_expr != NULL){
+        leftSpec = this->unary_expr->getSpec();
+        rightSpec = this->assign_expr->getSpec();
+
+        if(leftSpec!= NULL && rightSpec!= NULL){
+          left = leftSpec->getBaseType();
+          right = rightSpec->getBaseType();
+
+          // check if assignable
+          if(leftSpec->isValue()){
+            error("[A] ERROR: expression is not assignable");
+          }
+
+          // type matched
+          if(left == right){
+            return this->assign_expr->getSpec();
+          }
+          // implicit conversions
+          else if(left == SpecName::Float && right == SpecName::Int){ // int to float
+            warning("[A] WARNING: implicit conversion from 'int' to 'float'");
+            return new TypeBasic(SpecName::Float);
+          }
+          else if(left == SpecName::Int && right == SpecName::Float){ // float to int
+            warning("[A] WARNING: implicit conversion from 'float' to 'int'");
+            return new TypeBasic(SpecName::Int);
+          }
+        }
+      }
+    } // end switch
+  return NULL;
 }
 void assignment_expression_node::generateCode(){
 

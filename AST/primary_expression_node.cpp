@@ -26,6 +26,13 @@ void primary_expression_node::init(){
   this->expr = NULL;
   this->mode = -1;
 }
+bool primary_expression_node::isIdentifier() const{
+  return this->identifier != NULL;
+}
+identifier_node* primary_expression_node::getIdentifier() const{
+  return this->identifier;
+}
+
 void primary_expression_node::print(){
   switch(this->mode){
     case 0:
@@ -53,9 +60,30 @@ void primary_expression_node::print(){
       }
     break;
     default:
-      std::cout << "ERROR: unknown primary expression type";
+      error("[A] ERROR: unknown primary expression type while print");
     break;
-  }
+  } // end switch
+}
+Spec* primary_expression_node::getSpec(){
+  switch(this->mode){
+    case 0:
+      if(this->identifier != NULL){
+        return this->identifier->getSpec();
+      }
+    case 1:
+      if(this->constant != NULL){
+        return this->constant->getSpec();
+      }
+    case 2:
+      if(this->string != NULL){
+        //return this->string->getSpec();
+      }
+    case 3:
+      if(this->expr != NULL){
+        return this->expr->getSpec();
+      }
+  } // end switch
+  return NULL;
 }
 void primary_expression_node::generateCode(){
 

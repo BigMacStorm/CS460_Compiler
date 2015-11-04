@@ -9,6 +9,12 @@
       this->unaryExpr->print();
     }
   }
+  Spec* cast_expression_node::getSpec(){
+    if(this->unaryExpr!=NULL){
+      return this->unaryExpr->getSpec();
+    }
+    return NULL;
+  }
   void cast_expression_node::generateCode(){
 
   }

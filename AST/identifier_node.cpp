@@ -10,5 +10,11 @@ void identifier_node::print(){
   visualizer.addNode(this->id,this->id_name);
   visualizer.addEdge(this->pid,this->id);
 }
+Spec* identifier_node::getSpec(){
+  if(this->id_symnode!=NULL){
+    return this->id_symnode->getSpecifier();
+  }
+  return NULL;
+}
 void identifier_node::generateCode(){
 }

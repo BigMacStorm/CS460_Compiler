@@ -13,6 +13,7 @@ std::vector<statement_node*> statement_list_node::getChildren() const{
 void statement_list_node::print(){
   visualizer.addNode(this->id,"statement_list");
   visualizer.addEdge(this->pid,this->id);
+
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
       this->children[child]->setPID(this->id);

@@ -12,6 +12,13 @@ void constant_expression_node::print(){
     this->condExpr->print();
   }
 }
+Spec* constant_expression_node::getSpec(){
+// fow now
+  if(this->condExpr != NULL){
+    return this->condExpr->getSpec();
+  }
+  return NULL;
+}
 void constant_expression_node::generateCode(){
 
 }

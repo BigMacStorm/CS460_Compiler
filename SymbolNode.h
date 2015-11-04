@@ -27,7 +27,7 @@ private:
   //std::string specname;
   Spec* specifier;
   int line;
-  int col;
+  //int col;
 
   bool initialized;
   bool defined;

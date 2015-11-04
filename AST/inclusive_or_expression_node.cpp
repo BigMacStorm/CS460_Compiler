@@ -46,6 +46,18 @@ void inclusive_or_expression_node::print(){
     break;
   }
 }
+Spec* inclusive_or_expression_node::getSpec(){
+// fow now
+  switch(this->mode){
+    case 0:
+      return this->exorExpr->getSpec();
+    break;
+    case 1:
+      return this->iorExpr->getSpec();
+    break;
+  }
+  return NULL;
+}
 void inclusive_or_expression_node::generateCode(){
 
 }

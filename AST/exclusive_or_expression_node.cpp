@@ -41,9 +41,19 @@ void exclusive_or_expression_node::print(){
       }
     break;
     default:
-      std::cout << "ERROR: unknown exclusive or expression type" << std::endl;
+      error("ERROR: unknown exclusive or expression type whiel print");
     break;
   }
+}
+Spec* exclusive_or_expression_node::getSpec(){
+// fow now
+  switch(this->mode){
+    case 0:
+      return this->andExpr->getSpec();
+    case 1:
+      return this->exorExpr->getSpec();
+  }
+  return NULL;
 }
 void exclusive_or_expression_node::generateCode(){
 

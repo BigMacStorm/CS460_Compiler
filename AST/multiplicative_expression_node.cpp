@@ -52,6 +52,59 @@ void multiplicative_expression_node::print(){
     break;
   }
 }
+Spec* multiplicative_expression_node::getSpec(){
+  SpecName::BaseType left, right;
+  switch(this->mode){
+    case 0:
+      if(this->castExpr!=NULL){
+        return this->castExpr->getSpec();
+      }
+      return NULL;
+
+    case 1:
+      if(this->multiExpr!=NULL){
+        left = this->multiExpr->getSpec()->getBaseType();
+      }
+      if(this->castExpr!=NULL){
+        right = this->castExpr->getSpec()->getBaseType();
+      }
+
+      // start *
+      if(this->op == OpType::ASTERISK){
+        if(left != right){
+          // implicit conversion to float
+          if(left == SpecName::Float || right == SpecName::Float){
+            return new TypeBasic(SpecName::Float);
+          }
+        }
+        return this->multiExpr->getSpec();
+      } // end *
+
+      // start /
+      else if(this->op == OpType::DIV){
+        if(left != right){
+          // implicit conversion to float
+          if(left == SpecName::Float || right == SpecName::Float){
+            return new TypeBasic(SpecName::Float);
+          }
+        }
+        return this->multiExpr->getSpec();
+      } // end /
+
+      // start %
+      else if(this->op == OpType::MOD){
+        if(left != SpecName::Int || right != SpecName::Int){
+          error("[a] ERROR: modulus division only work with integers");
+        }
+        return this->multiExpr->getSpec();
+      } // end %
+
+      return NULL;
+
+    default:
+      return NULL;
+  }
+}
 void multiplicative_expression_node::generateCode(){
 
 }

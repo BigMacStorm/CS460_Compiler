@@ -9,6 +9,9 @@ extern "C"{
   int yyparse();
   int yylex();
 }
+
+extern FILE* yyin;
+
 int ast_node::tempNum;
 int ast_node::labelNum;
 int ast_node::unique_id;
@@ -25,7 +28,6 @@ int main(int argc, char** argv){
   bool sdebug = false, ldebug = false, pdebug = false;
   std::string logFile = "log.txt";
   const std::string symTableLogFile = "symTableLog.txt";
-  //const std::string listFileName = "list_file";
   const std::string LEX_FILE = "list_file";
   const std::string GRAPH_DOT_FILE = "graph.dot";
 
@@ -47,7 +49,11 @@ int main(int argc, char** argv){
        }
    }
 
+  // Get source code file
   std::stringstream sourceFileName(args[args.size()-1]);
+  yyin = fopen(sourceFileName.str().c_str(), "r");
+
+  // Make .list file from source name
   getline(sourceFileName, listFileName, '.');
   listFileName += ".list";
 
