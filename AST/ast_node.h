@@ -962,7 +962,7 @@ class postfix_expression_node : public ast_node {
     Spec* getSpec();
     void print();
     void generateCode();
-  private:
+  protected:
     int mode;
     primary_expression_node* primayExpr;
     postfix_expression_node* postExpr;
@@ -971,6 +971,16 @@ class postfix_expression_node : public ast_node {
     OpType::Type op;
     std::string identifier;
     int op_node_id;
+};
+
+// This class is specifically for array accesses
+// Note that it is derived from postfix_expression_node
+class array_access_node : public postfix_expression_node {
+  public:
+    array_access_node(postfix_expression_node* postExpr, expression_node* expr,
+                      constant_expression_node* arraySizeNode);
+  private:
+    constant_expression_node* arraySizeNode;
 };
 
 class primary_expression_node: public ast_node {
