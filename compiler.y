@@ -1145,6 +1145,7 @@ equality_expression
       reductionOut("[p]: equality_expression -> equality_expression EQ_OPtok relational_expression");
   }
   | equality_expression NE_OPtok relational_expression {
+      $$ = new equality_expression_node((equality_expression_node*)$1,OpType::NE,(relational_expression_node*)$3);
       reductionOut("[p]: equality_expression -> equality_expression NE_OPtok relational_expression");
   }
   ;
