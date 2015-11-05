@@ -929,7 +929,7 @@ selection_statement
       reductionOut("[p]: selection_statement -> IFtok OPEN_PARENtok expression CLOSE_PARENtok statement");
   }
   | IFtok OPEN_PARENtok expression CLOSE_PARENtok statement ELSEtok statement {
-      $$ = new selection_statement_node(SelecType::IF, (expression_node*)$3, (statement_node*)$5, (statement_node*)$5);
+      $$ = new selection_statement_node(SelecType::IF, (expression_node*)$3, (statement_node*)$5, (statement_node*)$7);
       reductionOut("[p]: selection_statement -> IFtok OPEN_PARENtok expression CLOSE_PARENtok statement ELSEtok statement");
   }
   | SWITCHtok OPEN_PARENtok expression CLOSE_PARENtok statement {
