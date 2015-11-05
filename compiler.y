@@ -1309,7 +1309,8 @@ postfix_expression
       reductionOut("[p]: postfix_expression -> primary_expression");
   }
   | postfix_expression OPEN_SQUAREtok expression CLOSE_SQUAREtok {
-      $$ = new postfix_expression_node((postfix_expression_node*)$1,(expression_node*)$3);
+      // Use array_access_node instead (derived from postfix_expression_node)
+      $$ = new array_access_node((postfix_expression_node*)$1,(expression_node*)$3,NULL);
       reductionOut("[p]: postfix_expression -> postfix_expression OPEN_SQUAREtok expression CLOSE_SQUAREtok");
   }
   | postfix_expression OPEN_PARENtok CLOSE_PARENtok {
