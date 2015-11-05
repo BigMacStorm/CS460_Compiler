@@ -35,6 +35,8 @@ bool insert_mode = true;
 //global tree node
 ast_node* treeHanger = NULL;
 
+identifier_node* current_id_ast = NULL;
+std::string current_id;
 %}
 
 %union{
@@ -146,6 +148,10 @@ enter_scope
         std::string func_name = decl.getID(0);
         symTable.lookupSymbol(func_name)->setDefined(true);
 
+        // set symbol node for ast
+        current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
+
+        // clears
         decl.clear();
         insert_mode = false;
         decl.setMode(DeclMode::NoMode);
@@ -222,15 +228,17 @@ init_declarator_list
 init_declarator
   : declarator{
       // declaration
+      decl.complete();
+      current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
       $$ = new init_declarator_node((declarator_node*)$1, NULL);
       reductionOut("[p]: init_declarator -> declarator");
-      decl.complete();
   }
   | declarator EQUALtok initializer {
       // initialization
+      decl.complete();
+      current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
       $$ = new init_declarator_node((declarator_node*)$1, (initializer_node*)$3);
       reductionOut("[p]: init_declarator -> declarator EQUALtok initializer");
-      decl.complete();
   }
   ;
 
@@ -568,8 +576,8 @@ direct_declarator
       if(decl.getBasesNum() > 0){
         decl.setHasType();
       }
-
-      $$ = new direct_declarator_node($1);
+      current_id_ast = new identifier_node($1, NULL);
+      $$ = new direct_declarator_node(current_id_ast);
       reductionOut("[p]: direct_declarator -> identifier");
   }
   | OPEN_PARENtok declarator CLOSE_PARENtok {
@@ -619,11 +627,12 @@ direct_declarator
     decl.pushStorage(SpecName::NoStorage);
 
   } parameter_type_list CLOSE_PARENtok{
+
       // function mode - e.g., foo(type a, type b)
       decl.setMode(DeclMode::Function);
       decl.pushKind(SpecName::Function);
 
-      //$$ = new direct_declarator_node(DirectType::FUNCTION, (direct_declarator_node*)$1, (parameter_type_list_node*)$3);
+      $$ = new direct_declarator_node(DirectType::FUNCTION, (direct_declarator_node*)$1, (parameter_type_list_node*)$4);
       reductionOut("[p]: direct_declarator -> direct_declarator OPEN_PARENtok parameter_type_list CLOSE_PARENtok");
   }
   | direct_declarator OPEN_PARENtok identifier_list CLOSE_PARENtok{
@@ -752,10 +761,12 @@ initializer
       reductionOut("[p]: initializer -> assignment_expression");
   }
   | OPEN_CURLYtok initializer_list CLOSE_CURLYtok {
+      // for only array initialization?
       $$ = new initializer_node((initializer_list_node*)$2);
       reductionOut("[p]: initializer -> OPEN_CURLYtok initializer_list CLOSE_CURLYtok");
   }
   | OPEN_CURLYtok initializer_list COMMAtok CLOSE_CURLYtok {
+      // for only array initialization?
       $$ = new initializer_node((initializer_list_node*)$2);
       reductionOut("[p]: initializer -> OPEN_CURLYtok initializer_list COMMAtok CLOSE_CURLYtok");
   }
@@ -785,12 +796,15 @@ type_name
 
 abstract_declarator
   : pointer {
+      //$$ = new abstract_declarator_node((pointer_node*)$1,NULL);
       reductionOut("[p]: abstract_declarator -> pointer");
   }
   | direct_abstract_declarator {
+      //$$ = new abstract_declarator_node(NULL,(direct_abstract_declarator_node*)$2);
       reductionOut("[p]: abstract_declarator -> direct_abstract_declarator");
   }
   | pointer direct_abstract_declarator {
+      //$$ = new abstract_declarator_node((pointer_node*)$1,(direct_abstract_declarator_node*)$2);
       reductionOut("[p]: abstract_declarator -> pointer direct_abstract_declarator");
   }
   ;
@@ -1396,10 +1410,10 @@ string
 identifier
   : IDENTIFIERtok {
       // save to use later in declaration.cpp
-      decl.pushID(std::string(yylval.sval));
+      decl.pushID($1);
       decl.pushLine(linenum);
       decl.pushCol(colnum);
-
+      current_id = $1;
       strcpy($$, $1);
       reductionOut("[p]: identifier -> IDENTIFIERtok");
   }

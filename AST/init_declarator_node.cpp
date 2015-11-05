@@ -1,9 +1,13 @@
 #include "ast_node.h"
 init_declarator_node::init_declarator_node(declarator_node* declarator,
-                                           initializer_node* initializer):
-                                           ast_node(){
+  initializer_node* initializer):ast_node(){
+  init();
   this->declarator = declarator;
   this->initializer = initializer;
+}
+void init_declarator_node::init(){
+  this->declarator = NULL;
+  this->initializer = NULL;
 }
 void init_declarator_node::print(){
   if(this->initializer != NULL){
@@ -25,6 +29,45 @@ void init_declarator_node::print(){
       this->declarator->print();
     }
   }
+  getSpec();
+}
+Spec* init_declarator_node::getSpec(){
+  // declarations/initializations
+  SpecName::BaseType left = SpecName::NoType;
+  SpecName::BaseType right = SpecName::NoType;
+  Spec *leftSpec, *rightSpec;
+
+  if(this->declarator!= NULL && this->initializer != NULL){
+    leftSpec = this->declarator->getSpec();
+    rightSpec = this->initializer->getSpec();
+
+    if(leftSpec!= NULL && rightSpec!= NULL){
+      left = leftSpec->getBaseType();
+      right = rightSpec->getBaseType();
+
+      //std::cout << left << " " << right << std::endl;
+
+      // check if assignable
+      if(leftSpec->isValue()){
+        error("[A] ERROR: expression is not assignable");
+      }
+
+      // type matched
+      if(left == right){
+        return leftSpec;
+      }
+      // implicit conversions
+      else if(left == SpecName::Float && right == SpecName::Int){ // int to float
+        warning("[A] WARNING: implicit conversion from 'int' to 'float'");
+        return new TypeBasic(SpecName::Float);
+      }
+      else if(left == SpecName::Int && right == SpecName::Float){ // float to int
+        warning("[A] WARNING: implicit conversion from 'float' to 'int'");
+        return new TypeBasic(SpecName::Int);
+      }
+    }
+  }
+  return this->declarator->getSpec();
 }
 void init_declarator_node::generateCode(){
 

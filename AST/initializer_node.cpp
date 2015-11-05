@@ -15,6 +15,12 @@ void initializer_node::print(){
     this->initList->print();
   }
 }
+Spec* initializer_node::getSpec(){
+  if(this->assignExpr != NULL){
+    return this->assignExpr->getSpec();
+  }
+  return NULL;
+}
 void initializer_node::generateCode(){
 
 }

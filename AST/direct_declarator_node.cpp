@@ -1,7 +1,8 @@
 #include "ast_node.h"
-  direct_declarator_node::direct_declarator_node(std::string identifier): ast_node(){
+  direct_declarator_node::direct_declarator_node(identifier_node* identifier): ast_node(){
     init();
     this->identifier = identifier;
+    this->mode = 0;
   }
 
   direct_declarator_node::direct_declarator_node(DirectType::Type direct_type,
@@ -11,6 +12,7 @@
     this->direct_type = direct_type;
     this->direct_declarator = direct_declarator;
     this->constExpr = constExpr;
+    this->mode = 1;
   }
 
   direct_declarator_node::direct_declarator_node(DirectType::Type direct_type,
@@ -18,6 +20,7 @@
     init();
     this->direct_type = direct_type;
     this->direct_declarator = direct_declarator;
+    this->mode = 2;
   }
 
   direct_declarator_node::direct_declarator_node(DirectType::Type direct_type,
@@ -26,6 +29,7 @@
     this->direct_type = direct_type;
     this->direct_declarator = direct_declarator;
     this->paramList = paramList;
+    this->mode = 3;
   }
 
   direct_declarator_node::direct_declarator_node(DirectType::Type direct_type,
@@ -34,26 +38,30 @@
     this->direct_type = direct_type;
     this->direct_declarator = direct_declarator;
     this->idList = idList;
+    this->mode = 4;
   }
 
   void direct_declarator_node::init(){
-    this->identifier = "";
+    this->identifier = NULL;
     this->declarator = NULL;
     this->direct_declarator = NULL;
     this->constExpr = NULL;
     this->paramList = NULL;
     this->idList = NULL;
     this->direct_type = DirectType::NONE;
+    this->mode = -1;
   }
 
   void direct_declarator_node::print(){
     switch(this->direct_type){
       case DirectType::NONE:
-        visualizer.addNode(this->id,identifier);
+      if(this->identifier!=NULL){
+        visualizer.addNode(this->id,this->identifier->getName());
         visualizer.addEdge(this->pid,this->id);
+      }
       break;
       case DirectType::ARRAY:
-        visualizer.addNode(this->id,"[]");
+        visualizer.addNode(this->id,"array");
         visualizer.addEdge(this->pid,this->id);
 
         if(this->direct_declarator!= NULL){
@@ -64,9 +72,15 @@
           this->constExpr->setPID(this->id);
           this->constExpr->print();
         }
+        else{
+          // used to display only
+          int size_id = ast_node::getUID();
+          visualizer.addNode(size_id,"1");
+          visualizer.addEdge(this->id,size_id);
+        }
       break;
       case DirectType::FUNCTION:
-        visualizer.addNode(this->id,"func");
+        visualizer.addNode(this->id,"function");
         visualizer.addEdge(this->pid,this->id);
 
         if(this->direct_declarator!= NULL){
@@ -79,7 +93,7 @@
         }
       break;
       case DirectType::FUNCTION_CALL:
-        visualizer.addNode(this->id,"func_call");
+        visualizer.addNode(this->id,"function_call");
         visualizer.addEdge(this->pid,this->id);
 
         if(this->direct_declarator!= NULL){
@@ -93,6 +107,28 @@
       break;
     } // end switch
   }
-  void direct_declarator_node::generateCode(){
+Spec* direct_declarator_node::getSpec(){
+  if(this->mode == 0){
+      if(this->identifier!=NULL){
+        return this->identifier->getSpec();
+      }
+      return NULL;
+  }
+  if(this->direct_type == DirectType::ARRAY){
+    if(this->constExpr!=NULL){
+      if(this->constExpr->getSpec()->getBaseType() != SpecName::Int){
+        error("[A] ERROR: array size must be integer");
+      }
+    }
+  }
+  else if(this->direct_type == DirectType::FUNCTION){
 
   }
+  else if(this->direct_type == DirectType::FUNCTION_CALL){
+
+  }
+  return this->direct_declarator->getSpec();
+}
+void direct_declarator_node::generateCode(){
+
+}

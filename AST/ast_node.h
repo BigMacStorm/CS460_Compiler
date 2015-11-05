@@ -43,6 +43,7 @@ class initializer_node;
 class initializer_list_node;
 class type_name_node;
 class abstract_declarator_node;
+class direct_abstract_declarator_node;
 class statement_node;
 class labeled_statement_node;
 class expression_statement_node;
@@ -202,6 +203,7 @@ class function_definition_node : public ast_node {
     void print();
     void generateCode();
   private:
+    int spec_id;
     declaration_specifiers_node* specifiers;
     declarator_node* decl;
     declaration_list_node* decList;
@@ -235,6 +237,8 @@ class declaration_list_node : public ast_node {
 class init_declarator_node : public ast_node {
   public:
     init_declarator_node(declarator_node* declarator, initializer_node* initializer);
+    Spec* getSpec();
+    void init();
     void print();
     void generateCode();
   private:
@@ -397,6 +401,8 @@ class enumerator_node : public ast_node {
 class declarator_node : public ast_node {
   public:
     declarator_node(pointer_node* pointer, direct_declarator_node* directDecl);
+
+    Spec* getSpec();
     void print();
     void generateCode();
   private:
@@ -406,23 +412,26 @@ class declarator_node : public ast_node {
 
 class direct_declarator_node : public ast_node {
   public:
-    direct_declarator_node(std::string identifier);
+    direct_declarator_node(identifier_node* identifier);
     direct_declarator_node(DirectType::Type direct_type, direct_declarator_node* direct_declarator, constant_expression_node* constExpr);
     direct_declarator_node(DirectType::Type direct_type, direct_declarator_node* direct_declarator);
     direct_declarator_node(DirectType::Type direct_type, direct_declarator_node* direct_declarator, parameter_type_list_node* paramList);
     direct_declarator_node(DirectType::Type direct_type, direct_declarator_node* direct_declarator, identifier_list_node* idList);
     void init();
+
+    Spec* getSpec();
     void print();
     void generateCode();
 
   private:
-    std::string identifier;
+    identifier_node* identifier;
     declarator_node* declarator;
     direct_declarator_node* direct_declarator;
     constant_expression_node* constExpr;
     parameter_type_list_node* paramList;
     identifier_list_node* idList;
     DirectType::Type direct_type;
+    int mode;
 };
 
 class pointer_node : public ast_node {
@@ -486,6 +495,8 @@ class initializer_node : public ast_node {
   public:
     initializer_node(assignment_expression_node* assignExpr);
     initializer_node(initializer_list_node* initList);
+
+    Spec* getSpec();
     void print();
     void generateCode();
 
@@ -500,6 +511,8 @@ class initializer_list_node : public ast_node {
    initializer_list_node(initializer_node* child);
    void addInit(initializer_node* child);
    std::vector<initializer_node*> getChildren() const;
+
+   Spec* getSpec();
    void print();
    void generateCode();
  private:
@@ -518,7 +531,20 @@ class type_name_node : public ast_node {
 
 class abstract_declarator_node : public ast_node {
   public:
+    abstract_declarator_node(pointer_node* pointer,direct_abstract_declarator_node* directAbs);
+    void print();
+    void generateCode();
   private:
+    pointer_node* pointer;
+    direct_abstract_declarator_node* directAbs;
+};
+
+class direct_abstract_declarator_node: public ast_node{
+public:
+  direct_abstract_declarator_node();
+  void print();
+  void generateCode();
+private:
 };
 
 class statement_node : public ast_node {
@@ -1022,8 +1048,9 @@ class string_node : public ast_node {
 class identifier_node: public ast_node {
   public:
     identifier_node(std::string name, SymbolNode* symnode);
+    void setSymNode(SymbolNode* sym);
     SymbolNode* getSymNode() const;
-
+    std::string getName() const;
     Spec* getSpec();
     void print();
     void generateCode();

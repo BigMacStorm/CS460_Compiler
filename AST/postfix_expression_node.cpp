@@ -53,7 +53,7 @@ void postfix_expression_node::print(){
     break;
     case 1:
       array_id = ast_node::getUID();
-      visualizer.addNode(array_id,"[]");
+      visualizer.addNode(array_id,"array");
       visualizer.addEdge(this->pid,array_id);
       if(postExpr!=NULL){
         postExpr->setPID(array_id);
@@ -102,7 +102,7 @@ void postfix_expression_node::print(){
       }
     break;
     default:
-      std::cout << "ERROR: unknown postfix expression type";
+      error("[A] ERROR: unknown postfix expression type while print");
     break;
   }
 }
@@ -116,7 +116,7 @@ Spec* postfix_expression_node::getSpec(){
       // check if the size is int
       if(this->expr!=NULL){
         if(this->expr->getSpec()->getBaseType() != SpecName::Int){
-          error("[a] ERROR: array size must be integer");
+          error("[A] ERROR: array size must be integer");
         }
       }
        // bounds checking

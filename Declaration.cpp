@@ -411,12 +411,6 @@ bool Declaration::pushBasic(std::string name){
 bool Declaration::pushArray(std::string name){
   Spec spec;
   // check array size
-  for(int dim = 0; dim < this->dims.front().size(); dim++){
-    if(this->dims.front().at(dim) < 0){
-      error("[P]: ERROR: an array with a negative size");
-      return false;
-    }
-  }
 
   if(!buildStorage(&spec,this->storagesHolder[0])){
     return false;

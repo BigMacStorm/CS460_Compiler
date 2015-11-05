@@ -67,7 +67,7 @@ Spec *leftSpec, *rightSpec;
           left = leftSpec->getBaseType();
           right = rightSpec->getBaseType();
 
-          std::cout << left << " " << right << std::endl;
+          // std::cout << left << " " << right << std::endl;
 
           // check if assignable
           if(leftSpec->isValue()){
@@ -76,7 +76,7 @@ Spec *leftSpec, *rightSpec;
 
           // type matched
           if(left == right){
-            return this->assign_expr->getSpec();
+            return leftSpec;
           }
           // implicit conversions
           else if(left == SpecName::Float && right == SpecName::Int){ // int to float
