@@ -22,7 +22,7 @@ public:
   bool isInitialized() const;
   bool isDefined() const;
 
-private:
+protected:
   std::string name;
   //std::string specname;
   Spec* specifier;
