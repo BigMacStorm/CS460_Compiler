@@ -381,6 +381,9 @@ std::string TypeFunction::getArgTypeName(int nth) const{
 std::string TypeFunction::getReturnSpecName() const{
   return this->returnSpec->toString();
 }
+Spec* TypeFunction::getArgSpec(int nth) const{
+  return this->argSpecs[nth];
+}
 Spec* TypeFunction::getReturnSpec() const{
   return this->returnSpec;
 }

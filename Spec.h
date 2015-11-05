@@ -142,6 +142,7 @@ public:
     std::string getArgTypeName(int nth) const;
     std::string getReturnSpecName() const;
     Spec* getReturnSpec() const;
+    Spec* getArgSpec(int nth) const;
 
   private:
     Spec* returnSpec;
