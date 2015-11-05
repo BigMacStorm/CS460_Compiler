@@ -37,6 +37,7 @@ ast_node* treeHanger = NULL;
 
 identifier_node* current_id_ast = NULL;
 std::string current_id;
+int current_line, current_col;
 %}
 
 %union{
@@ -576,7 +577,7 @@ direct_declarator
       if(decl.getBasesNum() > 0){
         decl.setHasType();
       }
-      current_id_ast = new identifier_node($1, NULL);
+      current_id_ast = new identifier_node($1, NULL, current_line, current_col);
       $$ = new direct_declarator_node(current_id_ast);
       reductionOut("[p]: direct_declarator -> identifier");
   }
@@ -1352,7 +1353,7 @@ primary_expression
       // ast node creation
       SymbolNode *sym = symTable.lookupSymbol($1);
       if(sym != NULL){
-        $$ = new primary_expression_node(new identifier_node($1, sym));
+        $$ = new primary_expression_node(new identifier_node($1, sym, current_line, current_col));
       }
       // reduction complete
       reductionOut("[p]: primary_expression -> identifier");
@@ -1415,6 +1416,8 @@ identifier
       decl.pushLine(linenum);
       decl.pushCol(colnum);
       current_id = $1;
+      current_line = linenum;
+      current_col = colnum;
       strcpy($$, $1);
       reductionOut("[p]: identifier -> IDENTIFIERtok");
   }

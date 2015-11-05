@@ -31,6 +31,7 @@ int main(int argc, char** argv){
   const std::string symTableLogFile = "symTableLog.txt";
   const std::string LEX_FILE = "list_file";
   const std::string GRAPH_DOT_FILE = "graph.dot";
+  const std::string AST_LOG = "astlog.txt";
 
   std::vector<std::string> args(argv, argv+argc);
   for (int arg = 1; arg < (int)args.size()-1; ++arg) {
@@ -72,11 +73,13 @@ int main(int argc, char** argv){
 
   std::cout << listFileName << std::endl;
 
+  // remove logs
   std::remove(logFile.c_str());
   std::remove(symTableLogFile.c_str());
   std::remove(listFileName.c_str());
   std::remove(LEX_FILE.c_str());
   std::remove(GRAPH_DOT_FILE.c_str());
+  std::remove(AST_LOG.c_str());
 
   lexDebugger.setFileName(logFile);
   lexDebugger.setDebug(ldebug);
@@ -91,11 +94,13 @@ int main(int argc, char** argv){
   symTable.getDebugger()->setDebug(sdebug);
 
   visualizer.setVisualizer(true);
+  visualizer.setDebug(true);
   visualizer.startBuild();
 
   symTable.pushTable();
   yyparse();
   symTable.popTable();
+  // sometimes cause seg fault around the end?
 
   return 0;
 }
