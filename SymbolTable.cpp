@@ -44,7 +44,7 @@ void SymbolTable::popTable(){
 }
 bool SymbolTable::empty() const{
   /* return true if the symbol table is empty*/
-  if(this->levels < 0){
+  if( this->symTables.size() <= 0){
     this->debugger->debug("[S]: No Symbol Table");
     return true;
   }
@@ -162,7 +162,7 @@ void SymbolTable::writeFile(){
       for(iter = this->symTables[level].begin(); iter != this->symTables[level].end(); ++iter){
         fout << "Symbol: " << iter->first << ", ";
         fout << (*iter->second).getSpecName() << " ";
-        fout << "@" << (*iter->second).getPos();
+        fout << "@" << (*iter->second).getLine() << ":" << (*iter->second).getCol();
         fout << "\n";
       }
       fout << "--------------------------------------------------" << std::endl;
