@@ -597,6 +597,7 @@ direct_declarator
       // array mode - e.g., type foo[size], foo[s1][s2]
       decl.setMode(DeclMode::Array);
       decl.pushArraySize(yylval.ival);
+      decl.pushArraySizeAstNode((constant_expression_node*)$3);
       decl.pushKind(SpecName::Array);
 
       $$ = new direct_declarator_node(DirectType::ARRAY, (direct_declarator_node*)$1, (constant_expression_node*)$3);
