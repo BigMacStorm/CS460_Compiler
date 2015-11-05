@@ -1,6 +1,8 @@
 #ifndef __DECLNODE__H__
 #define __DECLNODE__H__
 #include "SymbolTable.h"
+#include "ArrayIdSymbolNode.h"
+#include "AST/ast_node.h"
 #include "Spec.h"
 #include <vector>
 #include <iostream>
@@ -34,6 +36,7 @@ class Declaration{
   void incPtrLevel();
   void setNextArray();
   void pushArraySize(int size);
+  void pushArraySizeAstNode(constant_expression_node* arraySizeAstNode);
 
   void incArgSize();
 
@@ -99,6 +102,7 @@ class Declaration{
   // type-specific detail
   std::vector<std::vector<int> > dims;
   std::vector<int> arraySizes; // for multi dimension
+  constant_expression_node* arraySizeAstNode;
   std::vector<int> levels; // pointer deepness
   int level;
   int argSize; // function argments

@@ -1,5 +1,5 @@
 #include "Declaration.h"
-Declaration::Declaration():mode(DeclMode::NoMode), level(0), argSize(0), hasType(false), hasInt(false){
+Declaration::Declaration():mode(DeclMode::NoMode), level(0), argSize(0), hasType(false), hasInt(false), arraySizeAstNode(NULL){
 }
 Declaration::~Declaration(){}
 
@@ -89,6 +89,12 @@ void Declaration::setNextArray(){
 void Declaration::pushArraySize(int size){
   // std::cout << "SIZE" << size << std::endl;
   this->arraySizes.push_back(size);
+}
+void Declaration::pushArraySizeAstNode(constant_expression_node* arraySizeAstNode){
+  // Eventually we want this so we can have multi-dimensional arrays
+  //this->arraySizeAstNodes.push_back(arraySizeAstNode);
+
+  this->arraySizeAstNode = arraySizeAstNode;
 }
 
 void Declaration::incArgSize(){
@@ -438,7 +444,7 @@ bool Declaration::pushArray(std::string name){
   this->dims.erase(this->dims.begin());
 
   // insert array
-  SymbolNode *val = new SymbolNode(name,array,this->lines[0], true);
+  ArrayIdSymbolNode *val = new ArrayIdSymbolNode(name,array,arraySizeAstNode,this->lines[0], true);
   return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
 TypePointer* Declaration::makePointerType(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
