@@ -25,7 +25,8 @@ Debugger reductionDebugger;
 extern std::string listFileName;
 
 int main(int argc, char** argv){
-  bool sdebug = false, ldebug = false, pdebug = false;
+  bool sdebug = false, ldebug = false, pdebug = false, genAST = false;
+  bool gen3AC = false, genAssembly = false, compileAssemble = false;
   std::string logFile = "log.txt";
   const std::string symTableLogFile = "symTableLog.txt";
   const std::string LEX_FILE = "list_file";
@@ -46,6 +47,18 @@ int main(int argc, char** argv){
          if(args[arg+1].find("p") != std::string::npos){
           pdebug = true;
          }
+       }
+       else if (args[arg] == "-c"){
+         printf("'-c' flag to compile and assemble not implemented\n");
+       }
+       else if (args[arg] == "-a"){
+         genAST = true;
+       }
+       else if (args[arg] == "-q"){
+         printf("'-q' flag, 3 addr code not implemented\n");
+       }
+       else if (args[arg] == "-S"){
+         printf("'-S' flag, assembly language not implemented\n");
        }
    }
 
