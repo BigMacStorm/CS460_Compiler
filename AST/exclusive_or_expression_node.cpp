@@ -20,6 +20,7 @@ void exclusive_or_expression_node::init(){
   mode = -1;
 }
 void exclusive_or_expression_node::print(){
+  visualizer.debug("exclusive_or_expression");
   switch(this->mode){
     case 0:
       if(this->andExpr!=NULL){

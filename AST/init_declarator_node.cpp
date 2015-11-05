@@ -10,6 +10,7 @@ void init_declarator_node::init(){
   this->initializer = NULL;
 }
 void init_declarator_node::print(){
+  visualizer.debug("init_declarator");
   if(this->initializer != NULL){
     this->equal_id = ast_node::getUID();
     visualizer.addNode(this->equal_id,"=");

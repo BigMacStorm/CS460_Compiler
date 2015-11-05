@@ -11,6 +11,7 @@ std::vector<assignment_expression_node*> argument_expression_list_node::getChild
   return this->children;
 }
 void argument_expression_list_node::print(){
+  visualizer.debug("argument_expression_list");
   visualizer.addNode(this->id,"argument_expression_list");
   visualizer.addEdge(this->pid,this->id);
   for(int child = 0; child < this->children.size(); child++){

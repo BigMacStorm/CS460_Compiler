@@ -11,6 +11,7 @@ std::vector<statement_node*> statement_list_node::getChildren() const{
   return this->children;
 }
 void statement_list_node::print(){
+  visualizer.debug("statement_list");
   visualizer.addNode(this->id,"statement_list");
   visualizer.addEdge(this->pid,this->id);
 

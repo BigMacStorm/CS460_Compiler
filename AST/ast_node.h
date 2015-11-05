@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 #include "../SymbolTable.h"
 #include "../SymbolNode.h"
 #include "../graph.h"
@@ -75,6 +76,7 @@ class cast_expression_node;
 class unary_expression_node;
 class unary_operator_node;
 class postfix_expression_node;
+class array_node;
 class primary_expression_node;
 class argument_expression_list_node;
 class constant_node;
@@ -496,6 +498,7 @@ class initializer_node : public ast_node {
     initializer_node(assignment_expression_node* assignExpr);
     initializer_node(initializer_list_node* initList);
 
+    std::vector<Spec*> getSpecs();
     Spec* getSpec();
     void print();
     void generateCode();
@@ -513,6 +516,7 @@ class initializer_list_node : public ast_node {
    std::vector<initializer_node*> getChildren() const;
 
    Spec* getSpec();
+   std::vector<Spec*> getSpecs();
    void print();
    void generateCode();
  private:
@@ -951,6 +955,7 @@ class unary_operator_node : public ast_node {
 
 class postfix_expression_node : public ast_node {
   public:
+    postfix_expression_node();
     postfix_expression_node(primary_expression_node* primayExpr);
     postfix_expression_node(postfix_expression_node* postExpr, expression_node* expr); // array
     postfix_expression_node(postfix_expression_node* postExpr); // array w/o expr
@@ -958,12 +963,18 @@ class postfix_expression_node : public ast_node {
     postfix_expression_node(postfix_expression_node* postExpr, OpType::Type op, std::string identifier); // ptr or dot
     postfix_expression_node(postfix_expression_node* postExpr, OpType::Type op); // inc or dec
     void init();
-    Spec* getSpecForIdentifier();
     Spec* getSpec();
+    Spec* getArraySpec();
+    Spec* getFunctionSpec();
+    identifier_node* getIdentifier() const;
+    primary_expression_node* getPrimaryExpr() const;
     void print();
+    void printFunction();
+    void printArray();
     void generateCode();
   private:
     int mode;
+    identifier_node* identifierNode;
     primary_expression_node* primayExpr;
     postfix_expression_node* postExpr;
     expression_node* expr;
@@ -1047,8 +1058,10 @@ class string_node : public ast_node {
 
 class identifier_node: public ast_node {
   public:
-    identifier_node(std::string name, SymbolNode* symnode);
+    identifier_node(std::string name, SymbolNode* symnode, int line, int col);
     void setSymNode(SymbolNode* sym);
+    int getLine() const;
+    int getCol() const;
     SymbolNode* getSymNode() const;
     std::string getName() const;
     Spec* getSpec();
@@ -1057,5 +1070,7 @@ class identifier_node: public ast_node {
   private:
     std::string id_name;
     SymbolNode *id_symnode;
+    int line;
+    int col;
 };
 #endif

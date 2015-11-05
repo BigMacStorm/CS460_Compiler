@@ -18,6 +18,7 @@ void shift_expression_node::init(){
   mode = -1;
 }
 void shift_expression_node::print(){
+  visualizer.debug("shift_expression");
     switch(this->mode){
       case 0:
         if(this->addExpr!=NULL){

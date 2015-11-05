@@ -4,6 +4,7 @@ assignment_operator_node::assignment_operator_node(AssignType::Type op): ast_nod
   this->op = op;
 }
 void assignment_operator_node::print(){
+  visualizer.debug("assignment_operator");
   switch(this->op){
     case AssignType::EQUAL:
       visualizer.addNode(this->id,"=");

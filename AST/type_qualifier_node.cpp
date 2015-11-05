@@ -5,6 +5,7 @@ type_qualifier_node::type_qualifier_node(SpecName::Qualifier qual): ast_node(){
   this->qual = qual;
 }
 void type_qualifier_node::print(){
+  visualizer.debug("type_qualifier");
   Spec spec;
   spec.setQualifier(this->qual);
   visualizer.addNode(this->id,spec.getTypeQualifierStr());

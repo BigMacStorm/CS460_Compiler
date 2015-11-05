@@ -21,6 +21,7 @@ Spec* specifier_qualifier_list_node::getSpec(){
  return NULL;
 }
 void specifier_qualifier_list_node::print(){
+  visualizer.debug("specifier_qualifier_list");
   // not yet
   std::stringstream ss;
   ss << "(" << ")";

@@ -19,6 +19,7 @@ std::vector<external_declaration_node*> translation_unit_node::getChildren() con
 
 //print the name of this node followed by children (graphviz readable?)
 void translation_unit_node::print(){
+    visualizer.debug("translation_unit");
     visualizer.addNode(this->id,"translation_unit");
     for(int child = 0; child < this->children.size(); child++){
     this->children[child]->setPID(this->id);

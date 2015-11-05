@@ -5,6 +5,7 @@ declarator_node::declarator_node(pointer_node* pointer, direct_declarator_node* 
 
 }
 void declarator_node::print(){
+  visualizer.debug("declarator");
   if(this->pointer != NULL){
     visualizer.addNode(this->id,"pointer");
     visualizer.addEdge(this->pid,this->id);

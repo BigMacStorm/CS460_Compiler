@@ -10,6 +10,7 @@ void compound_statement_node::init(){
   this->stateList = NULL;
 }
 void compound_statement_node::print(){
+  visualizer.debug("compound_statement");
   visualizer.addNode(this->id, "{}");
   visualizer.addEdge(this->pid, this->id);
   if(this->declList!=NULL){

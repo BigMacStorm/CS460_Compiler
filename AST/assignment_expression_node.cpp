@@ -22,6 +22,7 @@ void assignment_expression_node::init(){
   this->mode = -1;
 }
 void assignment_expression_node::print(){
+  visualizer.debug("assignment_expression");
   switch(this->mode){
     case 0:
       if(this->cond_expr!=NULL){

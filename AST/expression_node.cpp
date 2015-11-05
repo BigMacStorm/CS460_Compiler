@@ -11,6 +11,7 @@ std::vector<assignment_expression_node*> expression_node::getChildren() const{
   return this->children;
 }
 void expression_node::print(){
+  visualizer.debug("expression");
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
       this->children[child]->setPID(this->pid);

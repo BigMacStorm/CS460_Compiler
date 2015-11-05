@@ -21,6 +21,7 @@ void multiplicative_expression_node::init(){
   this->mode = -1;
 }
 void multiplicative_expression_node::print(){
+  visualizer.debug("multiplicative_expression");
   switch(this->mode){
     case 0:
       if(this->castExpr!=NULL){

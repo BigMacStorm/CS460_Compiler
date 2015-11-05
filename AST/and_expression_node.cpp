@@ -20,6 +20,7 @@ void and_expression_node::init(){
   mode = -1;
 }
 void and_expression_node::print(){
+  visualizer.debug("and_expression");
   switch(this->mode){
     case 0:
       if(this->equalExpr!=NULL){
