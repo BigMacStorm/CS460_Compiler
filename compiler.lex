@@ -34,7 +34,7 @@ unsigned long long btoi(char*);
 unsigned long long otoi(char* text);
 unsigned long long htoi(char* text);
 int myatoi(char*);
-
+char myatoc(char* text);
 const char* LEX_FILE = "llog.txt";
 %}
 
@@ -612,7 +612,7 @@ scomment "//".*
                   }
 {char_const}      {
                     dumpNextSymbol("CHARACTER_CONSTANTtok");
-                    // yylval.cval = *yytext; wrong
+                    yylval.cval = myatoc(yytext);
                     addCol(yyleng);
                     sourceLine.push_back(yytext);
                     return(CHARACTER_CONSTANTtok);
@@ -737,6 +737,9 @@ int myatoi(char* text){
   checkOverflow(val);
   return val;
 }
+char myatoc(char* text){
+  return text[1]; // cannot handle e.g., \n
+}
 
 void dumpNextSymbol(const char* token){
   std::stringstream ss;
@@ -750,3 +753,4 @@ void dumpNextSymbol(const char* token){
 
   lexSymbolDebugger.debug(ss.str());
 }
+
