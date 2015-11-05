@@ -20,5 +20,9 @@ void initializer_list_node::print(){
     }
   }
 }
+Spec* initializer_list_node::getSpec(){
+  // no idea to handle multiple dimensional array initialization ...
+  return NULL;
+}
 void initializer_list_node::generateCode(){
 }

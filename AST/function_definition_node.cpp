@@ -14,7 +14,10 @@ void function_definition_node::print(){
   visualizer.addNode(this->id, "function_definition");
   visualizer.addEdge(this->pid, this->id);
   if(this->specifiers!=NULL){
-    this->specifiers->setPID(this->id);
+    this->spec_id = ast_node::getUID();
+    visualizer.addNode(this->spec_id, "specifier");
+    visualizer.addEdge(this->id, this->spec_id);
+    this->specifiers->setPID(this->spec_id);
     this->specifiers->print();
   }
   if(this->decl!=NULL){

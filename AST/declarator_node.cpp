@@ -6,13 +6,23 @@ declarator_node::declarator_node(pointer_node* pointer, direct_declarator_node* 
 }
 void declarator_node::print(){
   if(this->pointer != NULL){
-    this->pointer->setPID(this->pid);
+    visualizer.addNode(this->id,"pointer");
+    visualizer.addEdge(this->pid,this->id);
+    this->pointer->setPID(this->id);
     this->pointer->print();
+    this->directDecl->setPID(this->id);
+    this->directDecl->print();
   }
-  if(this->directDecl!=NULL){
+  else if(this->directDecl!=NULL){
     this->directDecl->setPID(this->pid);
     this->directDecl->print();
   }
+}
+Spec* declarator_node::getSpec(){
+  if(this->directDecl!=NULL){
+    return this->directDecl->getSpec();
+  }
+  return NULL;
 }
 void declarator_node::generateCode(){
 }

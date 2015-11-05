@@ -3,6 +3,12 @@ identifier_node::identifier_node(std::string name, SymbolNode* symnode): ast_nod
   this->id_name = name;
   this->id_symnode = symnode;
 }
+void identifier_node::setSymNode(SymbolNode* sym){
+  this->id_symnode = sym;
+}
+std::string identifier_node::getName() const{
+  return this->id_name;
+}
 SymbolNode* identifier_node::getSymNode() const{
   return this->id_symnode;
 }
