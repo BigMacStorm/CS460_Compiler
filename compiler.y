@@ -1457,12 +1457,11 @@ identifier
 %%
 /* user code ****************************************************************/
 void error(const std::string& message) {
-    yyerror(message.c_str());
+    std::cout << message << std::endl;
     exit(1); // stop parsing
 }
 void yyerror(const char* message) {
-    //printf("%s at line %d col %d\n", message, linenum, colnum); sometimes duplicate
-    printf("%s\n", message);
+    printf("%s at line %d col %d\n", message, linenum, colnum);
 }
 void warning(const std::string& message){
   std::cout << message << std::endl;
