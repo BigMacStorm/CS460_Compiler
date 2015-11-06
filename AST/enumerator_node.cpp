@@ -8,6 +8,7 @@ enumerator_node::enumerator_node(identifier_node* identifier, constant_expressio
     this -> constExpr = constExpr;
 }
 void enumerator_node::print(){
+  visualizer.debug("enumerator");
   visualizer.addNode(this->id, "{}");
   visualizer.addEdge(this->pid, this->id);
 

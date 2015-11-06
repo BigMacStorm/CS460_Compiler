@@ -11,6 +11,7 @@ std::vector<initializer_node*> initializer_list_node::getChildren() const{
   return this->children;
 }
 void initializer_list_node::print(){
+  visualizer.debug("initializer_list");
   visualizer.addNode(this->id,"initializer_list");
   visualizer.addEdge(this->pid,this->id);
   for(int child = 0; child < this->children.size(); child++){
@@ -20,9 +21,16 @@ void initializer_list_node::print(){
     }
   }
 }
-Spec* initializer_list_node::getSpec(){
-  // no idea to handle multiple dimensional array initialization ...
-  return NULL;
+/*
+std::vector<Spec*> initializer_list_node::getSpecs(){
+  std::vector<Spec*> specs;
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      specs[child] = this->children[child]->getSpec(); // assume 1D
+    }
+  }
+  return specs;
 }
+*/
 void initializer_list_node::generateCode(){
 }

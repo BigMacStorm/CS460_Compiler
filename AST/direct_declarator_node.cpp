@@ -53,6 +53,7 @@
   }
 
   void direct_declarator_node::print(){
+    visualizer.debug("direct_declarator");
     switch(this->direct_type){
       case DirectType::NONE:
       if(this->identifier!=NULL){

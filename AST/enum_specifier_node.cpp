@@ -9,6 +9,7 @@ enum_specifier_node::enum_specifier_node(identifier_node* identifier, enumerator
 }
 
 void enum_specifier_node::print(){
+  visualizer.debug("enum_specifier");
   visualizer.addNode(this->id, "enum");
   visualizer.addEdge(this->pid, this->id);
   if(this->identifier!=NULL){

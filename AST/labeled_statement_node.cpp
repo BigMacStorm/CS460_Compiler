@@ -17,6 +17,7 @@ void labeled_statement_node::init(){
   this->statement = NULL;
 }
 void labeled_statement_node::print(){
+  visualizer.debug("labeled_statement");
   if(this->label_type == LabelType::NONE){
     std::stringstream ss;
     ss << this->identifier << ":";

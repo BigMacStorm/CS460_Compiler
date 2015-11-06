@@ -30,6 +30,7 @@ void constant_node::setFval(float fval){
   this->fval = fval;
 }
 void constant_node::print(){
+  visualizer.debug("constant");
   std::stringstream ss;
   switch(this->type){
     case ConstType::INT:
@@ -66,6 +67,8 @@ Spec* constant_node::getSpec(){
     case ConstType::FLOAT:
       typebasic = new TypeBasic(SpecName::Float);
       typebasic->setValue(true);
+    break;
+    case ConstType::ENUM:
     break;
   }
   return typebasic;

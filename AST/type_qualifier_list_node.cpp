@@ -11,6 +11,7 @@ std::vector<type_qualifier_node*> type_qualifier_list_node::getChildren() const{
   return this->children;
 }
 void type_qualifier_list_node::print(){
+  visualizer.debug("type_qualifier_list");
   visualizer.addNode(this->id,"type_qualifier_list");
   visualizer.addEdge(this->pid,this->id);
   for(int child = 0; child < this->children.size(); child++){

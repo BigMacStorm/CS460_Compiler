@@ -39,6 +39,7 @@ void statement_node::init(){
   mode = -1;
 }
 void statement_node::print(){
+  visualizer.debug("statement");
   visualizer.addNode(this->id,"statement");
   visualizer.addEdge(this->pid,this->id);
   switch(this->mode){

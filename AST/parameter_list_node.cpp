@@ -11,6 +11,7 @@ std::vector<parameter_declaration_node*> parameter_list_node::getChildren() cons
   return this->children;
 }
 void parameter_list_node::print(){
+  visualizer.debug("parameter_list");
   visualizer.addNode(this->id,"parameter_list");
   visualizer.addEdge(this->pid,this->id);
   for(int child = 0; child < this->children.size(); child++){

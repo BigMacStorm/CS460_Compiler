@@ -82,6 +82,7 @@ class Declaration{
   bool pushArray(std::string name);
   bool pushPointer(std::string name);
   bool pushFunction(std::string name);
+  bool pushStruct(std::string name);
 
   bool insertSymbol(std::string name, SymbolNode* val, int line, int col);
 

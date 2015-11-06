@@ -3,6 +3,7 @@
     this->op = op;
   }
   void unary_operator_node::print(){
+    visualizer.debug("unary_operator");
     switch(this->op){
       case OpType::AND:
         visualizer.addNode(this->id,"&");

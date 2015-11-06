@@ -10,6 +10,7 @@ Graph::Graph(std::string filename, std::string graph_name){
   this->filename = filename;
   this->graph_name = graph_name;
   this->visualizer.setFileName(this->filename);
+  this->debugger.setFileName("astlog.txt");
 }
 Graph::~Graph(){
   // destructor
@@ -31,6 +32,12 @@ Graph::~Graph(){
 void Graph::setVisualizer(bool on_off){
   // on/off visualizer
   this->visualizer.setDebug(on_off);
+}
+void Graph::setDebug(bool on_off){
+  this->debugger.setDebug(on_off);
+}
+void Graph::debug(std::string msg){
+  this->debugger.debug(msg);
 }
 void Graph::startBuild(){
   // start building the dot file

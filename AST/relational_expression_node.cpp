@@ -20,6 +20,7 @@ void relational_expression_node::init(){
   this->mode = -1;
 }
 void relational_expression_node::print(){
+  visualizer.debug("relational_expression");
   switch(this->mode){
     case 0:
       if(this->shiftExpr!=NULL){

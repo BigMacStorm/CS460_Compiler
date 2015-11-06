@@ -34,6 +34,7 @@ identifier_node* primary_expression_node::getIdentifier() const{
 }
 
 void primary_expression_node::print(){
+  visualizer.debug("primary_expression");
   switch(this->mode){
     case 0:
       if(this->identifier != NULL){

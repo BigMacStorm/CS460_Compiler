@@ -142,6 +142,7 @@ public:
     std::string getArgTypeName(int nth) const;
     std::string getReturnSpecName() const;
     Spec* getReturnSpec() const;
+    Spec* getArgSpec(int nth) const;
 
   private:
     Spec* returnSpec;
@@ -195,6 +196,7 @@ class TypeStruct: public Spec{
   Spec* findMember(std::string name);
 
  private:
+  std::vector<std::string> names;
   std::string structName;
   std::map<std::string, Spec*> members; // small symbol table
 };

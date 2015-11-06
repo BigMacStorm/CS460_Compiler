@@ -3,6 +3,7 @@ parameter_type_list_node::parameter_type_list_node(parameter_list_node* paramLis
   this->paramList = paramList;
 }
 void parameter_type_list_node::print(){
+  visualizer.debug("parameter_type_list");
   if(this->paramList!=NULL){
     this->paramList->setPID(this->pid);
     this->paramList->print();

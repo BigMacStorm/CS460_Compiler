@@ -8,11 +8,14 @@ class Graph{
         Graph(std::string filename = "graph.dot",std::string graph_name = "g");
         ~Graph();
         void setVisualizer(bool on_off);
+        void setDebug(bool on_off);
+        void debug(std::string msg);
         void startBuild();
         void addEdge(int pid, int cid);
         void addNode(int id, std::string label);
     private:
       Debugger visualizer;
+      Debugger debugger;
       std::string filename, graph_name;
 };
 #endif
