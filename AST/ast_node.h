@@ -123,6 +123,7 @@ class ast_node {
       this->source = "";
       setID();
     };
+
     ~ast_node(){
       //delete children then itself, is this defined in each specific class?
     };
@@ -137,6 +138,9 @@ class ast_node {
     int getPID(){ return this->pid; }
     void setPID(int pid){this->pid = pid; }
 
+    void setSource(std::string source) { this->source = source; }
+    std::string getSource() { return this->source; }
+
     Spec* getSpec();
 
     void error(const std::string& message) {
@@ -150,7 +154,6 @@ class ast_node {
   private:
     std::string name;
     ast_node* parent;
-    std::string source;
 
     // for 3AC
     static int tempNum;   // 0
@@ -163,6 +166,7 @@ class ast_node {
     int id;
     int pid;
     Spec* spec;
+    std::string source;
 
     // If we need polymorphism
     //virtual std::vector<ast_node*> getChildren();
