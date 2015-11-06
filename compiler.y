@@ -1453,6 +1453,7 @@ void error(const std::string& message) {
     exit(1); // stop parsing
 }
 void yyerror(const char* message) {
+    //printf("%s at line %d col %d\n", message, linenum, colnum); sometimes duplicate
     printf("%s\n", message);
 }
 void warning(const std::string& message){
