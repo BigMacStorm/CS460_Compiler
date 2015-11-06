@@ -1123,7 +1123,7 @@ public:
   void setIval(int ival);
   void setCval(char cval);
   void setFval(float fval);
-
+  std::string toStr();
   Spec* getSpec();
   void print();
   void generateCode();
@@ -1141,7 +1141,6 @@ class string_node : public ast_node {
     string_node(std::string string_literal);
     std::string getStringLiteral();
     void setStringLiteral(std::string string_literal);
-
     Spec* getSpec();
     void print();
     void generateCode();
