@@ -1429,7 +1429,7 @@ void error(const std::string& message) {
     exit(1); // stop parsing
 }
 void yyerror(const char* message) {
-    printf("%s\n", message);
+    printf("%s at line %d col %d\n", message, linenum, colnum);
 }
 void warning(const std::string& message){
   std::cout << message << std::endl;
