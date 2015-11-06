@@ -13,6 +13,14 @@ relational_expression_node::relational_expression_node(
   this->shiftExpr = shiftExpr;
   this->mode = 1;
 }
+relational_expression_node::~relational_expression_node(){
+  if(this->relExpr!=NULL){
+    delete this->relExpr;
+  }
+  if(this->shiftExpr!=NULL){
+    delete this->shiftExpr;
+  }
+}
 void relational_expression_node::init(){
   this->shiftExpr = NULL;
   this->relExpr = NULL;

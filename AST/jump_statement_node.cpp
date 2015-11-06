@@ -15,6 +15,11 @@ jump_statement_node::jump_statement_node(expression_node* expr): ast_node(){
   this->expr = expr;
   this->mode = 2;
 }
+jump_statement_node::~jump_statement_node(){
+  if(this->expr!=NULL){
+    delete this->expr;
+  }
+}
 void jump_statement_node::init(){
   this->identifier = "";
   this->expr = NULL;

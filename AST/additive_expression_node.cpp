@@ -11,6 +11,14 @@ additive_expression_node::additive_expression_node(additive_expression_node* add
   this->multiExpr = multiExpr;
   this->mode = 1;
 }
+additive_expression_node::~additive_expression_node(){
+  if(this->addExpr!=NULL){
+    delete this->addExpr;
+  }
+  if(this->multiExpr!=NULL){
+    delete this->multiExpr;
+  }
+}
 void additive_expression_node::init(){
   this->addExpr = NULL;
   this->multiExpr = NULL;

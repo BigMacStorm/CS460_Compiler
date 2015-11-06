@@ -7,6 +7,11 @@ SymbolNode::SymbolNode(std::string name, Spec* specifier, int line, int col, boo
   this->col = col;
   this->defined = defined;
 }
+SymbolNode::~SymbolNode(){
+  if(this->specifier!=NULL){
+    delete this->specifier;
+  }
+}
 void SymbolNode::setName(std::string name){
   this->name = name;
 }

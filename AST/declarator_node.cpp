@@ -4,6 +4,14 @@ declarator_node::declarator_node(pointer_node* pointer, direct_declarator_node* 
   this->directDecl = directDecl;
 
 }
+declarator_node::~declarator_node(){
+  if(this->pointer!=NULL){
+    delete this->pointer;
+  }
+  if(this->directDecl!=NULL){
+    delete this->directDecl;
+  }
+}
 void declarator_node::print(){
   visualizer.debug("declarator");
   if(this->pointer != NULL){

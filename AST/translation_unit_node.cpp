@@ -6,7 +6,13 @@ translation_unit_node::translation_unit_node(): ast_node(){
 translation_unit_node::translation_unit_node(external_declaration_node* child): ast_node(){
     this->children.push_back(child);
 }
-
+translation_unit_node::~translation_unit_node(){
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      delete this->children[child];
+    }
+  }
+}
 //add more external declaration nodes as children
 void translation_unit_node::addExternDecl(external_declaration_node* child){
     this->children.push_back(child);

@@ -5,6 +5,7 @@ class SymbolNode{
 public:
   SymbolNode();
   SymbolNode(std::string, Spec* specifier, int = -1, int = -1, bool = false);
+  ~SymbolNode();
 
   // setter
   void setName(std::string);

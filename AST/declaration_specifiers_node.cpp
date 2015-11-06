@@ -17,6 +17,20 @@ declaration_specifiers_node::declaration_specifiers_node(type_qualifier_node* qu
   this->qualifier = qualifier;
   this->declSpec = declSpec;
 }
+declaration_specifiers_node::~declaration_specifiers_node(){
+  if(this->storage!=NULL){
+    delete this->storage;
+  }
+  if(this->typeSpec!=NULL){
+    delete this->typeSpec;
+  }
+  if(this->qualifier!=NULL){
+    delete this->qualifier;
+  }
+  if(this->declSpec!=NULL){
+    delete this->declSpec;
+  }
+}
 void declaration_specifiers_node::init(){
   this->storage = NULL;
   this->typeSpec = NULL;

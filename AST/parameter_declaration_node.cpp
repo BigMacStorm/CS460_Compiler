@@ -10,6 +10,17 @@ parameter_declaration_node::parameter_declaration_node(declaration_specifiers_no
   this->declSpec = declSpec;
   this->absDecl = absDecl;
 }
+parameter_declaration_node::~parameter_declaration_node(){
+  if(this->declSpec!=NULL){
+    delete this->declSpec;
+  }
+  if(this->decl!=NULL){
+    delete this->decl;
+  }
+  if(this->absDecl!=NULL){
+    delete this->absDecl;
+  }
+}
 void parameter_declaration_node::print(){
   visualizer.debug("parameter_declaration");
   visualizer.addNode(this->id,"param");

@@ -16,6 +16,15 @@ external_declaration_node::external_declaration_node(
     this -> declChild = child;
 }
 
+external_declaration_node::~external_declaration_node(){
+  if(this->declChild!=NULL){
+    delete this->declChild;
+  }
+  if(this->functionChild!=NULL){
+    delete this->functionChild;
+  }
+}
+
 //print name and name of child
 void external_declaration_node::print(){
     visualizer.debug("external_declaration");

@@ -5,6 +5,14 @@ initializer_node::initializer_node(assignment_expression_node* assignExpr): ast_
 initializer_node::initializer_node(initializer_list_node* initList){
   this->initList = initList;
 }
+initializer_node::~initializer_node(){
+  if(this->assignExpr!=NULL){
+    delete this->assignExpr;
+  }
+  if(this->initList!=NULL){
+    delete this->initList;
+  }
+}
 void initializer_node::print(){
   visualizer.debug("initializer");
   if(this->assignExpr != NULL){

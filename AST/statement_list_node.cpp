@@ -4,6 +4,13 @@ statement_list_node::statement_list_node(): ast_node(){
 statement_list_node::statement_list_node(statement_node* child): ast_node(){
   this->children.push_back(child);
 }
+statement_list_node::~statement_list_node(){
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      delete this->children[child];
+    }
+  }
+}
 void statement_list_node::addStmt(statement_node* child){
   this->children.push_back(child);
 }

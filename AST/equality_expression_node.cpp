@@ -13,6 +13,14 @@ equality_expression_node::equality_expression_node(
   this->relExpr = relExpr;
   this->mode = 1;
 }
+equality_expression_node::~equality_expression_node(){
+  if(this->equalExpr!=NULL){
+    delete this->equalExpr;
+  }
+  if(this->relExpr!=NULL){
+    delete this->relExpr;
+  }
+}
 void equality_expression_node::init(){
   equalExpr = NULL;
   relExpr = NULL;

@@ -14,6 +14,17 @@ conditional_expression_node::conditional_expression_node(
   this->logOrExpr = logOrExpr;
   this->mode = 1;
 }
+conditional_expression_node::~conditional_expression_node(){
+  if(this->logOrExpr!=NULL){
+    delete this->logOrExpr;
+  }
+  if(this->condExpr!=NULL){
+    delete this->condExpr;
+  }
+  if(this->expr!=NULL){
+    delete this->expr;
+  }
+}
 void conditional_expression_node::init(){
   this->condExpr = NULL;
   this->logOrExpr = NULL;

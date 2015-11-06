@@ -14,6 +14,21 @@ assignment_expression_node::assignment_expression_node(
   this->assign_expr = assign_expr;
   this->mode = 1;
 }
+assignment_expression_node::~assignment_expression_node(){
+  if(this->unary_expr!=NULL){
+    delete this->unary_expr;
+  }
+  if(this->assign_expr!=NULL){
+    delete this->assign_expr;
+  }
+  if(this->cond_expr!=NULL){
+    delete this->cond_expr;
+  }
+  if(this->assign_op!=NULL){
+    delete this->assign_op;
+  }
+
+}
 void assignment_expression_node::init(){
   this->cond_expr = NULL;
   this->unary_expr = NULL;

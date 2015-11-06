@@ -14,6 +14,14 @@ logical_and_expression_node::logical_and_expression_node(
   this->iorExpr = iorExpr;
   this->mode = 1;
 }
+logical_and_expression_node::~logical_and_expression_node(){
+  if(this->logAndExpr!=NULL){
+    delete this->logAndExpr;
+  }
+  if(this->iorExpr!=NULL){
+    delete this->iorExpr;
+  }
+}
 void logical_and_expression_node::init(){
   logAndExpr = NULL;
   iorExpr = NULL;

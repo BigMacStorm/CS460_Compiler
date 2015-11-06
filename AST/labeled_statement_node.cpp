@@ -10,6 +10,14 @@ labeled_statement_node::labeled_statement_node(LabelType::Type label_type, const
   this->constExpr = constExpr;
   this->statement = statement;
 }
+labeled_statement_node::~labeled_statement_node(){
+  if(this->statement!=NULL){
+    delete this->statement;
+  }
+  if(this->constExpr!=NULL){
+    delete this->constExpr;
+  }
+}
 void labeled_statement_node::init(){
   this->label_type = LabelType::NONE;
   this->identifier = "";

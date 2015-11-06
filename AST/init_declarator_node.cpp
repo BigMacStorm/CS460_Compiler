@@ -5,6 +5,14 @@ init_declarator_node::init_declarator_node(declarator_node* declarator,
   this->declarator = declarator;
   this->initializer = initializer;
 }
+init_declarator_node::~init_declarator_node(){
+  if(this->declarator!=NULL){
+    delete this->declarator;
+  }
+  if(this->initializer!=NULL){
+    delete this->initializer;
+  }
+}
 void init_declarator_node::init(){
   this->declarator = NULL;
   this->initializer = NULL;

@@ -6,6 +6,11 @@ expression_statement_node::expression_statement_node(expression_node* expr): ast
   init();
   this->expr = expr;
 }
+expression_statement_node::~expression_statement_node(){
+  if(this->expr!=NULL){
+    delete this->expr;
+  }
+}
 void expression_statement_node::init(){
   this->expr = NULL;
 }

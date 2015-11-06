@@ -5,6 +5,11 @@ identifier_node::identifier_node(std::string name, SymbolNode* symnode, int line
   this->line = line;
   this->col = col;
 }
+identifier_node::~identifier_node(){
+  if(this->id_symnode!=NULL){
+    delete this->id_symnode;
+  }
+}
 void identifier_node::setSymNode(SymbolNode* sym){
   this->id_symnode = sym;
 }

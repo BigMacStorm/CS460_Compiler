@@ -16,6 +16,17 @@ unary_expression_node::unary_expression_node(unary_operator_node* unaryOp, cast_
   this->castExpr = castExpr;
   this->mode = 2;
 }
+unary_expression_node::~unary_expression_node(){
+  if(this->postExpr!=NULL){
+    delete this->postExpr;
+  }
+  if(this->unaryExpr!=NULL){
+    delete this->unaryExpr;
+  }
+  if(this->castExpr!=NULL){
+    delete this->castExpr;
+  }
+}
 void unary_expression_node::init(){
   this->postExpr = NULL;
   this->unaryOp = NULL;

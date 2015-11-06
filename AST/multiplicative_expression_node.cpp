@@ -14,6 +14,14 @@ multiplicative_expression_node::multiplicative_expression_node(
   this->castExpr = castExpr;
   this->mode = 1;
 }
+multiplicative_expression_node::~multiplicative_expression_node(){
+  if(this->castExpr!=NULL){
+    delete this->castExpr;
+  }
+  if(this->multiExpr!=NULL){
+    delete this->multiExpr;
+  }
+}
 void multiplicative_expression_node::init(){
   this->multiExpr = NULL;
   this->op = OpType::NONE;

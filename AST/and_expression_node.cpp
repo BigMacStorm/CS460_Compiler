@@ -13,6 +13,14 @@ and_expression_node::and_expression_node(and_expression_node* andExpr,
   this->equalExpr = equalExpr;
   this->mode = 1;
 }
+and_expression_node::~and_expression_node(){
+  if(this->andExpr!=NULL){
+    delete this->andExpr;
+  }
+  if(this->equalExpr!=NULL){
+    delete this->equalExpr;
+  }
+}
 void and_expression_node::init(){
   andExpr = NULL;
   equalExpr = NULL;

@@ -3,6 +3,14 @@ pointer_node::pointer_node(type_qualifier_list_node* typeQualList, pointer_node*
   this->typeQualList = typeQualList;
   this->pointer = pointer;
 }
+pointer_node::~pointer_node(){
+  if(this->typeQualList!=NULL){
+    delete this->typeQualList;
+  }
+  if(this->pointer!=NULL){
+    delete this->pointer;
+  }
+}
 void pointer_node::print(){
   visualizer.debug("pointer");
   visualizer.addNode(this->id,"*");

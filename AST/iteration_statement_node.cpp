@@ -17,6 +17,20 @@ iteration_statement_node::iteration_statement_node(IterType::Type iter_type, exp
   this->statement = statement;
   this->mode = 1;
 }
+iteration_statement_node::~iteration_statement_node(){
+  if(this->expr1!=NULL){
+    delete this->expr1;
+  }
+  if(this->expr2!=NULL){
+    delete this->expr2;
+  }
+  if(this->expr3!=NULL){
+    delete this->expr3;
+  }
+  if(this->statement!=NULL){
+    delete this->statement;
+  }
+}
 void iteration_statement_node::init(){
   this->iter_type = IterType::NONE;
   this->expr1 = NULL;

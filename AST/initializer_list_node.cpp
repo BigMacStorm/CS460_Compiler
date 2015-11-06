@@ -4,6 +4,13 @@ initializer_list_node::initializer_list_node(): ast_node(){
 initializer_list_node::initializer_list_node(initializer_node* child): ast_node(){
   this->children.push_back(child);
 }
+initializer_list_node::~initializer_list_node(){
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      delete this->children[child];
+    }
+  }
+}
 void initializer_list_node::addInit(initializer_node* child){
   this->children.push_back(child);
 }

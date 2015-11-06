@@ -10,6 +10,11 @@
       this->unaryExpr->print();
     }
   }
+  cast_expression_node::~cast_expression_node(){
+    if(this->unaryExpr!=NULL){
+      delete this->unaryExpr;
+    }
+  }
   Spec* cast_expression_node::getSpec(){
     if(this->unaryExpr!=NULL){
       return this->unaryExpr->getSpec();

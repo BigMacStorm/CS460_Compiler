@@ -13,6 +13,14 @@ exclusive_or_expression_node::exclusive_or_expression_node(
   this->exorExpr = exorExpr;
   this->mode = 1;
 }
+exclusive_or_expression_node::~exclusive_or_expression_node(){
+  if(this->andExpr!=NULL){
+    delete this->andExpr;
+  }
+  if(this->exorExpr!=NULL){
+    delete this->exorExpr;
+  }
+}
 void exclusive_or_expression_node::init(){
   andExpr = NULL;
   exorExpr = NULL;

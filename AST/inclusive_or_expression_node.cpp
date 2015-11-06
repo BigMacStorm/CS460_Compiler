@@ -14,6 +14,14 @@ inclusive_or_expression_node::inclusive_or_expression_node(
   this->exorExpr = exorExpr;
   this->mode = 1;
 }
+inclusive_or_expression_node::~inclusive_or_expression_node(){
+  if(this->iorExpr!=NULL){
+    delete this->iorExpr;
+  }
+  if(this->exorExpr!=NULL){
+    delete this->exorExpr;
+  }
+}
 void inclusive_or_expression_node::init(){
   iorExpr = NULL;
   exorExpr = NULL;

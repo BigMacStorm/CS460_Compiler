@@ -41,6 +41,20 @@ postfix_expression_node::postfix_expression_node(postfix_expression_node* postEx
   this->mode = 5;
   this->identifierNode = getIdentifier();
 }
+postfix_expression_node::~postfix_expression_node(){
+  if(this->primayExpr!=NULL){
+    delete this->primayExpr;
+  }
+  if(this->postExpr!=NULL){
+    delete this->postExpr;
+  }
+  if(this->expr!=NULL){
+    delete this->expr;
+  }
+  if(this->argExpr!=NULL){
+    delete this->argExpr;
+  }
+}
 void postfix_expression_node::init(){
   this->identifierNode = NULL;
   this->primayExpr = NULL;

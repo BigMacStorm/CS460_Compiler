@@ -41,6 +41,27 @@
     this->mode = 4;
   }
 
+  direct_declarator_node::~direct_declarator_node(){
+    if(this->identifier!=NULL){
+      delete this->identifier;
+    }
+    if(this->declarator!=NULL){
+      delete this->declarator;
+    }
+    if(this->direct_declarator!=NULL){
+      delete this->direct_declarator;
+    }
+    if(this->constExpr!=NULL){
+      delete this->constExpr;
+    }
+    if(this->paramList!=NULL){
+      delete this->paramList;
+    }
+    if(this->idList!=NULL){
+      delete this->idList;
+    }
+  }
+
   void direct_declarator_node::init(){
     this->identifier = NULL;
     this->declarator = NULL;

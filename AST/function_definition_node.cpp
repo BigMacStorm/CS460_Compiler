@@ -10,6 +10,20 @@ function_definition_node::function_definition_node(declaration_specifiers_node* 
   this->decList = decList;
   this->compStmt = compStmt;
 }
+function_definition_node::~function_definition_node(){
+  if(this->specifiers!=NULL){
+    delete this->specifiers;
+  }
+  if(this->decl!=NULL){
+    delete this->decl;
+  }
+  if(this->decList!=NULL){
+    delete this->decList;
+  }
+  if(this->compStmt!=NULL){
+    delete this->compStmt;
+  }
+}
 void function_definition_node::print(){
   visualizer.debug("function_definition");
   visualizer.addNode(this->id, "function_definition");

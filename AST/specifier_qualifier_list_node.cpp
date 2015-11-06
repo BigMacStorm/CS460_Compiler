@@ -11,6 +11,17 @@ specifier_qualifier_list_node::specifier_qualifier_list_node(type_qualifier_node
   this->qual = qual;
   this->sqlist = sqlist;
 }
+specifier_qualifier_list_node::~specifier_qualifier_list_node(){
+  if(this->spec!=NULL){
+    delete this->spec;
+  }
+  if(this->sqlist!=NULL){
+    delete this->sqlist;
+  }
+  if(this->qual!=NULL){
+    delete this->qual;
+  }
+}
 void specifier_qualifier_list_node::init(){
   this->spec = NULL;
   this->qual = NULL;

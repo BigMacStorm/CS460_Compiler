@@ -4,6 +4,9 @@ expression_node::expression_node(): ast_node(){
 expression_node::expression_node(assignment_expression_node* child): ast_node(){
   this->children.push_back(child);
 }
+expression_node::~expression_node(){
+
+}
 void expression_node::addAssignmentExpr(assignment_expression_node* child){
   this->children.push_back(child);
 }

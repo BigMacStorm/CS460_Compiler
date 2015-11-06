@@ -6,6 +6,14 @@ declaration_node::declaration_node(declaration_specifiers_node* specifier,
     this->specifier = specifier;
     this->decList = decList;
 }
+declaration_node::~declaration_node(){
+  if(this->decList!=NULL){
+    delete this->decList;
+  }
+  if(this->specifier!=NULL){
+    delete this->specifier;
+  }
+}
 void declaration_node::print(){
   visualizer.debug("declaration");
   visualizer.addNode(this->id, "declaration");

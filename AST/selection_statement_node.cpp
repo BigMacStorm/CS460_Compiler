@@ -6,6 +6,17 @@ selection_statement_node::selection_statement_node(SelecType::Type selec_type, e
   this->statement1 = statement1;
   this->statement2 = statement2;
 }
+selection_statement_node::~selection_statement_node(){
+  if(this->expr!=NULL){
+    delete this->expr;
+  }
+  if(this->statement1!=NULL){
+    delete this->statement1;
+  }
+  if(this->statement2!=NULL){
+    delete this->statement2;
+  }
+}
 void selection_statement_node::init(){
   this->selec_type = SelecType::NONE;
   this->expr = NULL;

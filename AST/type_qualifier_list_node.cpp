@@ -4,6 +4,13 @@ type_qualifier_list_node::type_qualifier_list_node(): ast_node(){
 type_qualifier_list_node::type_qualifier_list_node(type_qualifier_node* child): ast_node(){
   this->children.push_back(child);
 }
+type_qualifier_list_node::~type_qualifier_list_node(){
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      delete this->children[child];
+    }
+  }
+}
 void type_qualifier_list_node::addQual(type_qualifier_node* child){
   this->children.push_back(child);
 }

@@ -3,6 +3,11 @@ constant_expression_node::constant_expression_node(conditional_expression_node* 
   init();
   this->condExpr = condExpr;
 }
+constant_expression_node::~constant_expression_node(){
+  if(this->condExpr!=NULL){
+    delete this->condExpr;
+  }
+}
 void constant_expression_node::init(){
   this->condExpr = NULL;
 }

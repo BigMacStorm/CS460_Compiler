@@ -19,6 +19,17 @@ primary_expression_node::primary_expression_node(expression_node* expr): ast_nod
   this->mode = 3;
   this->expr = expr;
 }
+primary_expression_node::~primary_expression_node(){
+  if(this->identifier!=NULL){
+    delete this->identifier;
+  }
+  if(this->constant!=NULL){
+    delete this->constant;
+  }
+  if(this->expr!=NULL){
+    delete this->expr;
+  }
+}
 void primary_expression_node::init(){
   this->identifier = NULL;
   this->constant = NULL;
