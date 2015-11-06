@@ -196,6 +196,7 @@ class TypeStruct: public Spec{
   Spec* findMember(std::string name);
 
  private:
+  std::vector<std::string> names;
   std::string structName;
   std::map<std::string, Spec*> members; // small symbol table
 };

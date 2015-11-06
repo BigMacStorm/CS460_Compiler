@@ -22,11 +22,18 @@ Spec* specifier_qualifier_list_node::getSpec(){
 }
 void specifier_qualifier_list_node::print(){
   visualizer.debug("specifier_qualifier_list");
-  // not yet
-  std::stringstream ss;
-  ss << "(" << ")";
-  visualizer.addNode(this->id,ss.str());
-  visualizer.addEdge(this->pid,this->id);
+  if(this->spec!=NULL){
+    this->spec->setPID(this->pid);
+    this->spec->print();
+  }
+  if(this->qual!=NULL){
+    this->qual->setPID(this->pid);
+    this->qual->print();
+  }
+  if(this->sqlist!=NULL){
+    this->sqlist->setPID(this->pid);
+    this->sqlist->print();
+  }
 }
 void specifier_qualifier_list_node::generateCode(){
 }

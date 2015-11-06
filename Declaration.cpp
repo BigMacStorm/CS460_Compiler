@@ -5,6 +5,7 @@ Declaration::~Declaration(){}
 
 // change states of declaration ***********************************************
 void Declaration::pushID(std::string id){
+  //std::cout << id << std::endl;
   this->ids.push_back(id);
 }
 void Declaration::pushLine(int line){
@@ -317,7 +318,7 @@ bool Declaration::complete(){
 
   }
   else if(isMode(DeclMode::Struct)){
-
+    complete = pushStruct(name);
   }
   else if(isMode(DeclMode::Union)){
 
@@ -363,6 +364,7 @@ void Declaration::clearArgs(){
   this->hasType = false;
   this->argSymbolNodes.clear();
 }
+
 TypeBasic* Declaration::makeBasicType(std::vector<SpecName::BaseType> bases, std::vector<SpecName::Sign>signs,
   std::vector<SpecName::Qualifier> qualifiers){
   //std::cout << "Building Basic Type ..." << std::endl;
@@ -606,6 +608,30 @@ bool Declaration::insertSymbol(std::string name, SymbolNode* val, int line, int 
     warning(ss.str());
   }
   return symTable.insertSymbol(name, val);
+}
+
+
+bool Declaration::pushStruct(std::string name){
+  int kind;
+  int memberSize = this->kindsHolder.size();
+  bool isComplete = (memberSize > 0)? true: false;
+  TypeStruct* structspec = new TypeStruct();
+  symTable.pushTable();  // poor way
+
+  // member types ===========================================================
+  for(kind = 1; kind < memberSize; kind++){
+      int num = this->kindsHolder[kind].size()-1;
+      // basic ---------------------------------------------------
+      if(this->kindsHolder[kind][num] == SpecName::Basic){
+        TypeBasic* base = makeBasicVar(this->basesHolder[kind-1],this->signsHolder[kind-1],this->storagesHolder[kind-1],this->qualifiersHolder[kind-1]);
+        insertSymbol(this->ids[kind], new SymbolNode(this->ids[kind], base, this->lines[kind],this->cols[kind],true),this->lines[kind], this->cols[kind]);
+        structspec->addMember(ids[kind],base);
+      }
+  } // end member types  ====================================================
+  symTable.popTable(); // poor way
+
+  SymbolNode *val = new SymbolNode(name,structspec,this->lines[0],this->cols[0],isComplete);
+  return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
 // debug ********************************************************************
 void Declaration::showIDs() const{

@@ -25,8 +25,12 @@ class type_specifier_node;
 class type_qualifier_node;
 class type_qualifier_list_node;
 class union_specifier_node;
-class or_union_node;
+class struct_or_union_node;
+class struct_declaration_list_node;
 class struct_declaration_node;
+class struct_declarator_list_node;
+class struct_declarator_node;
+class specifier_qualifier_list_node;
 class qualifier_list_node;
 class declarator_list_node;
 class struct_declarator_node;
@@ -93,6 +97,9 @@ namespace TypeSpecifier{
 }
 namespace ConstType{
   enum Type {INT,CHAR,FLOAT,ENUM};
+}
+namespace StructUnion{
+  enum Type {NONE, STRUCT, UNION};
 }
 namespace OpType{
   enum Type{NONE, PERIOD,PTR_OP,
@@ -317,39 +324,69 @@ private:
   std::vector<type_qualifier_node*> children;
 };
 
-/*
-leaving struct related classes commented out unless we decide to implement them
-
 class struct_or_union_specifier_node : public ast_node {
   public:
+     struct_or_union_specifier_node(struct_or_union_node* structUnion,std::string identifier, struct_declaration_list_node* structDecl);
+     void print();
+     void generateCode();
   private:
+    struct_or_union_node* structUnion;
+    std::string identifier;
+    struct_declaration_list_node* structDecl;
 };
 
 class struct_or_union_node : public ast_node {
   public:
+    struct_or_union_node(StructUnion::Type type);
+    void print();
+    void generateCode();
   private:
+    StructUnion::Type type;
 };
 
 class struct_declaration_list_node : public ast_node {
-  public:
-  private:
+public:
+  struct_declaration_list_node();
+  struct_declaration_list_node(struct_declaration_node* child);
+  void addStrDecl(struct_declaration_node* child);
+  std::vector<struct_declaration_node*> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<struct_declaration_node*> children;
 };
 
 class struct_declaration_node : public ast_node {
   public:
+   struct_declaration_node(specifier_qualifier_list_node* spqlist, struct_declarator_list_node* strDeclList);
+   void print();
+   void generateCode();
   private:
+    specifier_qualifier_list_node* spqlist;
+    struct_declarator_list_node* strDeclList;
 };
 
 class struct_declarator_list_node : public ast_node {
-  public:
-  private:
+public:
+  struct_declarator_list_node();
+  struct_declarator_list_node(struct_declarator_node* child);
+  void addStrDecl(struct_declarator_node* child);
+  std::vector<struct_declarator_node*> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<struct_declarator_node*> children;
 };
 
 class struct_declarator_node : public ast_node {
   public:
+    struct_declarator_node(declarator_node* decl, constant_expression_node* constExpr);
+    void print();
+    void generateCode();
   private:
+    declarator_node* decl;
+    constant_expression_node* constExpr;
 };
-*/
 
 class specifier_qualifier_list_node : public ast_node {
   public:
@@ -966,9 +1003,11 @@ class postfix_expression_node : public ast_node {
     Spec* getSpec();
     Spec* getArraySpec();
     Spec* getFunctionSpec();
+    Spec* getStructUnionSpec();
     identifier_node* getIdentifier() const;
     primary_expression_node* getPrimaryExpr() const;
     void print();
+    void printStructUnion();
     void printFunction();
     void printArray();
     void generateCode();

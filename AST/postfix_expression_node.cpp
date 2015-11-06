@@ -67,9 +67,14 @@ void postfix_expression_node::print(){
       printFunction();
     break;
     case 4:
-      if(postExpr!=NULL){
-        postExpr->setPID(this->pid);
-        postExpr->print();
+      if(this->op == OpType::PERIOD){
+        printStructUnion();
+      }
+      else{
+        if(postExpr!=NULL){
+          postExpr->setPID(this->pid);
+          postExpr->print();
+        }
       }
     break;
     case 5:
@@ -102,8 +107,8 @@ Spec* postfix_expression_node::getSpec(){
     case 3:
        return getFunctionSpec();
     case 4:
-      // pointer mode
-      if(this->op == OpType::PTR_OP){
+      if(this->op == OpType::PERIOD){
+        return getStructUnionSpec();
       }
     case 5:
       if(this->postExpr!=NULL){
@@ -268,6 +273,28 @@ Spec* postfix_expression_node::getFunctionSpec(){
   if(this->postExpr!=NULL){
     return this->postExpr->getSpec();
   }
+  return NULL;
+}
+void postfix_expression_node::printStructUnion(){
+  visualizer.addNode(this->id,".");
+  visualizer.addEdge(this->pid,this->id);
+  if(postExpr!=NULL){
+    postExpr->setPID(this->id);
+    postExpr->print();
+  }
+  int structUnion_id = ast_node::getUID();
+  visualizer.addNode(structUnion_id,this->identifier);
+  visualizer.addEdge(this->id,structUnion_id);
+}
+Spec* postfix_expression_node::getStructUnionSpec(){
+  std::stringstream ss;
+  SymbolNode* sym = this->identifierNode->getSymNode();
+  Spec* spec = sym->getSpecifier();
+  std::string name = this->identifierNode->getName();
+
+  // check identifier
+  //ss << "no member named \'" << this->identifier << "\'in \'struct" << name <<"\'";
+
   return NULL;
 }
 void postfix_expression_node::generateCode(){
