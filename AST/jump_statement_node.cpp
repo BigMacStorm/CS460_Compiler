@@ -22,6 +22,7 @@ void jump_statement_node::init(){
   this->mode = -1;
 }
 void jump_statement_node::print(){
+  visualizer.debug("jump_statement");
   switch(this->mode){
     case 0:
       visualizer.addNode(this->id,"goto");

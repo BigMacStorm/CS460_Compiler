@@ -21,6 +21,7 @@ void conditional_expression_node::init(){
   this->mode = -1;
 }
 void conditional_expression_node::print(){
+  visualizer.debug("conditional_expression");
   switch(this->mode){
     case 0:
       if(this->logOrExpr!=NULL){

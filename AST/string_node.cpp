@@ -10,6 +10,7 @@ void string_node::setStringLiteral(std::string string_literal){
   this->string_literal = string_literal;
 }
 void string_node::print(){
+  visualizer.debug("string");
   visualizer.addNode(this->id,this->string_literal);
   visualizer.addEdge(this->pid,this->id);
 }

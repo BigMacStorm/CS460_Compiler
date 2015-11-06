@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 #include "../SymbolTable.h"
 #include "../SymbolNode.h"
 #include "../graph.h"
@@ -24,8 +25,12 @@ class type_specifier_node;
 class type_qualifier_node;
 class type_qualifier_list_node;
 class union_specifier_node;
-class or_union_node;
+class struct_or_union_node;
+class struct_declaration_list_node;
 class struct_declaration_node;
+class struct_declarator_list_node;
+class struct_declarator_node;
+class specifier_qualifier_list_node;
 class qualifier_list_node;
 class declarator_list_node;
 class struct_declarator_node;
@@ -75,6 +80,7 @@ class cast_expression_node;
 class unary_expression_node;
 class unary_operator_node;
 class postfix_expression_node;
+class array_node;
 class primary_expression_node;
 class argument_expression_list_node;
 class constant_node;
@@ -91,6 +97,9 @@ namespace TypeSpecifier{
 }
 namespace ConstType{
   enum Type {INT,CHAR,FLOAT,ENUM};
+}
+namespace StructUnion{
+  enum Type {NONE, STRUCT, UNION};
 }
 namespace OpType{
   enum Type{NONE, PERIOD,PTR_OP,
@@ -319,39 +328,69 @@ private:
   std::vector<type_qualifier_node*> children;
 };
 
-/*
-leaving struct related classes commented out unless we decide to implement them
-
 class struct_or_union_specifier_node : public ast_node {
   public:
+     struct_or_union_specifier_node(struct_or_union_node* structUnion,std::string identifier, struct_declaration_list_node* structDecl);
+     void print();
+     void generateCode();
   private:
+    struct_or_union_node* structUnion;
+    std::string identifier;
+    struct_declaration_list_node* structDecl;
 };
 
 class struct_or_union_node : public ast_node {
   public:
+    struct_or_union_node(StructUnion::Type type);
+    void print();
+    void generateCode();
   private:
+    StructUnion::Type type;
 };
 
 class struct_declaration_list_node : public ast_node {
-  public:
-  private:
+public:
+  struct_declaration_list_node();
+  struct_declaration_list_node(struct_declaration_node* child);
+  void addStrDecl(struct_declaration_node* child);
+  std::vector<struct_declaration_node*> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<struct_declaration_node*> children;
 };
 
 class struct_declaration_node : public ast_node {
   public:
+   struct_declaration_node(specifier_qualifier_list_node* spqlist, struct_declarator_list_node* strDeclList);
+   void print();
+   void generateCode();
   private:
+    specifier_qualifier_list_node* spqlist;
+    struct_declarator_list_node* strDeclList;
 };
 
 class struct_declarator_list_node : public ast_node {
-  public:
-  private:
+public:
+  struct_declarator_list_node();
+  struct_declarator_list_node(struct_declarator_node* child);
+  void addStrDecl(struct_declarator_node* child);
+  std::vector<struct_declarator_node*> getChildren() const;
+  void print();
+  void generateCode();
+private:
+  std::vector<struct_declarator_node*> children;
 };
 
 class struct_declarator_node : public ast_node {
   public:
+    struct_declarator_node(declarator_node* decl, constant_expression_node* constExpr);
+    void print();
+    void generateCode();
   private:
+    declarator_node* decl;
+    constant_expression_node* constExpr;
 };
-*/
 
 class specifier_qualifier_list_node : public ast_node {
   public:
@@ -500,6 +539,7 @@ class initializer_node : public ast_node {
     initializer_node(assignment_expression_node* assignExpr);
     initializer_node(initializer_list_node* initList);
 
+    std::vector<Spec*> getSpecs();
     Spec* getSpec();
     void print();
     void generateCode();
@@ -517,6 +557,7 @@ class initializer_list_node : public ast_node {
    std::vector<initializer_node*> getChildren() const;
 
    Spec* getSpec();
+   std::vector<Spec*> getSpecs();
    void print();
    void generateCode();
  private:
@@ -955,6 +996,7 @@ class unary_operator_node : public ast_node {
 
 class postfix_expression_node : public ast_node {
   public:
+    postfix_expression_node();
     postfix_expression_node(primary_expression_node* primayExpr);
     postfix_expression_node(postfix_expression_node* postExpr, expression_node* expr); // array
     postfix_expression_node(postfix_expression_node* postExpr); // array w/o expr
@@ -962,12 +1004,20 @@ class postfix_expression_node : public ast_node {
     postfix_expression_node(postfix_expression_node* postExpr, OpType::Type op, std::string identifier); // ptr or dot
     postfix_expression_node(postfix_expression_node* postExpr, OpType::Type op); // inc or dec
     void init();
-    Spec* getSpecForIdentifier();
     Spec* getSpec();
+    Spec* getArraySpec();
+    Spec* getFunctionSpec();
+    Spec* getStructUnionSpec();
+    identifier_node* getIdentifier() const;
+    primary_expression_node* getPrimaryExpr() const;
     void print();
+    void printStructUnion();
+    void printFunction();
+    void printArray();
     void generateCode();
   protected:
     int mode;
+    identifier_node* identifierNode;
     primary_expression_node* primayExpr;
     postfix_expression_node* postExpr;
     expression_node* expr;
@@ -1061,8 +1111,10 @@ class string_node : public ast_node {
 
 class identifier_node: public ast_node {
   public:
-    identifier_node(std::string name, SymbolNode* symnode);
+    identifier_node(std::string name, SymbolNode* symnode, int line, int col);
     void setSymNode(SymbolNode* sym);
+    int getLine() const;
+    int getCol() const;
     SymbolNode* getSymNode() const;
     std::string getName() const;
     Spec* getSpec();
@@ -1071,5 +1123,7 @@ class identifier_node: public ast_node {
   private:
     std::string id_name;
     SymbolNode *id_symnode;
+    int line;
+    int col;
 };
 #endif

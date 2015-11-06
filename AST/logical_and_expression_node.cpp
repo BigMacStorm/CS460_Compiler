@@ -21,6 +21,7 @@ void logical_and_expression_node::init(){
   mode = -1;
 }
 void logical_and_expression_node::print(){
+  visualizer.debug("logical_and_expression");
   switch(this->mode){
     case 0:
       if(this->iorExpr!=NULL){

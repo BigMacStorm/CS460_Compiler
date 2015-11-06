@@ -4,6 +4,7 @@
     this->unaryExpr = unaryExpr;
   }
   void cast_expression_node::print(){
+    visualizer.debug("cast_expression");
     if(this->unaryExpr!=NULL){
       this->unaryExpr->setPID(this->pid);
       this->unaryExpr->print();

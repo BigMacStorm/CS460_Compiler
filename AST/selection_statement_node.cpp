@@ -13,6 +13,7 @@ void selection_statement_node::init(){
   this->statement2 = NULL;
 }
 void selection_statement_node::print(){
+  visualizer.debug("selection_statement");
   if(this->selec_type == SelecType::IF){
     visualizer.addNode(this->id,"if");
     visualizer.addEdge(this->pid,this->id);

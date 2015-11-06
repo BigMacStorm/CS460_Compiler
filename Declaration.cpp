@@ -5,6 +5,7 @@ Declaration::~Declaration(){}
 
 // change states of declaration ***********************************************
 void Declaration::pushID(std::string id){
+  //std::cout << id << std::endl;
   this->ids.push_back(id);
 }
 void Declaration::pushLine(int line){
@@ -323,7 +324,7 @@ bool Declaration::complete(){
 
   }
   else if(isMode(DeclMode::Struct)){
-
+    complete = pushStruct(name);
   }
   else if(isMode(DeclMode::Union)){
 
@@ -369,6 +370,7 @@ void Declaration::clearArgs(){
   this->hasType = false;
   this->argSymbolNodes.clear();
 }
+
 TypeBasic* Declaration::makeBasicType(std::vector<SpecName::BaseType> bases, std::vector<SpecName::Sign>signs,
   std::vector<SpecName::Qualifier> qualifiers){
   //std::cout << "Building Basic Type ..." << std::endl;
@@ -411,7 +413,7 @@ TypeBasic* Declaration::makeBasicVar(std::vector<SpecName::BaseType> bases,
 }
 bool Declaration::pushBasic(std::string name){
   TypeBasic* base = makeBasicVar(this->basesHolder[0],this->signsHolder[0],this->storagesHolder[0],this->qualifiersHolder[0]);
-  SymbolNode *val = new SymbolNode(name,base,this->lines[0],true);
+  SymbolNode *val = new SymbolNode(name,base,this->lines[0],this->cols[0],true);
   return insertSymbol(name,val,this->lines[0], this->cols[0]);
 }
 bool Declaration::pushArray(std::string name){
@@ -444,7 +446,7 @@ bool Declaration::pushArray(std::string name){
   this->dims.erase(this->dims.begin());
 
   // insert array
-  ArrayIdSymbolNode *val = new ArrayIdSymbolNode(name,array,arraySizeAstNode,this->lines[0], true);
+  SymbolNode *val = new SymbolNode(name,array,this->lines[0], this->cols[0],true);
   return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
 TypePointer* Declaration::makePointerType(SpecName::TypeKind typekind, std::vector<SpecName::BaseType> bases,
@@ -481,7 +483,7 @@ TypePointer* Declaration::makePointerVar(SpecName::TypeKind typekind, std::vecto
 
 bool Declaration::pushPointer(std::string name){
   TypePointer* pointer = makePointerVar(this->kindsHolder[0][0], this->basesHolder[0],this->signsHolder[0],this->storagesHolder[0],this->qualifiersHolder[0]);
-  SymbolNode *val = new SymbolNode(name,pointer,this->lines[0]);
+  SymbolNode *val = new SymbolNode(name,pointer,this->lines[0],this->cols[0]);
   return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
 bool Declaration::pushFunction(std::string name){
@@ -545,7 +547,7 @@ bool Declaration::pushFunction(std::string name){
       if(this->kindsHolder[kind][num] == SpecName::Basic){
         TypeBasic* base = makeBasicVar(this->basesHolder[type],this->signsHolder[type],this->storagesHolder[type],this->qualifiersHolder[type]);
         if(arg_definition_mode){
-          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], base, this->lines[arg],true));
+          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], base, this->lines[arg],this->cols[arg],true));
           arg++;
         }
         function->insertArg(base);
@@ -554,7 +556,7 @@ bool Declaration::pushFunction(std::string name){
       else if(this->kindsHolder[kind][num] == SpecName::Pointer){
         TypePointer* pointer = makePointerVar(this->kindsHolder[kind][num-1], this->basesHolder[type],this->signsHolder[type],this->storagesHolder[type],this->qualifiersHolder[type]);
         if(arg_definition_mode){
-          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], pointer, this->lines[arg],true));
+          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], pointer, this->lines[arg], this->cols[arg], true));
           arg++;
         }
         function->insertArg(pointer);
@@ -587,7 +589,7 @@ bool Declaration::pushFunction(std::string name){
         this->dims.erase(this->dims.begin());
 
         if(arg_definition_mode){
-          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], array, this->lines[arg],true));
+          this->argSymbolNodes.push_back(new SymbolNode(this->ids[arg], array, this->lines[arg], this->cols[arg],true));
           arg++;
         }
 
@@ -596,7 +598,7 @@ bool Declaration::pushFunction(std::string name){
   } // end argment types  ====================================================
 
   // insert function
-  SymbolNode *val = new SymbolNode(name, function, this->lines[0]);
+  SymbolNode *val = new SymbolNode(name, function, this->lines[0], this->cols[0]);
   return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
 bool Declaration::insertSymbol(std::string name, SymbolNode* val, int line, int col){
@@ -612,6 +614,30 @@ bool Declaration::insertSymbol(std::string name, SymbolNode* val, int line, int 
     warning(ss.str());
   }
   return symTable.insertSymbol(name, val);
+}
+
+
+bool Declaration::pushStruct(std::string name){
+  int kind;
+  int memberSize = this->kindsHolder.size();
+  bool isComplete = (memberSize > 0)? true: false;
+  TypeStruct* structspec = new TypeStruct();
+  symTable.pushTable();  // poor way
+
+  // member types ===========================================================
+  for(kind = 1; kind < memberSize; kind++){
+      int num = this->kindsHolder[kind].size()-1;
+      // basic ---------------------------------------------------
+      if(this->kindsHolder[kind][num] == SpecName::Basic){
+        TypeBasic* base = makeBasicVar(this->basesHolder[kind-1],this->signsHolder[kind-1],this->storagesHolder[kind-1],this->qualifiersHolder[kind-1]);
+        insertSymbol(this->ids[kind], new SymbolNode(this->ids[kind], base, this->lines[kind],this->cols[kind],true),this->lines[kind], this->cols[kind]);
+        structspec->addMember(ids[kind],base);
+      }
+  } // end member types  ====================================================
+  symTable.popTable(); // poor way
+
+  SymbolNode *val = new SymbolNode(name,structspec,this->lines[0],this->cols[0],isComplete);
+  return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
 // debug ********************************************************************
 void Declaration::showIDs() const{

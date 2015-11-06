@@ -11,6 +11,7 @@ std::vector<std::string> identifier_list_node::getChildren() const{
   return this->children;
 }
 void identifier_list_node::print(){
+  visualizer.debug("identifier_list");
   visualizer.addNode(this->id,"identifier_list");
   visualizer.addEdge(this->pid,this->id);
   for(int child = 0; child < this->children.size(); child++){

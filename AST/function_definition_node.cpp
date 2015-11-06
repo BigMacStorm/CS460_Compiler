@@ -11,6 +11,7 @@ function_definition_node::function_definition_node(declaration_specifiers_node* 
   this->compStmt = compStmt;
 }
 void function_definition_node::print(){
+  visualizer.debug("function_definition");
   visualizer.addNode(this->id, "function_definition");
   visualizer.addEdge(this->pid, this->id);
   if(this->specifiers!=NULL){

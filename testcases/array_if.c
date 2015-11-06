@@ -5,4 +5,5 @@ int main(){
     if (arr2[a] == 4){
         return 0;
     }
+    
 }

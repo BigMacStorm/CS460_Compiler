@@ -10,6 +10,7 @@ void expression_statement_node::init(){
   this->expr = NULL;
 }
 void expression_statement_node::print(){
+  visualizer.debug("expression_statement");
   if(this->expr != NULL){
     this->expr->setPID(this->pid);
     this->expr->print();

@@ -7,6 +7,7 @@ void constant_expression_node::init(){
   this->condExpr = NULL;
 }
 void constant_expression_node::print(){
+  visualizer.debug("constant_expression");
   if(this->condExpr!=NULL){
     this->condExpr->setPID(this->pid);
     this->condExpr->print();

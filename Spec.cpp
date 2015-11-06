@@ -381,6 +381,9 @@ std::string TypeFunction::getArgTypeName(int nth) const{
 std::string TypeFunction::getReturnSpecName() const{
   return this->returnSpec->toString();
 }
+Spec* TypeFunction::getArgSpec(int nth) const{
+  return this->argSpecs[nth];
+}
 Spec* TypeFunction::getReturnSpec() const{
   return this->returnSpec;
 }
@@ -474,6 +477,11 @@ std::string TypeStruct::toString() const{
   if(!temp.empty()){
     ss << " " + temp;
   }
+  ss << "{ ";
+  for(int name = 0; name < this->names.size(); name++){
+    ss << this->members.at(this->names[name])->toTypeString() << " ";
+  }
+  ss << "}";
   return ss.str();
 }
 std::string TypeStruct::toTypeString() const{
@@ -487,6 +495,7 @@ std::string TypeStruct::toTypeString() const{
 }
 void TypeStruct::addMember(std::string name, Spec* type){
     this->members[name] = type;
+    this->names.push_back(name);
 }
 Spec* TypeStruct::findMember(std::string name){
   if(this->members.find(name) != this->members.end()){

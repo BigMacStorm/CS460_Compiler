@@ -7,6 +7,7 @@ declaration_node::declaration_node(declaration_specifiers_node* specifier,
     this->decList = decList;
 }
 void declaration_node::print(){
+  visualizer.debug("declaration");
   visualizer.addNode(this->id, "declaration");
   visualizer.addEdge(this->pid, this->id);
 

@@ -16,6 +16,7 @@ std::vector<enum_specifier_node*> enumerator_list_node::getChildren() const{
 }
 
 void enumerator_list_node::print(){
+  visualizer.debug("enumerator_list");
   visualizer.addNode(this->id,"{}");
   visualizer.addEdge(this->pid,this->id);
   for(int child = 0; child < this->children.size(); child++){

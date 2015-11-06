@@ -36,6 +36,7 @@ std::string unary_expression_node::getOpStr() const{
   return "";
 }
 void unary_expression_node::print(){
+  visualizer.debug("unary_expression");
   switch(this->mode){
     case 0:
       if(this->postExpr != NULL){

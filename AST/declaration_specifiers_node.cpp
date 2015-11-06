@@ -24,6 +24,7 @@ void declaration_specifiers_node::init(){
   this->declSpec = NULL;
 }
 void declaration_specifiers_node::print(){
+  visualizer.debug("declaration_specifiers");
   //visualizer.addNode(this->id, "declaration_specifiers");
   //visualizer.addEdge(this->pid, this->id);
   if(this->storage != NULL){

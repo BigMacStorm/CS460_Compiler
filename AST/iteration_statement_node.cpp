@@ -26,6 +26,7 @@ void iteration_statement_node::init(){
   this->mode = -1;
 }
 void iteration_statement_node::print(){
+  visualizer.debug("iteration_statement");
   switch(this->mode){
     case 0:
       if(this->iter_type == IterType::WHILE){

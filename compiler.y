@@ -1,8 +1,8 @@
 /* definitions ****************************************************************/
 %{
 extern "C"{
-  int yyparse();
-  int yylex();
+int yyparse();
+int yylex();
 }
 #include <stdio.h>
 #include <fstream>
@@ -33,23 +33,25 @@ void reductionOut(const char* reductionCStr, ast_node* node);
 
 Declaration decl; // holds info about a current declaration
 bool insert_mode = true;
+bool struct_mode = false;
 
 //global tree node
 ast_node* treeHanger = NULL;
 
 identifier_node* current_id_ast = NULL;
 std::string current_id;
+int current_line, current_col;
 %}
 
 %union{
-  char cval;
-  int ival;
-  double dval;
-  char sval[100];
-  SymbolNode* symnode;
-  ast_node* astnode;
-  SpecName::TypeKind tkval;
- }
+char cval;
+int ival;
+double dval;
+char sval[100];
+SymbolNode* symnode;
+ast_node* astnode;
+SpecName::TypeKind tkval;
+}
 
 
 // Tokens
@@ -91,7 +93,7 @@ std::string current_id;
 
 %token ERRORtok
 
-%type <astnode> translation_unit external_declaration function_definition declaration declaration_list init_declarator_list init_declarator declarator declaration_specifiers storage_class_specifier type_specifier type_qualifier type_qualifier_list specifier_qualifier_list enum_specifier enumerator_list enumerator direct_declarator pointer parameter_type_list parameter_list parameter_declaration identifier_list initializer initializer_list type_name abstract_declarator constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression statement statement_list labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement struct_or_union_specifier struct_declaration_list struct_declarator_list struct_declarator direct_abstract_declarator struct_declaration struct_or_union
+%type <astnode> translation_unit external_declaration function_definition declaration declaration_list init_declarator_list init_declarator declarator declaration_specifiers storage_class_specifier type_specifier type_qualifier type_qualifier_list specifier_qualifier_list enum_specifier enumerator_list enumerator direct_declarator pointer parameter_type_list parameter_list parameter_declaration identifier_list initializer initializer_list type_name abstract_declarator constant string primary_expression postfix_expression argument_expression_list unary_expression unary_operator cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression conditional_expression assignment_expression assignment_operator expression constant_expression statement statement_list labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement struct_or_union_specifier struct_or_union struct_declaration_list struct_declaration struct_declarator_list struct_declarator direct_abstract_declarator
 
 %start program
 
@@ -99,180 +101,180 @@ std::string current_id;
 %%
 
 program
-  : translation_unit {
-    treeHanger = $1;
-    treeHanger->print(); // traverse print functions
-    std::cout << "Success!" << std::endl;
-  }
+: translation_unit {
+treeHanger = $1;
+treeHanger->print(); // traverse print functions
+std::cout << "Success!" << std::endl;
+}
 
 translation_unit
-  : external_declaration {
-     $$ = new translation_unit_node((external_declaration_node*)$1);
-     reductionOut("[p]: translation_unit -> external_declaration", $$);
-     //$$->setSource(sourceLineStr);
-     //std::cout << "[y]: " << $$->getSource() << std::endl;
-  }
-  | translation_unit external_declaration {
-    dynamic_cast<translation_unit_node*>($1)->addExternDecl((external_declaration_node*)$2);
-    $$ = $1;
-    reductionOut("[p]: translation_unit -> translation_unit external_declaration", $$);
-  }
-  ;
+: external_declaration {
+ $$ = new translation_unit_node((external_declaration_node*)$1);
+ reductionOut("[p]: translation_unit -> external_declaration", $$);
+ //$$->setSource(sourceLineStr);
+ //std::cout << "[y]: " << $$->getSource() << std::endl;
+}
+| translation_unit external_declaration {
+dynamic_cast<translation_unit_node*>($1)->addExternDecl((external_declaration_node*)$2);
+$$ = $1;
+reductionOut("[p]: translation_unit -> translation_unit external_declaration", $$);
+}
+;
 
 external_declaration
-  : function_definition{
-    $$ = new external_declaration_node((function_definition_node*)$1);
-    reductionOut("[p]: external_declaration -> function_definition", $$);
-  }
-  | declaration  {
-    $$ = new external_declaration_node((declaration_node*)$1);
-    reductionOut("[p]: external_declaration -> declaration", $$);
-  }
-  ;
+: function_definition{
+$$ = new external_declaration_node((function_definition_node*)$1);
+reductionOut("[p]: external_declaration -> function_definition", $$);
+}
+| declaration  {
+$$ = new external_declaration_node((declaration_node*)$1);
+reductionOut("[p]: external_declaration -> declaration", $$);
+}
+;
 
 /*** scope productions *******************************************************
 A start_scope is called before compound_statement and a end_scope is called
 after compound_statement.
 *****************************************************************************/
 enter_scope
-  : {
-      if(insert_mode && decl.isMode(DeclMode::Function)){
-        decl.complete(); // complete function definition
-        symTable.pushTable();
+: {
+  if(insert_mode && decl.isMode(DeclMode::Function)){
+    decl.complete(); // complete function definition
+    symTable.pushTable();
 
-        // push argments if possible
-        std::vector<SymbolNode*> args = decl.getArgSymbolNodes();
-        if(args.size() > 0){
-          for(int arg = 0; arg < args.size(); arg++){
-            symTable.insertSymbol(args[arg]->getName(),args[arg]);
-            }
+    // push argments if possible
+    std::vector<SymbolNode*> args = decl.getArgSymbolNodes();
+    if(args.size() > 0){
+      for(int arg = 0; arg < args.size(); arg++){
+        symTable.insertSymbol(args[arg]->getName(),args[arg]);
         }
-        // function is complete
-        std::string func_name = decl.getID(0);
-        symTable.lookupSymbol(func_name)->setDefined(true);
-
-        // set symbol node for ast
-        current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
-
-        // clears
-        decl.clear();
-        insert_mode = false;
-        decl.setMode(DeclMode::NoMode);
-      }
-      else{
-        symTable.pushTable();
-      }
     }
+    // function is complete
+    std::string func_name = decl.getID(0);
+    symTable.lookupSymbol(func_name)->setDefined(true);
+
+    // set symbol node for ast
+    current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
+
+    // clears
+    decl.clear();
+    insert_mode = false;
+    decl.setMode(DeclMode::NoMode);
+  }
+  else{
+    symTable.pushTable();
+  }
+}
 ;
 end_scope
-  : {symTable.popTable();}
+: {symTable.popTable();}
 ;
 
 function_definition
-  : declarator compound_statement {
-      $$ = new function_definition_node(NULL,(declarator_node*)$1,NULL,(compound_statement_node*)$2);
-      reductionOut("[p]: function_definition -> declarator compound_statement", $$);
-      }
-  | declarator declaration_list compound_statement {
-      $$ = new function_definition_node(NULL,(declarator_node*)$1,(declaration_list_node*)$2,(compound_statement_node*)$3);
-      reductionOut("[p]: function_definition -> declarator declaration_list compound_statement", $$);
-      }
-  | declaration_specifiers declarator compound_statement {
-      $$ = new function_definition_node((declaration_specifiers_node*)$1,(declarator_node*)$2,NULL,(compound_statement_node*)$3);
-      reductionOut("[p]: function_definition -> declaration_specifiers declarator compound_statement", $$);
-    }
-  | declaration_specifiers declarator declaration_list compound_statement {
-       $$ = new function_definition_node((declaration_specifiers_node*)$1,(declarator_node*)$2,(declaration_list_node*)$3,(compound_statement_node*)$4);
-       reductionOut("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement", $$);
-    }
-  ;
+: declarator compound_statement {
+  $$ = new function_definition_node(NULL,(declarator_node*)$1,NULL,(compound_statement_node*)$2);
+  reductionOut("[p]: function_definition -> declarator compound_statement", $$);
+  }
+| declarator declaration_list compound_statement {
+  $$ = new function_definition_node(NULL,(declarator_node*)$1,(declaration_list_node*)$2,(compound_statement_node*)$3);
+  reductionOut("[p]: function_definition -> declarator declaration_list compound_statement", $$);
+  }
+| declaration_specifiers declarator compound_statement {
+  $$ = new function_definition_node((declaration_specifiers_node*)$1,(declarator_node*)$2,NULL,(compound_statement_node*)$3);
+  reductionOut("[p]: function_definition -> declaration_specifiers declarator compound_statement", $$);
+}
+| declaration_specifiers declarator declaration_list compound_statement {
+   $$ = new function_definition_node((declaration_specifiers_node*)$1,(declarator_node*)$2,(declaration_list_node*)$3,(compound_statement_node*)$4);
+   reductionOut("[p]: function_definition -> declaration_specifiers declarator declaration_list compound_statement", $$);
+}
+;
 
 declaration
-  : declaration_specifiers SEMItok{
-      $$ = new declaration_node((declaration_specifiers_node*)$1,NULL);
-      reductionOut("[p]: declaration -> declaration_specifiers SEMItok", $$);
-      insert_mode = true;
-      decl.clear();
-  }
-  | declaration_specifiers init_declarator_list SEMItok{
-      $$ = new declaration_node((declaration_specifiers_node*)$1,(init_declarator_list_node*)$2);
-      reductionOut("[p]: declaration -> declaration_specifiers init_declarator_list SEMItok", $$);
-      insert_mode = true;
-      decl.clear();
-  }
-  ;
+: declaration_specifiers SEMItok{
+  $$ = new declaration_node((declaration_specifiers_node*)$1,NULL);
+  reductionOut("[p]: declaration -> declaration_specifiers SEMItok", $$);
+  insert_mode = true;
+  decl.clear();
+}
+| declaration_specifiers init_declarator_list SEMItok{
+  $$ = new declaration_node((declaration_specifiers_node*)$1,(init_declarator_list_node*)$2);
+  reductionOut("[p]: declaration -> declaration_specifiers init_declarator_list SEMItok", $$);
+  insert_mode = true;
+  decl.clear();
+}
+;
 
 declaration_list
-  : declaration{
-      $$ = new declaration_list_node((declaration_node*)$1);
-      reductionOut("[p]: declaration_list -> declaration", $$);
-  }
-  | declaration_list declaration{
-      dynamic_cast<declaration_list_node*>($1)->addDecl((declaration_node*)$2);
-      $$ = $1;
-      reductionOut("[p]: declaration_list -> declaration_list declaration", $$);
-  }
-  ;
+: declaration{
+  $$ = new declaration_list_node((declaration_node*)$1);
+  reductionOut("[p]: declaration_list -> declaration", $$);
+}
+| declaration_list declaration{
+  dynamic_cast<declaration_list_node*>($1)->addDecl((declaration_node*)$2);
+  $$ = $1;
+  reductionOut("[p]: declaration_list -> declaration_list declaration", $$);
+}
+;
 
 init_declarator_list
-  : init_declarator {
-      // a single variable declaration
-      $$ = new init_declarator_list_node((init_declarator_node*)$1);
-      reductionOut("[p]: init_declarator_list -> init_declarator", $$);
-  }
-  | init_declarator_list COMMAtok init_declarator {
-      // multiple single line declarations
-      dynamic_cast<init_declarator_list_node*>($1)->addInitDecl((init_declarator_node*)$3);
-      $$ = $1;
-      reductionOut("[p]: init_declarator_list -> init_declarator_list COMMAtok init_declarator", $$);
-  }
-  ;
+: init_declarator {
+  // a single variable declaration
+  $$ = new init_declarator_list_node((init_declarator_node*)$1);
+  reductionOut("[p]: init_declarator_list -> init_declarator", $$);
+}
+| init_declarator_list COMMAtok init_declarator {
+  // multiple single line declarations
+  dynamic_cast<init_declarator_list_node*>($1)->addInitDecl((init_declarator_node*)$3);
+  $$ = $1;
+  reductionOut("[p]: init_declarator_list -> init_declarator_list COMMAtok init_declarator", $$);
+}
+;
 
 init_declarator
-  : declarator{
-      // declaration
-      decl.complete();
-      current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
-      $$ = new init_declarator_node((declarator_node*)$1, NULL);
-      reductionOut("[p]: init_declarator -> declarator", $$);
-  }
-  | declarator EQUALtok initializer {
-      // initialization
-      decl.complete();
-      current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
-      $$ = new init_declarator_node((declarator_node*)$1, (initializer_node*)$3);
-      reductionOut("[p]: init_declarator -> declarator EQUALtok initializer", $$);
-  }
-  ;
+: declarator{
+  // declaration
+  decl.complete();
+  current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
+  $$ = new init_declarator_node((declarator_node*)$1, NULL);
+  reductionOut("[p]: init_declarator -> declarator", $$);
+}
+| declarator EQUALtok initializer {
+  // initialization
+  decl.complete();
+  current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
+  $$ = new init_declarator_node((declarator_node*)$1, (initializer_node*)$3);
+  reductionOut("[p]: init_declarator -> declarator EQUALtok initializer", $$);
+}
+;
 
 /*** Declaration Spec *********************************************************
 *****************************************************************************/
 declaration_specifiers
-  : storage_class_specifier {
-      $$ = new declaration_specifiers_node((storage_class_specifier_node*)$1,NULL);
-      reductionOut("[p]: declaration_specifiers -> storage_class_specifier", $$);
-  }
-  | storage_class_specifier declaration_specifiers  {
-      $$ = new declaration_specifiers_node((storage_class_specifier_node*)$1,(declaration_specifiers_node*)$2);
-      reductionOut("[p]: declaration_specifiers -> storage_class_specifier declaration_specifiers", $$);
-  }
-  | type_specifier  {
-      $$ = new declaration_specifiers_node((type_specifier_node*)$1,NULL);
-      reductionOut("[p]: declaration_specifiers -> type_specifier", $$);
-  }
-  | type_specifier declaration_specifiers  {
-      $$ = new declaration_specifiers_node((type_specifier_node*)$1,(declaration_specifiers_node*)$2);
-      reductionOut("[p]: declaration_specifiers -> type_specifier declaration_specifiers", $$);
-  }
-  | type_qualifier  {
-      $$ = new declaration_specifiers_node((type_qualifier_node*)$1,NULL);
-      reductionOut("[p]: declaration_specifiers -> type_qualifier", $$);
-  }
-  | type_qualifier declaration_specifiers  {
-      $$ = new declaration_specifiers_node((type_qualifier_node*)$1,(declaration_specifiers_node*)$2);
-      reductionOut("[p]: declaration_specifiers -> type_qualifier declaration_specifiers", $$);
-  }
-  ;
+: storage_class_specifier {
+  $$ = new declaration_specifiers_node((storage_class_specifier_node*)$1,NULL);
+  reductionOut("[p]: declaration_specifiers -> storage_class_specifier", $$);
+}
+| storage_class_specifier declaration_specifiers  {
+  $$ = new declaration_specifiers_node((storage_class_specifier_node*)$1,(declaration_specifiers_node*)$2);
+  reductionOut("[p]: declaration_specifiers -> storage_class_specifier declaration_specifiers", $$);
+}
+| type_specifier  {
+  $$ = new declaration_specifiers_node((type_specifier_node*)$1,NULL);
+  reductionOut("[p]: declaration_specifiers -> type_specifier", $$);
+}
+| type_specifier declaration_specifiers  {
+  $$ = new declaration_specifiers_node((type_specifier_node*)$1,(declaration_specifiers_node*)$2);
+  reductionOut("[p]: declaration_specifiers -> type_specifier declaration_specifiers", $$);
+}
+| type_qualifier  {
+  $$ = new declaration_specifiers_node((type_qualifier_node*)$1,NULL);
+  reductionOut("[p]: declaration_specifiers -> type_qualifier", $$);
+}
+| type_qualifier declaration_specifiers  {
+  $$ = new declaration_specifiers_node((type_qualifier_node*)$1,(declaration_specifiers_node*)$2);
+  reductionOut("[p]: declaration_specifiers -> type_qualifier declaration_specifiers", $$);
+}
+;
 
 /* Storage Class **************************************************************
 A variable or function has one of these storage classes
@@ -288,46 +290,46 @@ Declaration without the storage class:
 register variable:
 - A special case of automatic variable
 - It suggests to the compiler that particular auto variables should be allocated
-  to CPU registers instead of RAM, if possible.
+to CPU registers instead of RAM, if possible.
 - For most computers, accessing data in memory is considerably slower
-  than processing in the CPU. Variables which are used repeatedly or
-  whose access times are critical, may be declared to be of register
+than processing in the CPU. Variables which are used repeatedly or
+whose access times are critical, may be declared to be of register
 
 static variable
 - it is only initialized at the beginning of program execution
 
 typedef specifier
 - it does not reserve storage and is called a storage class specifier
-  only for syntactic convenience
- ****************************************************************************/
+only for syntactic convenience
+****************************************************************************/
 
 storage_class_specifier
-  : AUTOtok {
-    decl.pushStorage(SpecName::Auto);
-    $$ = new storage_class_specifier_node(SpecName::Auto);
-    reductionOut("[p]: storage_class_specifier -> AUTOtok", $$);
-  }
-  | REGISTERtok {
-    decl.pushStorage(SpecName::Register);
-    $$ = new storage_class_specifier_node(SpecName::Register);
-    reductionOut("[p]: storage_class_specifier -> REGISTERtok", $$);
-  }
-  | STATICtok {
-    decl.pushStorage(SpecName::Static);
-    $$ = new storage_class_specifier_node(SpecName::Static);
-    reductionOut("[p]: storage_class_specifier -> STATICtok", $$);
-  }
-  | EXTERNtok {
-    decl.pushStorage(SpecName::Extern);
-    $$ = new storage_class_specifier_node(SpecName::Extern);
-    reductionOut("[p]: storage_class_specifier -> EXTERNtok", $$);
-  }
-  | TYPEDEFtok {
-    decl.pushStorage(SpecName::Typedef);
-    $$ = new storage_class_specifier_node(SpecName::Typedef);
-    reductionOut("[p]: storage_class_specifier -> TYPEDEFtok", $$);
-  }
-  ;
+: AUTOtok {
+decl.pushStorage(SpecName::Auto);
+$$ = new storage_class_specifier_node(SpecName::Auto);
+reductionOut("[p]: storage_class_specifier -> AUTOtok", $$);
+}
+| REGISTERtok {
+decl.pushStorage(SpecName::Register);
+$$ = new storage_class_specifier_node(SpecName::Register);
+reductionOut("[p]: storage_class_specifier -> REGISTERtok", $$);
+}
+| STATICtok {
+decl.pushStorage(SpecName::Static);
+$$ = new storage_class_specifier_node(SpecName::Static);
+reductionOut("[p]: storage_class_specifier -> STATICtok", $$);
+}
+| EXTERNtok {
+decl.pushStorage(SpecName::Extern);
+$$ = new storage_class_specifier_node(SpecName::Extern);
+reductionOut("[p]: storage_class_specifier -> EXTERNtok", $$);
+}
+| TYPEDEFtok {
+decl.pushStorage(SpecName::Typedef);
+$$ = new storage_class_specifier_node(SpecName::Typedef);
+reductionOut("[p]: storage_class_specifier -> TYPEDEFtok", $$);
+}
+;
 
 /* type_specifier ************************************************************
 A type-specifier defines the type of a variable or function declaration.
@@ -339,207 +341,230 @@ The keyword void has three uses:
 3. to specify a pointer to an unspecified type.
 *******************************************************************************/
 type_specifier
-  :
-    VOIDtok {
-    $$ = new type_specifier_node(TypeSpecifier::VOID);
-    reductionOut("[p]: type_specifier -> VOIDtok", $$);
-    decl.setMode(DeclMode::Basic);
-    decl.pushKind(SpecName::Basic);
-    decl.pushBase(SpecName::Void);
-  }
-  | CHARtok {
-    $$ = new type_specifier_node(TypeSpecifier::CHAR);
-    reductionOut("[p]: type_specifier -> CHARtok", $$);
-    decl.setMode(DeclMode::Basic);
-    decl.pushKind(SpecName::Basic);
-    decl.pushBase(SpecName::Char);
-  }
-  | SHORTtok {
-    $$ = new type_specifier_node(TypeSpecifier::SHORT);
-    reductionOut("[p]: type_specifier -> SHORTtok", $$);
-    decl.setMode(DeclMode::Basic);
-    decl.pushKind(SpecName::Basic);
-    decl.pushBase(SpecName::Short);
-  }
-  | INTtok {
-    $$ = new type_specifier_node(TypeSpecifier::INT);
-    reductionOut("[p]: type_specifier -> INTtok", $$);
-    decl.setMode(DeclMode::Basic);
-    decl.pushKind(SpecName::Basic);
-    decl.pushBase(SpecName::Int);
-  }
-  | LONGtok  {
-    $$ = new type_specifier_node(TypeSpecifier::LONG);
-    reductionOut("[p]: type_specifier -> LONGtok", $$);
-    decl.setMode(DeclMode::Basic);
-    decl.pushKind(SpecName::Basic);
-    decl.pushBase(SpecName::Long);
-  }
-  | FLOATtok  {
-    $$ = new type_specifier_node(TypeSpecifier::FLOAT);
-    reductionOut("[p]: type_specifier -> FLOATtok", $$);
-    decl.setMode(DeclMode::Basic);
-    decl.pushKind(SpecName::Basic);
-    decl.pushBase(SpecName::Float);
-  }
-  | DOUBLEtok  {
-    $$ = new type_specifier_node(TypeSpecifier::DOUBLE);
-    reductionOut("[p]: type_specifier -> DOUBLEtok", $$);
-    decl.setMode(DeclMode::Basic);
-    decl.pushKind(SpecName::Basic);
-    decl.pushBase(SpecName::Double);
-  }
-  | SIGNEDtok  {
-    $$ = new type_specifier_node(TypeSpecifier::SIGNED);
-    reductionOut("[p]: type_specifier -> SIGNEDtok", $$);
-    decl.pushSign(SpecName::Signed);
-  }
-  | UNSIGNEDtok  {
-    $$ = new type_specifier_node(TypeSpecifier::UNSIGNED);
-    reductionOut("[p]: type_specifier -> UNSIGNEDtok", $$);
-    decl.pushSign(SpecName::Unsigned);
-  }
-  | struct_or_union_specifier  {
-    reductionOut("[p]: type_specifier -> struct_or_union_specifier", $$);
-  }
-  | enum_specifier  {
-    reductionOut("[p]: type_specifier -> enum_specifier", $$);
-    decl.pushKind(SpecName::Enum);
-    decl.setMode(DeclMode::Enum);
-  }
-  | TYPEDEF_NAMEtok  {
-    decl.pushKind(SpecName::TypeName);
-    reductionOut("[p]: type_specifier -> TYPEDEF_NAMEtok", $$);
-  }
-  ;
+:
+VOIDtok {
+$$ = new type_specifier_node(TypeSpecifier::VOID);
+reductionOut("[p]: type_specifier -> VOIDtok", $$);
+decl.setMode(DeclMode::Basic);
+decl.pushKind(SpecName::Basic);
+decl.pushBase(SpecName::Void);
+}
+| CHARtok {
+$$ = new type_specifier_node(TypeSpecifier::CHAR);
+reductionOut("[p]: type_specifier -> CHARtok", $$);
+decl.setMode(DeclMode::Basic);
+decl.pushKind(SpecName::Basic);
+decl.pushBase(SpecName::Char);
+}
+| SHORTtok {
+$$ = new type_specifier_node(TypeSpecifier::SHORT);
+reductionOut("[p]: type_specifier -> SHORTtok", $$);
+decl.setMode(DeclMode::Basic);
+decl.pushKind(SpecName::Basic);
+decl.pushBase(SpecName::Short);
+}
+| INTtok {
+$$ = new type_specifier_node(TypeSpecifier::INT);
+reductionOut("[p]: type_specifier -> INTtok", $$);
+decl.setMode(DeclMode::Basic);
+decl.pushKind(SpecName::Basic);
+decl.pushBase(SpecName::Int);
+}
+| LONGtok  {
+$$ = new type_specifier_node(TypeSpecifier::LONG);
+reductionOut("[p]: type_specifier -> LONGtok", $$);
+decl.setMode(DeclMode::Basic);
+decl.pushKind(SpecName::Basic);
+decl.pushBase(SpecName::Long);
+}
+| FLOATtok  {
+$$ = new type_specifier_node(TypeSpecifier::FLOAT);
+reductionOut("[p]: type_specifier -> FLOATtok", $$);
+decl.setMode(DeclMode::Basic);
+decl.pushKind(SpecName::Basic);
+decl.pushBase(SpecName::Float);
+}
+| DOUBLEtok  {
+$$ = new type_specifier_node(TypeSpecifier::DOUBLE);
+reductionOut("[p]: type_specifier -> DOUBLEtok", $$);
+decl.setMode(DeclMode::Basic);
+decl.pushKind(SpecName::Basic);
+decl.pushBase(SpecName::Double);
+}
+| SIGNEDtok  {
+$$ = new type_specifier_node(TypeSpecifier::SIGNED);
+reductionOut("[p]: type_specifier -> SIGNEDtok", $$);
+decl.pushSign(SpecName::Signed);
+}
+| UNSIGNEDtok  {
+$$ = new type_specifier_node(TypeSpecifier::UNSIGNED);
+reductionOut("[p]: type_specifier -> UNSIGNEDtok", $$);
+decl.pushSign(SpecName::Unsigned);
+}
+| struct_or_union_specifier  {
+reductionOut("[p]: type_specifier -> struct_or_union_specifier", $$);
+}
+| enum_specifier  {
+reductionOut("[p]: type_specifier -> enum_specifier", $$);
+decl.pushKind(SpecName::Enum);
+decl.setMode(DeclMode::Enum);
+}
+| TYPEDEF_NAMEtok  {
+decl.pushKind(SpecName::TypeName);
+reductionOut("[p]: type_specifier -> TYPEDEF_NAMEtok", $$);
+}
+;
 
 type_qualifier
-  : CONSTtok {
-    $$ = new type_qualifier_node(SpecName::Const);
-    reductionOut("[p]: type_qualifier -> CONSTtok", $$);
-    decl.pushQualifier(SpecName::Const);
-  }
-  | VOLATILEtok {
-    $$ = new type_qualifier_node(SpecName::Volatile);
-    reductionOut("[p]: type_qualifier -> VOLATILEtok", $$);
-    decl.pushQualifier(SpecName::Volatile);
-  }
-  ;
+: CONSTtok {
+$$ = new type_qualifier_node(SpecName::Const);
+reductionOut("[p]: type_qualifier -> CONSTtok", $$);
+decl.pushQualifier(SpecName::Const);
+}
+| VOLATILEtok {
+$$ = new type_qualifier_node(SpecName::Volatile);
+reductionOut("[p]: type_qualifier -> VOLATILEtok", $$);
+decl.pushQualifier(SpecName::Volatile);
+}
+;
 
 struct_or_union_specifier
-  : struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
-      reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok", $$);
-  }
-  | struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
-      // struct {...}
-      reductionOut("[p]: struct_or_union_specifier -> struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtokk", $$);
-  }
-  | struct_or_union identifier {
-      // forward declaration  struct id;
-      reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier", $$);
-  }
-  ;
+: struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
+  $$ = new struct_or_union_specifier_node((struct_or_union_node*)$1,$2,(struct_declaration_list_node*)$4);
+  (struct_mode)? decl.setMode(DeclMode::Struct) :decl.setMode(DeclMode::Union);
+  decl.complete();
+  reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok", $$);
+}
+| struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtok {
+  // struct {...}
+  $$ = new struct_or_union_specifier_node((struct_or_union_node*)$1,"",(struct_declaration_list_node*)$3);
+  (struct_mode)? decl.setMode(DeclMode::Struct) :decl.setMode(DeclMode::Union);
+  decl.complete();
+  reductionOut("[p]: struct_or_union_specifier -> struct_or_union OPEN_CURLYtok struct_declaration_list CLOSE_CURLYtokk", $$);
+}
+| struct_or_union identifier {
+  // forward declaration  struct id;
+  $$ = new struct_or_union_specifier_node((struct_or_union_node*)$1,$2,NULL);
+  (struct_mode)? decl.setMode(DeclMode::Struct) :decl.setMode(DeclMode::Union);
+  decl.complete();
+  reductionOut("[p]: struct_or_union_specifier -> struct_or_union identifier", $$);
+}
+;
 
 struct_or_union
-  : STRUCTtok {
-      reductionOut("[p]: struct_or_union -> STRUCTtok", $$);
-      decl.pushKind(SpecName::Struct);
-      decl.setMode(DeclMode::Struct);
-  }
-  | UNIONtok {
-      reductionOut("[p]: struct_or_union -> UNIONtok", $$);
-      decl.pushKind(SpecName::Union);
-      decl.setMode(DeclMode::Union);
-  }
-  ;
+: STRUCTtok {
+  $$ = new struct_or_union_node(StructUnion::STRUCT);
+  decl.pushKind(SpecName::Struct);
+  decl.pushKind(SpecName::NoKind);
+  struct_mode = true;
+  reductionOut("[p]: struct_or_union -> STRUCTtok", $$);
+}
+| UNIONtok {
+  $$ = new struct_or_union_node(StructUnion::UNION);
+  decl.pushKind(SpecName::Union);
+  decl.pushKind(SpecName::NoKind);
+  bool struct_mode = false;
+  reductionOut("[p]: struct_or_union -> UNIONtok", $$);
+}
+;
 
 struct_declaration_list
-  : struct_declaration {
-      reductionOut("[p]: struct_declaration_list -> struct_declaration", $$);
-  }
-  | struct_declaration_list struct_declaration {
-      reductionOut("[p]: struct_declaration_list -> struct_declaration_list struct_declaration", $$);
-  }
-  ;
+: struct_declaration {
+  $$ = new struct_declaration_list_node((struct_declaration_node*)$1);
+  reductionOut("[p]: struct_declaration_list -> struct_declaration", $$);
+}
+| struct_declaration_list struct_declaration {
+  dynamic_cast<struct_declaration_list_node*>($1)->addStrDecl((struct_declaration_node*)$2);
+  $$ = $1;
+  reductionOut("[p]: struct_declaration_list -> struct_declaration_list struct_declaration", $$);
+}
+;
 
 struct_declaration
-  : specifier_qualifier_list struct_declarator_list SEMItok {
-      reductionOut("[p]: struct_declaration -> specifier_qualifier_list struct_declarator_list SEMItok", $$);
-  }
-  ;
+: specifier_qualifier_list struct_declarator_list SEMItok {
+  $$ = new struct_declaration_node((specifier_qualifier_list_node*)$1, (struct_declarator_list_node*)$2);
+  reductionOut("[p]: struct_declaration -> specifier_qualifier_list struct_declarator_list SEMItok", $$);
+}
+;
 
 specifier_qualifier_list
-  : type_specifier {
-      //$$ = new specifier_qualifier_list_node((type_specifier_node*)$1,NULL);
-      reductionOut("[p]: specifier_qualifier_list -> type_specifier", $$);
-  }
-  | type_specifier specifier_qualifier_list {
-      //$$ = new specifier_qualifier_list_node((type_specifier_node*)$1,(specifier_qualifier_list_node*)$2);
-      reductionOut("[p]: specifier_qualifier_list -> type_specifier specifier_qualifier_list", $$);
-  }
-  | type_qualifier {
-      //$$ = new specifier_qualifier_list_node((type_qualifier_node*)$1,NULL);
-      reductionOut("[p]: specifier_qualifier_list -> type_qualifier", $$);
-  }
-  | type_qualifier specifier_qualifier_list {
-      //$$ = new specifier_qualifier_list_node((type_qualifier_node*)$1,(specifier_qualifier_list_node*)$2);
-      reductionOut("[p]: specifier_qualifier_list -> type_qualifier specifier_qualifier_list", $$);
-  }
-  ;
+: type_specifier {
+  $$ = new specifier_qualifier_list_node((type_specifier_node*)$1,NULL);
+  reductionOut("[p]: specifier_qualifier_list -> type_specifier", $$);
+}
+| type_specifier specifier_qualifier_list {
+  $$ = new specifier_qualifier_list_node((type_specifier_node*)$1,(specifier_qualifier_list_node*)$2);
+  reductionOut("[p]: specifier_qualifier_list -> type_specifier specifier_qualifier_list", $$);
+}
+| type_qualifier {
+  $$ = new specifier_qualifier_list_node((type_qualifier_node*)$1,NULL);
+  reductionOut("[p]: specifier_qualifier_list -> type_qualifier", $$);
+}
+| type_qualifier specifier_qualifier_list {
+  $$ = new specifier_qualifier_list_node((type_qualifier_node*)$1,(specifier_qualifier_list_node*)$2);
+  reductionOut("[p]: specifier_qualifier_list -> type_qualifier specifier_qualifier_list", $$);
+}
+;
 
 struct_declarator_list
-  : struct_declarator {
-      reductionOut("[p]: struct_declarator_list -> struct_declarator", $$);
-  }
-  | struct_declarator_list COMMAtok struct_declarator {
-      reductionOut("[p]: struct_declarator_list -> struct_declarator_list COMMAtok struct_declarator", $$);
-  }
-  ;
+: struct_declarator {
+  $$ = new struct_declarator_list_node((struct_declarator_node*)$1);
+  reductionOut("[p]: struct_declarator_list -> struct_declarator", $$);
+}
+| struct_declarator_list COMMAtok struct_declarator {
+  dynamic_cast<struct_declarator_list_node*>($1)->addStrDecl((struct_declarator_node*)$3);
+  $$ = $1;
+  reductionOut("[p]: struct_declarator_list -> struct_declarator_list COMMAtok struct_declarator", $$);
+}
+;
 
 struct_declarator
-  : declarator {
-      reductionOut("[p]: struct_declarator -> declarator", $$);
-  }
-  | COLONtok constant_expression {
-      reductionOut("[p]: struct_declarator -> COLONtok constant_expression", $$);
-  }
-  | declarator COLONtok constant_expression {
-      reductionOut("[p]: struct_declarator -> declarator COLONtok constant_expression", $$);
-  }
-  ;
+: declarator {
+  $$ = new struct_declarator_node((declarator_node*)$1,NULL);
+  reductionOut("[p]: struct_declarator -> declarator", $$);
+}
+| COLONtok constant_expression {
+  $$ = new struct_declarator_node(NULL,(constant_expression_node*)$2);
+  reductionOut("[p]: struct_declarator -> COLONtok constant_expression", $$);
+}
+| declarator COLONtok constant_expression {
+  $$ = new struct_declarator_node((declarator_node*)$1,(constant_expression_node*)$3);
+  reductionOut("[p]: struct_declarator -> declarator COLONtok constant_expression", $$);
+}
+;
 
 enum_specifier
-  : ENUMtok OPEN_CURLYtok enumerator_list CLOSE_CURLYtok {
-      reductionOut("[p]: enum_specifier -> ENUMtok OPEN_CURLYtok enumerator_list CLOSE_CURLYtok", $$);
-  }
-  | ENUMtok identifier OPEN_CURLYtok enumerator_list CLOSE_CURLYtok {
-      reductionOut("[p]: enum_specifier -> ENUMtok identifier OPEN_CURLYtok enumerator_list CLOSE_CURLYtok", $$);
-  }
-  | ENUMtok identifier {
-      reductionOut("[p]: enum_specifier -> ENUMtok identifier", $$);
-  }
-  ;
+: ENUMtok OPEN_CURLYtok enumerator_list CLOSE_CURLYtok {
+  reductionOut("[p]: enum_specifier -> ENUMtok OPEN_CURLYtok enumerator_list CLOSE_CURLYtok", $$);
+}
+| ENUMtok identifier OPEN_CURLYtok enumerator_list CLOSE_CURLYtok {
+  reductionOut("[p]: enum_specifier -> ENUMtok identifier OPEN_CURLYtok enumerator_list CLOSE_CURLYtok", $$);
+}
+| ENUMtok identifier {
+  reductionOut("[p]: enum_specifier -> ENUMtok identifier", $$);
+}
+;
 
 enumerator_list
-  : enumerator {
-      reductionOut("[p]: enumerator_list -> enumerator", $$);
-  }
-  | enumerator_list COMMAtok enumerator {
-      reductionOut("[p]: enumerator_list -> enumerator_list COMMAtok enumerator", $$);
-  }
-  ;
+: enumerator {
+  reductionOut("[p]: enumerator_list -> enumerator", $$);
+}
+| enumerator_list COMMAtok enumerator {
+  reductionOut("[p]: enumerator_list -> enumerator_list COMMAtok enumerator", $$);
+}
+;
 
 enumerator
-  : identifier {
-      reductionOut("[p]: enumerator -> identifier", $$);
-  }
-  | identifier EQUALtok constant_expression {
-      reductionOut("[p]: enumerator -> identifier EQUALtok constant_expression", $$);
-  }
-  ;
+: identifier {
+  reductionOut("[p]: enumerator -> identifier", $$);
+}
+| identifier EQUALtok constant_expression {
+  reductionOut("[p]: enumerator -> identifier EQUALtok constant_expression", $$);
+}
+;
 
 declarator
-  : direct_declarator {
+: direct_declarator {
       insert_mode = true;
 
       decl.pushKind(SpecName::NoKind);
@@ -579,7 +604,7 @@ direct_declarator
       if(decl.getBasesNum() > 0){
         decl.setHasType();
       }
-      current_id_ast = new identifier_node($1, NULL);
+      current_id_ast = new identifier_node($1, NULL, current_line, current_col);
       $$ = new direct_declarator_node(current_id_ast);
       reductionOut("[p]: direct_declarator -> identifier", $$);
   }
@@ -1359,7 +1384,7 @@ primary_expression
       // ast node creation
       SymbolNode *sym = symTable.lookupSymbol($1);
       if(sym != NULL){
-        $$ = new primary_expression_node(new identifier_node($1, sym));
+        $$ = new primary_expression_node(new identifier_node($1, sym, current_line, current_col));
       }
       // reduction complete
       reductionOut("[p]: primary_expression -> identifier", $$);
@@ -1422,6 +1447,8 @@ identifier
       decl.pushLine(linenum);
       decl.pushCol(colnum);
       current_id = $1;
+      current_line = linenum;
+      current_col = colnum;
       strcpy($$, $1);
       //reductionOut("[p]: identifier -> IDENTIFIERtok", $$);
   }
@@ -1434,6 +1461,7 @@ void error(const std::string& message) {
     exit(1); // stop parsing
 }
 void yyerror(const char* message) {
+    //printf("%s at line %d col %d\n", message, linenum, colnum); sometimes duplicate
     printf("%s\n", message);
 }
 void warning(const std::string& message){

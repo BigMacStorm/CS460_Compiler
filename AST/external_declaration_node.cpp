@@ -18,6 +18,7 @@ external_declaration_node::external_declaration_node(
 
 //print name and name of child
 void external_declaration_node::print(){
+    visualizer.debug("external_declaration");
     //print own info
     if (this->functionChild == NULL) {
         this->declChild->setPID(this->pid);

@@ -11,6 +11,7 @@ parameter_declaration_node::parameter_declaration_node(declaration_specifiers_no
   this->absDecl = absDecl;
 }
 void parameter_declaration_node::print(){
+  visualizer.debug("parameter_declaration");
   visualizer.addNode(this->id,"param");
   visualizer.addEdge(this->pid,this->id);
 

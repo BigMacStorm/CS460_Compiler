@@ -20,6 +20,7 @@ void equality_expression_node::init(){
   mode = -1;
 }
 void equality_expression_node::print(){
+  visualizer.debug("equality_expression");
   switch(this->mode){
     case 0:
       if(this->relExpr!=NULL){

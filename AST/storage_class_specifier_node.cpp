@@ -5,6 +5,7 @@ storage_class_specifier_node::storage_class_specifier_node(SpecName::Storage sto
   this->storeType = storeType;
 }
 void storage_class_specifier_node::print(){
+  visualizer.debug("storage_class_specifier");
   Spec spec;
   spec.setStorage(this->storeType);
   visualizer.addNode(this->id,spec.getStorageClassStr());

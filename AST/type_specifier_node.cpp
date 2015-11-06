@@ -5,6 +5,7 @@ type_specifier_node::type_specifier_node(TypeSpecifier::Type type): ast_node(){
   this->type = type;
 }
 void type_specifier_node::print(){
+  visualizer.debug("type_specifier");
   std::string type;
   switch(this->type){
     case TypeSpecifier::VOID:
