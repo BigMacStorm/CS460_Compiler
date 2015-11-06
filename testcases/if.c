@@ -1,11 +1,11 @@
 int main (){
-    int a = 0;
+    const int a = 0;
     if(a != 0){
         return a;
     }
-    else if(a != 1){
-        return 1;
+    else if(a ==0){
+        return 2;
     }
     else
-        return 0;
+        return 1;
 }

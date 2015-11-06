@@ -55,6 +55,8 @@ void iteration_statement_node::print(){
       }
     break;
     case 1:
+      visualizer.addNode(this->id,"for");
+      visualizer.addEdge(this->pid,this->id);
       if(this->expr1 != NULL){
         this->expr1->setPID(this->id);
         this->expr1->print();
