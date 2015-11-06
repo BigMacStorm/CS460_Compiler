@@ -11,7 +11,6 @@ int floatToInt(float f)
 {
     int i = 0;
     i = f;
-    
     return i;
 }
 
