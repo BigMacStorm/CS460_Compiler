@@ -100,6 +100,23 @@ Spec* unary_expression_node::getSpec(){
   }
 }
 
-void unary_expression_node::generateCode(){
-
+std::string unary_expression_node::generateCode(){
+  std::string temp1;
+  switch(this->mode){
+    case 0:
+      return this->postExpr->generateCode();
+    case 1:
+     temp1 = this->unaryExpr->generateCode();
+     codeGenerator.debug(temp1 + " := " + temp1);
+     if(this->op == OpType::INC){
+       codeGenerator.debug(" + 1;\n");
+     }
+     else if(this->op == OpType::DEC){
+       codeGenerator.debug(" - 1;\n");
+     }
+     return temp1;
+    case 2:
+     return this->castExpr->generateCode();
+   }
+   return "";
 }

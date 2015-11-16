@@ -72,6 +72,35 @@ Spec* relational_expression_node::getSpec(){
   }
   return NULL;
 }
-void relational_expression_node::generateCode(){
+std::string relational_expression_node::generateCode(){
+  std::string result, temp1, temp2;
 
+  switch(this->mode){
+    case 0:
+      return this->shiftExpr->generateCode();
+
+    case 1:
+      temp1 = this->relExpr->generateCode();
+      temp2 = this->shiftExpr->generateCode();
+      result = ast_node::getNewTempStr();
+
+      codeGenerator.debug(result);
+      codeGenerator.debug(" := ");
+      codeGenerator.debug(temp1);
+
+      if(this->op == OpType::L){
+        codeGenerator.debug(" < ");
+      }else if(this->op == OpType::G){
+        codeGenerator.debug(" > ");
+      }else if(this->op == OpType::LE){
+        codeGenerator.debug(" <= ");
+      }else if(this->op == OpType::GE){
+        codeGenerator.debug(" >= ");
+      }
+
+      codeGenerator.debug(temp2);
+      codeGenerator.debug(";\n");
+      return result;
+  }
+  return "";
 }

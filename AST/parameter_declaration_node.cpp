@@ -44,5 +44,16 @@ void parameter_declaration_node::print(){
   }
 }
 void parameter_declaration_node::generateCode(){
-
+  if(this->decl != NULL){
+    if(this->declSpec != NULL){
+      this->declSpec->generateCode();
+    }
+    this->decl->generateCode();
+  }
+  else if(this->absDecl != NULL){
+    if(this->declSpec != NULL){
+      this->declSpec->generateCode();
+    }
+    this->absDecl->generateCode();
+  }
 }

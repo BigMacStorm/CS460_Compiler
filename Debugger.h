@@ -2,7 +2,7 @@
 #define __DEBUGGER__H__
 #include <fstream>
 class Debugger{
-  private:
+  protected:
     bool m_debug;
     std::string filename;
     std::ofstream *pfout;

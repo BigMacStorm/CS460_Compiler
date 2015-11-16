@@ -35,4 +35,24 @@
     }
   }
   void unary_operator_node::generateCode(){
+    switch(this->op){
+      case OpType::AND:
+        codeGenerator.debug(" AND ");
+      break;
+      case OpType::ASTERISK:
+        codeGenerator.debug(" MUL ");
+      break;
+      case OpType::PLUS:
+        codeGenerator.debug(" PLUS ");
+      break;
+      case OpType::MINUS:
+        codeGenerator.debug(" SUB ");
+      break;
+      case OpType::TILDE:
+        codeGenerator.debug(" TILDE ");
+      break;
+      case OpType::BANG:
+        codeGenerator.debug(" BANG ");
+      break;
+    }
   }

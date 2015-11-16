@@ -64,6 +64,18 @@ Spec* exclusive_or_expression_node::getSpec(){
   }
   return NULL;
 }
-void exclusive_or_expression_node::generateCode(){
-
+std::string exclusive_or_expression_node::generateCode(){
+  switch(this->mode){
+    case 0:
+      return this->andExpr->generateCode();
+    case 1:
+      if(this->exorExpr!=NULL){
+        this->exorExpr->generateCode();
+      }
+      if(this->andExpr!=NULL){
+        this->andExpr->generateCode();
+      }
+    break;
+  }
+  return "";
 }

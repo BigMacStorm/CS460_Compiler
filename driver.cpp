@@ -18,6 +18,7 @@ int ast_node::unique_id;
 
 SymbolTable symTable = *SymbolTable::getInstance();
 Graph visualizer;
+CodeDumper codeGenerator;
 Debugger lexDebugger;
 Debugger lexSymbolDebugger;
 Debugger reductionDebugger;
@@ -27,11 +28,13 @@ extern std::string listFileName;
 int main(int argc, char** argv){
   bool sdebug = false, ldebug = false, pdebug = false, genAST = false;
   bool gen3AC = false, genAssembly = false, compileAssemble = false;
+
   std::string logFile = "log.txt";
   const std::string symTableLogFile = "symTableLog.txt";
   const std::string LEX_FILE = "list_file";
   const std::string GRAPH_DOT_FILE = "graph.dot";
   const std::string AST_LOG = "astlog.txt";
+  const std::string CODE_LOG = "3aclog.txt";
 
   std::vector<std::string> args(argv, argv+argc);
   for (int arg = 1; arg < (int)args.size()-1; ++arg) {
@@ -56,7 +59,7 @@ int main(int argc, char** argv){
          genAST = true;
        }
        else if (args[arg] == "-q"){
-         printf("'-q' flag, 3 addr code not implemented\n");
+         gen3AC = true;
        }
        else if (args[arg] == "-S"){
          printf("'-S' flag, assembly language not implemented\n");
@@ -80,6 +83,7 @@ int main(int argc, char** argv){
   std::remove(LEX_FILE.c_str());
   std::remove(GRAPH_DOT_FILE.c_str());
   std::remove(AST_LOG.c_str());
+  std::remove(CODE_LOG.c_str());
 
   lexDebugger.setFileName(logFile);
   lexDebugger.setDebug(ldebug);
@@ -94,8 +98,11 @@ int main(int argc, char** argv){
   symTable.getDebugger()->setDebug(sdebug);
 
   visualizer.setVisualizer(true);
-  visualizer.setDebug(true);
+  visualizer.setDebug(genAST);
   visualizer.startBuild();
+
+  codeGenerator.setFileName(CODE_LOG);
+  codeGenerator.setDebug(gen3AC);
 
   symTable.pushTable();
   yyparse();

@@ -311,6 +311,28 @@ Spec* postfix_expression_node::getStructUnionSpec(){
 
   return NULL;
 }
-void postfix_expression_node::generateCode(){
-
+std::string postfix_expression_node::generateCode(){
+  switch(this->mode){
+    case 0:
+      return primayExpr->generateCode();
+    break;
+    case 1:
+      //generateArray();
+    break;
+    case 2:
+    case 3:
+      //generateFunction();
+    break;
+    case 4:
+      return postExpr->generateCode();
+    break;
+    case 5:
+      if(this->op == OpType::INC){
+      }
+      else{
+      }
+      return postExpr->generateCode();
+    break;
+  }
+  return "";
 }

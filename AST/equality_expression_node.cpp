@@ -68,6 +68,27 @@ Spec* equality_expression_node::getSpec(){
   }
   return NULL;
 }
-void equality_expression_node::generateCode(){
+std::string equality_expression_node::generateCode(){
+  std::string result, temp1, temp2;
+  switch(this->mode){
+    case 0:
+      return this->relExpr->generateCode();
 
+    case 1:
+      temp1 = this->equalExpr->generateCode();
+      temp2 = this->relExpr->generateCode();
+      result = ast_node::getNewTempStr();
+
+      codeGenerator.debug(result);
+      codeGenerator.debug(" := ");
+      codeGenerator.debug(temp1);
+      if(this->op == OpType::EQ){
+        codeGenerator.debug(" == ");
+      }else{ // NE
+        codeGenerator.debug(" != ");
+      }
+      codeGenerator.debug(temp2);
+    break;
+  }
+  return "";
 }

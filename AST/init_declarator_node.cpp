@@ -78,6 +78,22 @@ Spec* init_declarator_node::getSpec(){
   }
   return this->declarator->getSpec();
 }
-void init_declarator_node::generateCode(){
-
+std::string init_declarator_node::generateCode(){
+  if(this->initializer != NULL){
+    std::string temp2 = this->initializer->generateCode();
+    std::string temp1 = this->declarator->generateCode();
+    codeGenerator.debug(temp1);
+    codeGenerator.debug(" := ");
+    codeGenerator.debug(temp2);
+    codeGenerator.debug(";\n");
+    return temp1;
+  }
+  else{
+    /*
+    if(this->declarator!= NULL){
+      this->declarator->generateCode();
+    }
+    */
+  }
+  return "";
 }

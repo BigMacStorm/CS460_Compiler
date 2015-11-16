@@ -108,6 +108,22 @@ Spec *leftSpec, *rightSpec;
     } // end switch
   return NULL;
 }
-void assignment_expression_node::generateCode(){
+std::string assignment_expression_node::generateCode(){
+  std::string temp1,temp2,result;
+  switch(this->mode){
+    case 0:
+      return this->cond_expr->generateCode();
 
+    case 1:
+      temp1 = this->unary_expr->generateCode();
+      temp2 = this->assign_expr->generateCode();
+
+      codeGenerator.debug(temp1);
+      codeGenerator.debug(this->assign_op->generateCode());
+      codeGenerator.debug(temp2);
+      codeGenerator.debug(";\n");
+
+      return temp1;
+  }
+  return "";
 }

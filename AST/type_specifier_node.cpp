@@ -43,4 +43,36 @@ void type_specifier_node::print(){
   visualizer.addEdge(this->pid,this->id);
 }
 void type_specifier_node::generateCode(){
+  switch(this->type){
+    case TypeSpecifier::VOID:
+      codeGenerator.debug(" void ");
+    break;
+    case TypeSpecifier::CHAR:
+      codeGenerator.debug(" char ");
+    break;
+    case TypeSpecifier::SHORT:
+      codeGenerator.debug(" short ");
+    break;
+    case TypeSpecifier::LONG:
+      codeGenerator.debug(" long ");
+    break;
+    case TypeSpecifier::INT:
+      codeGenerator.debug(" int ");
+    break;
+    case TypeSpecifier::FLOAT:
+      codeGenerator.debug(" float ");
+    break;
+    case TypeSpecifier::DOUBLE:
+      codeGenerator.debug(" double ");
+    break;
+    case TypeSpecifier::SIGNED:
+      codeGenerator.debug(" signed ");
+    break;
+    case TypeSpecifier::UNSIGNED:
+      codeGenerator.debug(" unsigned ");
+    break;
+    case TypeSpecifier::TYPEDEF_NAME:
+      codeGenerator.debug(" type_name ");
+    break;
+  }
 }

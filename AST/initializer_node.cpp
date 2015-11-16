@@ -43,6 +43,14 @@ std::vector<Spec*> initializer_node::getSpecs(){
   return specs;
 }
 */
-void initializer_node::generateCode(){
-
+std::string initializer_node::generateCode(){
+  if(this->assignExpr != NULL){
+    return this->assignExpr->generateCode();
+  }
+  /*
+  if(this->initList != NULL){
+    return this->initList->generateCode();
+  }
+  */
+ return "";
 }

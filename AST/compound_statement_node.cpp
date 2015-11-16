@@ -30,5 +30,12 @@ void compound_statement_node::print(){
     this->stateList->print();
   }
 }
-void compound_statement_node::generateCode(){
+std::string compound_statement_node::generateCode(){
+  if(this->declList!=NULL){
+    this->declList->generateCode();
+  }
+  if(this->stateList!=NULL){
+    this->stateList->generateCode();
+  }
+  return "";
 }

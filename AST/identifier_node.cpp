@@ -36,5 +36,6 @@ Spec* identifier_node::getSpec(){
   }
   return NULL;
 }
-void identifier_node::generateCode(){
+std::string identifier_node::generateCode(){
+  return this->id_name;
 }

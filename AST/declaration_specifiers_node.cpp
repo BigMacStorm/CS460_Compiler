@@ -39,8 +39,6 @@ void declaration_specifiers_node::init(){
 }
 void declaration_specifiers_node::print(){
   visualizer.debug("declaration_specifiers");
-  //visualizer.addNode(this->id, "declaration_specifiers");
-  //visualizer.addEdge(this->pid, this->id);
   if(this->storage != NULL){
     this->storage->setPID(this->pid);
     this->storage->print();
@@ -59,5 +57,16 @@ void declaration_specifiers_node::print(){
   }
 }
 void declaration_specifiers_node::generateCode(){
-
+  if(this->storage != NULL){
+    this->storage->generateCode();
+  }
+  else if(this->typeSpec != NULL){
+    this->typeSpec->generateCode();
+  }
+  else if(this->qualifier != NULL){
+    this->qualifier->generateCode();
+  }
+  if(this->declSpec != NULL){
+    this->declSpec->generateCode();
+  }
 }

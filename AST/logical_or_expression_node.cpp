@@ -67,6 +67,19 @@ Spec* logical_or_expression_node::getSpec(){
   }
   return NULL;
 }
-void logical_or_expression_node::generateCode(){
-
+std::string logical_or_expression_node::generateCode(){
+  switch(this->mode){
+    case 0:
+      return this->logAndExpr->generateCode();
+    case 1:
+      if(this->logOrExpr!=NULL){
+        this->logOrExpr->generateCode();
+      }
+      codeGenerator.debug(" || ");
+      if(this->logAndExpr!=NULL){
+        this->logAndExpr->generateCode();
+      }
+    break;
+  }
+  return "";
 }

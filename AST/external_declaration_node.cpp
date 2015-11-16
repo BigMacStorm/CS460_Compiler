@@ -40,6 +40,11 @@ void external_declaration_node::print(){
 }
 
 //later
-void external_declaration_node::generateCode(){
-
+std::string external_declaration_node::generateCode(){
+  if (this->functionChild == NULL) {
+      return this->declChild->generateCode();
+  }
+  else{
+    return this->functionChild->generateCode();
+  }
 }

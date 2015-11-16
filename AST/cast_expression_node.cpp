@@ -21,6 +21,6 @@
     }
     return NULL;
   }
-  void cast_expression_node::generateCode(){
-
+  std::string cast_expression_node::generateCode(){
+    return this->unaryExpr->generateCode();
   }

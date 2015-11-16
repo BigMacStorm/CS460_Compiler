@@ -1,11 +1,3 @@
-void bubble(int array[], int size);
-int main(){
-  int array[10] = {6,-128,100,7,-2,0,21,85,21,54};
-  bubble(array, 10);
-  return 0;
-  //!!S
-}
-
 void bubble(int array[], int size){
   int idx1 = 0;
   int idx2 = 0;
@@ -19,5 +11,11 @@ void bubble(int array[], int size){
       }
     }
   }
+  //!!S
+}
+int main(){
+  int array[10] = {6,-128,100,7,-2,0,21,85,21,54};
+  bubble(array, 10);
+  return 0;
   //!!S
 }

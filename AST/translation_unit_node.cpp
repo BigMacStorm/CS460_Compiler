@@ -34,5 +34,9 @@ void translation_unit_node::print(){
 }
 
 //implemented later
-void translation_unit_node::generateCode(){
+std::string translation_unit_node::generateCode(){
+  for(int child = 0; child < this->children.size(); child++){
+    this->children[child]->generateCode();
+  }
+  return "";
 }

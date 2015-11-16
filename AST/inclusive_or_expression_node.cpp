@@ -67,6 +67,12 @@ Spec* inclusive_or_expression_node::getSpec(){
   }
   return NULL;
 }
-void inclusive_or_expression_node::generateCode(){
-
+std::string inclusive_or_expression_node::generateCode(){
+  switch(this->mode){
+    case 0:
+      return this->exorExpr->generateCode();
+    case 1:
+      return this->iorExpr->generateCode();
+  }
+  return "";
 }
