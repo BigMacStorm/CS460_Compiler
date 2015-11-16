@@ -30,5 +30,14 @@ Spec* expression_node::getSpec(){
   }
   return NULL;
 }
-void expression_node::generateCode(){
+std::string expression_node::generateCode(){
+  if(this->children.size() == 1){
+    return this->children[0]->generateCode();
+  }
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      this->children[child]->generateCode();
+    }
+  }
+  return "";
 }

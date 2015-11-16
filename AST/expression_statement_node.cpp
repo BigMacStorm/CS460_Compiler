@@ -21,5 +21,6 @@ void expression_statement_node::print(){
     this->expr->print();
   }
 }
-void expression_statement_node::generateCode(){
+std::string expression_statement_node::generateCode(){
+  return this->expr->generateCode();
 }

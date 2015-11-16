@@ -64,5 +64,26 @@ void jump_statement_node::print(){
   }
 }
 void jump_statement_node::generateCode(){
-
+  switch(this->mode){
+    case 0:
+      codeGenerator.debug(" goto "+this->identifier);
+    break;
+    case 1:
+      if(this->jump_type==JumpType::RETURN){
+        codeGenerator.debug(" return ");
+      }
+      else if(this->jump_type==JumpType::CONTINUE){
+        codeGenerator.debug(" continue ");
+      }
+      else if(this->jump_type==JumpType::BREAK){
+        codeGenerator.debug(" break ");
+      }
+    break;
+    case 2:
+      codeGenerator.debug(" return ");
+      if(this->expr!=NULL){
+        this->expr->generateCode();
+      }
+    break;
+  }
 }

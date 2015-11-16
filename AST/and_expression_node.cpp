@@ -64,6 +64,12 @@ Spec* and_expression_node::getSpec(){
   }
   return NULL;
 }
-void and_expression_node::generateCode(){
-
+std::string and_expression_node::generateCode(){
+  switch(this->mode){
+    case 0:
+      return this->equalExpr->generateCode();
+    case 1:
+      return this->andExpr->generateCode();
+  }
+  return "";
 }

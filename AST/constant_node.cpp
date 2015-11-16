@@ -73,8 +73,27 @@ Spec* constant_node::getSpec(){
   }
   return typebasic;
 }
-void constant_node::generateCode(){
-
+std::string constant_node::generateCode(){
+  return toStr();
+  /*
+  std::stringstream ss;
+  switch(this->type){
+    case ConstType::INT:
+      ss << ast_node::getNewTempStr() << " := " << this->ival << ";\n";
+      codeGenerator.debug(ss.str());
+    break;
+    case ConstType::CHAR:
+      ss << ast_node::getNewTempStr() << " := " << this->cval << ";\n";
+      codeGenerator.debug(ss.str());
+    break;
+    case ConstType::FLOAT:
+      ss << ast_node::getNewTempStr() << " := " << this->fval << ";\n";
+      codeGenerator.debug(ss.str());
+    break;
+    case ConstType::ENUM:
+    break;
+  }
+  */
 }
 std::string constant_node::toStr(){
 std::stringstream ss;
@@ -87,6 +106,8 @@ std::stringstream ss;
     break;
     case ConstType::FLOAT:
       ss << this->fval;
+    break;
+    case ConstType::ENUM:
     break;
   }
   return ss.str();

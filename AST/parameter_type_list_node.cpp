@@ -15,5 +15,7 @@ void parameter_type_list_node::print(){
   }
 }
 void parameter_type_list_node::generateCode(){
-
+  if(this->paramList!=NULL){
+    this->paramList->generateCode();
+  }
 }

@@ -93,6 +93,48 @@ void iteration_statement_node::print(){
     break;
   }
 }
-void iteration_statement_node::generateCode(){
-
+std::string iteration_statement_node::generateCode(){
+  std::string cond, label1, label2;
+  switch(this->mode){
+    case 0:
+      if(this->iter_type == IterType::WHILE){
+        label1 = ast_node::getNewLabelStr();
+        label2 = ast_node::getNewLabelStr();
+        codeGenerator.debug(label1+":\n");
+        cond = this->expr1->generateCode();
+        codeGenerator.debug("ifn "+cond+" goto "+label2+";\n");
+        this->statement->generateCode();
+        codeGenerator.debug("goto "+label1+";\n");
+        codeGenerator.debug(label2+":\n");
+      }
+      else if(this->iter_type == IterType::DO){
+        if(this->statement != NULL){
+          this->statement->generateCode();
+        }
+        if(this->expr1 != NULL){
+          this->expr1->generateCode();
+        }
+      }
+    break;
+    case 1:
+      label1 = ast_node::getNewLabelStr();
+      label2 = ast_node::getNewLabelStr();
+      if(this->expr1 != NULL){
+        this->expr1->generateCode();
+      }
+      codeGenerator.debug(label1+":\n");
+      if(this->expr2 != NULL){
+        cond = this->expr2->generateCode();
+        codeGenerator.debug("ifn "+cond+" goto "+label2+";\n");
+      }
+      if(this->statement != NULL){
+        this->statement->generateCode();
+      }
+      if(this->expr3 != NULL){
+        this->expr3->generateCode();
+      }
+      codeGenerator.debug("goto "+label1+";\n");
+      codeGenerator.debug(label2+":\n");
+    break;
+  }
 }

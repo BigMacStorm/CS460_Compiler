@@ -58,5 +58,22 @@ void labeled_statement_node::print(){
   }
 }
 void labeled_statement_node::generateCode(){
-
+  if(this->label_type == LabelType::NONE){
+    if(this->statement != NULL){
+      this->statement->generateCode();
+    }
+  }
+  else if(this->label_type == LabelType::CASE){
+    if(this->constExpr != NULL){
+      this->constExpr->generateCode();
+    }
+    if(this->statement != NULL){
+      this->statement->generateCode();
+    }
+  }
+  else if(this->label_type == LabelType::DEFAULT){
+    if(this->statement != NULL){
+      this->statement->generateCode();
+    }
+  }
 }

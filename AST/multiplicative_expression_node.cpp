@@ -40,9 +40,11 @@ void multiplicative_expression_node::print(){
     case 1:
       if(this->op == OpType::ASTERISK){
         visualizer.addNode(this->id,"*");
-      }else if(this->op == OpType::DIV){
+      }
+      else if(this->op == OpType::DIV){
         visualizer.addNode(this->id,"/");
-      }else{
+      }
+      else{
         visualizer.addNode(this->id,"%%");
       }
       visualizer.addEdge(this->pid,this->id);
@@ -116,6 +118,32 @@ Spec* multiplicative_expression_node::getSpec(){
       return NULL;
   }
 }
-void multiplicative_expression_node::generateCode(){
+std::string multiplicative_expression_node::generateCode(){
+  std::string result, temp1, temp2;
+  switch(this->mode){
+    case 0:
+      return this->castExpr->generateCode();
 
+    case 1:
+      temp1 = this->multiExpr->generateCode();
+      temp2 = this->castExpr->generateCode();
+      result = ast_node::getNewTempStr();
+
+      codeGenerator.debug(result);
+      codeGenerator.debug(" := ");
+      codeGenerator.debug(temp1);
+      if(this->op == OpType::ASTERISK){
+        codeGenerator.debug(" * ");
+      }
+      else if(this->op == OpType::DIV){
+        codeGenerator.debug(" / ");
+      }
+      else{
+        codeGenerator.debug(" %% ");
+      }
+      codeGenerator.debug(temp2);
+      codeGenerator.debug(";\n");
+      return result;
+  }
+  return "";
 }

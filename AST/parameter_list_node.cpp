@@ -29,4 +29,9 @@ void parameter_list_node::print(){
   }
 }
 void parameter_list_node::generateCode(){
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      this->children[child]->generateCode();
+    }
+  }
 }

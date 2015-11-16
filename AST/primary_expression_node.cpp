@@ -97,6 +97,16 @@ Spec* primary_expression_node::getSpec(){
   } // end switch
   return NULL;
 }
-void primary_expression_node::generateCode(){
-
+std::string primary_expression_node::generateCode(){
+  switch(this->mode){
+    case 0:
+      return this->identifier->generateCode();
+    case 1:
+      return this->constant->generateCode();
+    case 2:
+      //return this->string->generateCode();
+    case 3:
+      return this->expr->generateCode();
+  } // end switch
+  return "";
 }

@@ -151,6 +151,14 @@ Spec* direct_declarator_node::getSpec(){
   }
   return this->direct_declarator->getSpec();
 }
-void direct_declarator_node::generateCode(){
+std::string direct_declarator_node::generateCode(){
+  switch(this->direct_type){
+    case DirectType::NONE:
+      return this->identifier->generateCode();
 
+    case DirectType::ARRAY:
+    case DirectType::FUNCTION:
+    case DirectType::FUNCTION_CALL:
+    return this->direct_declarator->generateCode();
+  } // end switch
 }

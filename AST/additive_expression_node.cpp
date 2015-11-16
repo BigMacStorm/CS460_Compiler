@@ -100,6 +100,32 @@ Spec* additive_expression_node::getSpec(){
       return NULL;
   }
 }
-void additive_expression_node::generateCode(){
+std::string additive_expression_node::generateCode(){
+  std::string result, temp1, temp2;
+  switch(this->mode){
+    case 0:
+      return this->multiExpr->generateCode();
 
+    case 1:
+      temp1 = this->addExpr->generateCode();
+      temp2 = this->multiExpr->generateCode();
+      result = ast_node::getNewTempStr();
+
+      codeGenerator.debug(result);
+      codeGenerator.debug(" := ");
+      codeGenerator.debug(temp1);
+
+      if(this->op == OpType::PLUS){
+        codeGenerator.debug(" + ");
+      }
+      else{
+        codeGenerator.debug(" - ");
+      }
+
+      codeGenerator.debug(temp2);
+      codeGenerator.debug(";\n");
+
+    return result;
+  }
+  return "";
 }

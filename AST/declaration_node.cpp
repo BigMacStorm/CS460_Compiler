@@ -31,5 +31,6 @@ void declaration_node::print(){
     this->decList->print();
   }
 }
-void declaration_node::generateCode(){
+std::string declaration_node::generateCode(){
+  return this->decList->generateCode();
 }

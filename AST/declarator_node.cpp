@@ -33,5 +33,15 @@ Spec* declarator_node::getSpec(){
   }
   return NULL;
 }
-void declarator_node::generateCode(){
+std::string declarator_node::generateCode(){
+  return this->directDecl->generateCode();
+  /*
+  if(this->pointer != NULL){
+    this->pointer->generateCode();
+    this->directDecl->generateCode();
+  }
+  else if(this->directDecl!=NULL){
+    this->directDecl->generateCode();
+  }
+   */
 }

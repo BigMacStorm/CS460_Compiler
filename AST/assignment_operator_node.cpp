@@ -55,7 +55,31 @@ void assignment_operator_node::print(){
     break;
   } // end switch
 }
-void assignment_operator_node::generateCode(){
-
+std::string assignment_operator_node::generateCode(){
+  switch(this->op){
+    case AssignType::EQUAL:
+      return " := ";
+    case AssignType::MUL_ASSIGN:
+      return " :*= ";
+    case AssignType::DIV_ASSIGN:
+      return " :/= ";
+    case AssignType::MOD_ASSIGN:
+      return " :%%= ";
+    case AssignType::ADD_ASSIGN:
+      return " :+= ";
+    case AssignType::SUB_ASSIGN:
+      return " :-= ";
+    case AssignType::LEFT_ASSIGN:
+      return " :<<= ";
+    case AssignType::RIGHT_ASSIGN:
+      return " :>>= ";
+    case AssignType::AND_ASSIGN:
+      return " :&= ";
+    case AssignType::XOR_ASSIGN:
+      return " :^= ";
+    case AssignType::OR_ASSIGN:
+      return " :|= ";
+  } // end switch
+  return "";
 }
 

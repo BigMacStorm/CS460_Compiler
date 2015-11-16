@@ -26,5 +26,7 @@ Spec* constant_expression_node::getSpec(){
   return NULL;
 }
 void constant_expression_node::generateCode(){
-
+  if(this->condExpr!=NULL){
+    this->condExpr->generateCode();
+  }
 }

@@ -7,8 +7,10 @@
 #include "../SymbolTable.h"
 #include "../SymbolNode.h"
 #include "../graph.h"
+#include "../CodeDumper.h"
 
 extern Graph visualizer;
+extern CodeDumper codeGenerator;
 
 // forward declaration
 class ast_node;
@@ -134,9 +136,37 @@ class ast_node {
     };
     virtual ~ast_node(){}
     virtual void print()=0;
-    virtual void generateCode()=0;
-    static int getTempNum(){ return tempNum++; }
-    static int getLabelNum(){ return labelNum++; }
+    virtual std::string generateCode()=0;
+
+    static int getTempNum(){ return tempNum; }
+    static int getLabelNum(){ return labelNum; }
+    static void incrTempNum(){tempNum++;}
+    static void incrLabelNum(){labelNum++;}
+    static std::string getTempStr(){
+       std::stringstream ss;
+       ss << "_TEMP" << tempNum;
+       return ss.str();
+     }
+    static std::string getNewTempStr(){
+       std::stringstream ss;
+       ss << "_TEMP" << ++tempNum;
+       return ss.str();
+     }
+    static std::string getLastTempStr(){
+       std::stringstream ss;
+       ss << "_TEMP" << tempNum-1;
+       return ss.str();
+    }
+    static std::string getNewLabelStr(){
+       std::stringstream ss;
+       ss << "_LABEL" << ++labelNum;
+       return ss.str();
+    }
+    static std::string getLabelStr(){
+       std::stringstream ss;
+       ss << "_LABEL" << labelNum;
+       return ss.str();
+    }
     static int getUID(){ return unique_id++; }
 
     void setID(){ this->id = getUID(); }
@@ -187,7 +217,7 @@ class translation_unit_node : public ast_node {
     void addExternDecl(external_declaration_node* child);
     std::vector<external_declaration_node*> getChildren() const;
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     std::vector<external_declaration_node*> children;
 };
@@ -199,7 +229,7 @@ class external_declaration_node : public ast_node {
     external_declaration_node(declaration_node* child);
     ~external_declaration_node();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     function_definition_node* functionChild;
     declaration_node* declChild;
@@ -214,7 +244,7 @@ class function_definition_node : public ast_node {
                             compound_statement_node* compStmt);
     ~function_definition_node();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     int spec_id;
     declaration_specifiers_node* specifiers;
@@ -229,7 +259,7 @@ class declaration_node : public ast_node {
     declaration_node(declaration_specifiers_node* specifier, init_declarator_list_node* decList);
     ~declaration_node();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     declaration_specifiers_node* specifier;
     init_declarator_list_node* decList;
@@ -244,7 +274,7 @@ class declaration_list_node : public ast_node {
     void addDecl(declaration_node* child);
     std::vector<declaration_node*> getChildren() const;
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     std::vector<declaration_node*> children;
 };
@@ -256,7 +286,7 @@ class init_declarator_node : public ast_node {
     Spec* getSpec();
     void init();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     int equal_id;
     declarator_node* declarator;
@@ -271,7 +301,7 @@ public:
   void addInitDecl(init_declarator_node* child);
   std::vector<init_declarator_node*> getChildren() const;
   void print();
-  void generateCode();
+  std::string generateCode();
 private:
   std::vector<init_declarator_node*> children;
 };
@@ -284,7 +314,7 @@ class declaration_specifiers_node : public ast_node {
     ~declaration_specifiers_node();
     void init();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     storage_class_specifier_node* storage;
     type_specifier_node* typeSpec;
@@ -297,7 +327,7 @@ class storage_class_specifier_node : public ast_node {
     storage_class_specifier_node();
     storage_class_specifier_node(SpecName::Storage storeType);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     SpecName::Storage storeType;
 };
@@ -307,7 +337,7 @@ class type_specifier_node : public ast_node {
     type_specifier_node();
     type_specifier_node(TypeSpecifier::Type type);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     TypeSpecifier::Type type;
 };
@@ -317,7 +347,7 @@ class type_qualifier_node : public ast_node {
     type_qualifier_node();
     type_qualifier_node(SpecName::Qualifier qual);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     SpecName::Qualifier qual;
 };
@@ -329,7 +359,7 @@ public:
   void addQual(type_qualifier_node* child);
   std::vector<type_qualifier_node*> getChildren() const;
   void print();
-  void generateCode();
+  std::string generateCode();
 private:
   std::vector<type_qualifier_node*> children;
 };
@@ -338,7 +368,7 @@ class struct_or_union_specifier_node : public ast_node {
   public:
      struct_or_union_specifier_node(struct_or_union_node* structUnion,std::string identifier, struct_declaration_list_node* structDecl);
      void print();
-     void generateCode();
+     std::string generateCode();
   private:
     struct_or_union_node* structUnion;
     std::string identifier;
@@ -349,7 +379,7 @@ class struct_or_union_node : public ast_node {
   public:
     struct_or_union_node(StructUnion::Type type);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     StructUnion::Type type;
 };
@@ -361,7 +391,7 @@ public:
   void addStrDecl(struct_declaration_node* child);
   std::vector<struct_declaration_node*> getChildren() const;
   void print();
-  void generateCode();
+  std::string generateCode();
 private:
   std::vector<struct_declaration_node*> children;
 };
@@ -370,7 +400,7 @@ class struct_declaration_node : public ast_node {
   public:
    struct_declaration_node(specifier_qualifier_list_node* spqlist, struct_declarator_list_node* strDeclList);
    void print();
-   void generateCode();
+   std::string generateCode();
   private:
     specifier_qualifier_list_node* spqlist;
     struct_declarator_list_node* strDeclList;
@@ -383,7 +413,7 @@ public:
   void addStrDecl(struct_declarator_node* child);
   std::vector<struct_declarator_node*> getChildren() const;
   void print();
-  void generateCode();
+  std::string generateCode();
 private:
   std::vector<struct_declarator_node*> children;
 };
@@ -392,7 +422,7 @@ class struct_declarator_node : public ast_node {
   public:
     struct_declarator_node(declarator_node* decl, constant_expression_node* constExpr);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     declarator_node* decl;
     constant_expression_node* constExpr;
@@ -406,7 +436,7 @@ class specifier_qualifier_list_node : public ast_node {
     void init();
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     specifier_qualifier_list_node* sqlist;
     type_specifier_node* spec;
@@ -419,7 +449,7 @@ class enum_specifier_node : public ast_node {
     //init as null if not used
     enum_specifier_node(identifier_node* identifier, enumerator_list_node* enm);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     enumerator_list_node* enumList;
     identifier_node* identifier;
@@ -432,7 +462,7 @@ class enumerator_list_node : public ast_node {
     void addEnumSpec(enum_specifier_node* child);
     std::vector<enum_specifier_node*> getChildren() const;
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     std::vector<enum_specifier_node*> children;
 };//
@@ -442,7 +472,7 @@ class enumerator_node : public ast_node {
     enumerator_node();
     enumerator_node(identifier_node* identifier, constant_expression_node* constExpr);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     identifier_node* identifier;
     constant_expression_node* constExpr;
@@ -454,7 +484,7 @@ class declarator_node : public ast_node {
     ~declarator_node();
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     direct_declarator_node* directDecl;
     pointer_node* pointer;
@@ -472,7 +502,7 @@ class direct_declarator_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
 
   private:
     identifier_node* identifier;
@@ -490,7 +520,7 @@ class pointer_node : public ast_node {
     pointer_node(type_qualifier_list_node* typeQualList, pointer_node* pointer);
     ~pointer_node();
     void print();
-    void generateCode();
+    std::string generateCode();
 
   private:
     type_qualifier_list_node* typeQualList;
@@ -502,7 +532,7 @@ class parameter_type_list_node : public ast_node {
     parameter_type_list_node(parameter_list_node* paramList);
     ~parameter_type_list_node();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     parameter_list_node* paramList;
 };
@@ -515,7 +545,7 @@ public:
   void addParamDecl(parameter_declaration_node* child);
   std::vector<parameter_declaration_node*> getChildren() const;
   void print();
-  void generateCode();
+  std::string generateCode();
 private:
   std::vector<parameter_declaration_node*> children;
 };
@@ -527,7 +557,7 @@ class parameter_declaration_node : public ast_node {
     parameter_declaration_node(declaration_specifiers_node* declSpec, abstract_declarator_node* absDecl);
     ~parameter_declaration_node();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     declaration_specifiers_node* declSpec;
     declarator_node* decl;
@@ -542,7 +572,7 @@ public:
   void addIdentifier(std::string child);
   std::vector<std::string> getChildren() const;
   void print();
-  void generateCode();
+  std::string generateCode();
 private:
   std::vector<std::string> children;
 };
@@ -555,7 +585,7 @@ class initializer_node : public ast_node {
     std::vector<Spec*> getSpecs();
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
 
   private:
     assignment_expression_node* assignExpr;
@@ -573,7 +603,7 @@ class initializer_list_node : public ast_node {
    Spec* getSpec();
    std::vector<Spec*> getSpecs();
    void print();
-   void generateCode();
+   std::string generateCode();
  private:
    std::vector<initializer_node*> children;
 };
@@ -582,7 +612,7 @@ class type_name_node : public ast_node {
   public:
     type_name_node(specifier_qualifier_list_node* specQualList, abstract_declarator_node* absDecl);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     specifier_qualifier_list_node* specQualList;
     abstract_declarator_node* absDecl;
@@ -592,7 +622,7 @@ class abstract_declarator_node : public ast_node {
   public:
     abstract_declarator_node(pointer_node* pointer,direct_abstract_declarator_node* directAbs);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     pointer_node* pointer;
     direct_abstract_declarator_node* directAbs;
@@ -602,7 +632,7 @@ class direct_abstract_declarator_node: public ast_node{
 public:
   direct_abstract_declarator_node();
   void print();
-  void generateCode();
+  std::string generateCode();
 private:
 };
 
@@ -617,7 +647,7 @@ class statement_node : public ast_node {
     ~statement_node();
     void init();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     labeled_statement_node* labelStmt;
     compound_statement_node* compStmt;
@@ -636,7 +666,7 @@ class labeled_statement_node : public ast_node {
     ~labeled_statement_node();
     void init();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     LabelType::Type label_type;
     std::string identifier;
@@ -651,7 +681,7 @@ class expression_statement_node : public ast_node {
     ~expression_statement_node();
     void init();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     expression_node* expr;
 };
@@ -662,7 +692,7 @@ class compound_statement_node : public ast_node {
     ~compound_statement_node();
     void init();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     statement_list_node* stateList;
     declaration_list_node* declList;
@@ -676,7 +706,7 @@ class statement_list_node : public ast_node {
    void addStmt(statement_node* child);
    std::vector<statement_node*> getChildren() const;
    void print();
-   void generateCode();
+   std::string generateCode();
  private:
    std::vector<statement_node*> children;
 };
@@ -688,7 +718,7 @@ class selection_statement_node : public ast_node {
     ~selection_statement_node();
     void init();
     void print();
-    void generateCode();
+    std::string generateCode();
 
   private:
     SelecType::Type selec_type;
@@ -706,7 +736,7 @@ class iteration_statement_node : public ast_node {
     ~iteration_statement_node();
     void init();
     void print();
-    void generateCode();
+    std::string generateCode();
 
   private:
     IterType::Type iter_type;
@@ -723,7 +753,7 @@ class jump_statement_node : public ast_node {
     ~jump_statement_node();
     void init();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     std::string identifier;
     expression_node* expr;
@@ -742,7 +772,7 @@ public:
 
   Spec* getSpec();
   void print();
-  void generateCode();
+  std::string generateCode();
 private:
   std::vector<assignment_expression_node*> children;
 };
@@ -757,7 +787,7 @@ class assignment_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     conditional_expression_node* cond_expr;
     unary_expression_node* unary_expr;
@@ -776,7 +806,7 @@ class assignment_operator_node : public ast_node {
     assignment_operator_node();
     assignment_operator_node(AssignType::Type op);
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     int op;
 };
@@ -789,7 +819,7 @@ class constant_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     conditional_expression_node* condExpr;
 };
@@ -803,7 +833,7 @@ class conditional_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     conditional_expression_node* condExpr;
     expression_node* expr;
@@ -823,7 +853,7 @@ class logical_or_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     logical_and_expression_node* logAndExpr;
     logical_or_expression_node* logOrExpr;
@@ -840,7 +870,7 @@ class logical_and_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     inclusive_or_expression_node* iorExpr;
     logical_and_expression_node* logAndExpr;
@@ -857,7 +887,7 @@ class inclusive_or_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     exclusive_or_expression_node* exorExpr;
     inclusive_or_expression_node* iorExpr;
@@ -874,7 +904,7 @@ class exclusive_or_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     and_expression_node* andExpr;
     exclusive_or_expression_node* exorExpr;
@@ -890,7 +920,7 @@ class and_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     and_expression_node* andExpr;
     equality_expression_node* equalExpr;
@@ -908,7 +938,7 @@ class equality_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     equality_expression_node* equalExpr;
     relational_expression_node* relExpr;
@@ -925,7 +955,7 @@ class relational_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     relational_expression_node* relExpr;
     shift_expression_node* shiftExpr;
@@ -942,7 +972,7 @@ class shift_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     shift_expression_node* shiftExpr;
     additive_expression_node* addExpr;
@@ -959,7 +989,7 @@ class additive_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     multiplicative_expression_node* multiExpr;
     additive_expression_node* addExpr;
@@ -976,7 +1006,7 @@ class multiplicative_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     cast_expression_node* castExpr;
     multiplicative_expression_node* multiExpr;
@@ -993,7 +1023,7 @@ class cast_expression_node : public ast_node {
     ~cast_expression_node();
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     unary_expression_node* unaryExpr;
     cast_expression_node* castExpr;
@@ -1011,7 +1041,7 @@ class unary_expression_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     postfix_expression_node* postExpr;
     OpType::Type op;
@@ -1027,7 +1057,7 @@ class unary_operator_node : public ast_node {
 
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     OpType::Type op;
 };
@@ -1053,7 +1083,7 @@ class postfix_expression_node : public ast_node {
     void printStructUnion();
     void printFunction();
     void printArray();
-    void generateCode();
+    std::string generateCode();
   protected:
     int mode;
     identifier_node* identifierNode;
@@ -1088,7 +1118,7 @@ class primary_expression_node: public ast_node {
     identifier_node* getIdentifier() const;
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     identifier_node* identifier;
     constant_node* constant;
@@ -1107,7 +1137,7 @@ public:
 
   Spec* getSpec();
   void print();
-  void generateCode();
+  std::string generateCode();
 private:
   std::vector<assignment_expression_node*> children;
 };
@@ -1126,7 +1156,7 @@ public:
   std::string toStr();
   Spec* getSpec();
   void print();
-  void generateCode();
+  std::string generateCode();
 
 private:
   int ival;
@@ -1143,7 +1173,7 @@ class string_node : public ast_node {
     void setStringLiteral(std::string string_literal);
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
 
   private:
     std::string string_literal;
@@ -1160,7 +1190,7 @@ class identifier_node: public ast_node {
     std::string getName() const;
     Spec* getSpec();
     void print();
-    void generateCode();
+    std::string generateCode();
   private:
     std::string id_name;
     SymbolNode *id_symnode;

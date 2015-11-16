@@ -47,4 +47,13 @@ void specifier_qualifier_list_node::print(){
   }
 }
 void specifier_qualifier_list_node::generateCode(){
+  if(this->spec!=NULL){
+    this->spec->generateCode();
+  }
+  if(this->qual!=NULL){
+    this->qual->generateCode();
+  }
+  if(this->sqlist!=NULL){
+    this->sqlist->generateCode();
+  }
 }

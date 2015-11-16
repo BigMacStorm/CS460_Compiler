@@ -48,5 +48,17 @@ void function_definition_node::print(){
     this->compStmt->print();
   }
 }
-void function_definition_node::generateCode(){
+std::string function_definition_node::generateCode(){
+  std::string func_name = this->decl->generateCode();
+  codeGenerator.debug(func_name);
+  codeGenerator.debug(":\n");
+  codeGenerator.debug("BeginFunc;\n");
+  if(this->decList!=NULL){
+    this->decList->generateCode();
+  }
+  if(this->compStmt!=NULL){
+    this->compStmt->generateCode();
+  }
+  codeGenerator.debug("EndFunc;\n");
+  return "";
 }

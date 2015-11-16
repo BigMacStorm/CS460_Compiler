@@ -66,6 +66,11 @@ Spec* shift_expression_node::getSpec(){
   }
   return NULL;
 }
-void shift_expression_node::generateCode(){
-
+std::string shift_expression_node::generateCode(){
+  switch(this->mode){
+    case 0:
+      return this->addExpr->generateCode();
+    case 1:
+      return this->shiftExpr->generateCode();
+  }
 }
