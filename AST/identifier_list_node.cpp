@@ -23,6 +23,8 @@ void identifier_list_node::print(){
     visualizer.addEdge(this->id,identifier_id);
   }
 }
-void identifier_list_node::generateCode(){
-
+std::string identifier_list_node::generateCode(){
+  //returns an empty string as nothing should be needed from here
+  std::string ret;
+  return ret;
 }

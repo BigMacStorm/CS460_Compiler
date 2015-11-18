@@ -14,8 +14,8 @@ void parameter_type_list_node::print(){
     this->paramList->print();
   }
 }
-void parameter_type_list_node::generateCode(){
+std::string parameter_type_list_node::generateCode(){
   if(this->paramList!=NULL){
-    this->paramList->generateCode();
+    return this->paramList->generateCode();
   }
 }

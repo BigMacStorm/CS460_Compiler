@@ -63,7 +63,7 @@ void jump_statement_node::print(){
     break;
   }
 }
-void jump_statement_node::generateCode(){
+std::string jump_statement_node::generateCode(){
   switch(this->mode){
     case 0:
       codeGenerator.debug(" goto "+this->identifier);
@@ -82,7 +82,7 @@ void jump_statement_node::generateCode(){
     case 2:
       codeGenerator.debug(" return ");
       if(this->expr!=NULL){
-        this->expr->generateCode();
+        return this->expr->generateCode();
       }
     break;
   }

@@ -24,5 +24,7 @@ void pointer_node::print(){
     this->pointer->print();
   }
 }
-void pointer_node::generateCode(){
+std::string pointer_node::generateCode(){
+  std::string ret;
+  return ret;
 }

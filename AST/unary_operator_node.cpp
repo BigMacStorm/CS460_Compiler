@@ -1,8 +1,8 @@
 #include "ast_node.h"
-  unary_operator_node::unary_operator_node(OpType::Type op): ast_node(){
+unary_operator_node::unary_operator_node(OpType::Type op): ast_node(){
     this->op = op;
   }
-  void unary_operator_node::print(){
+void unary_operator_node::print(){
     visualizer.debug("unary_operator");
     switch(this->op){
       case OpType::AND:
@@ -34,7 +34,8 @@
       break;
     }
   }
-  void unary_operator_node::generateCode(){
+std::string unary_operator_node::generateCode(){
+    std::string ret;
     switch(this->op){
       case OpType::AND:
         codeGenerator.debug(" AND ");
@@ -55,4 +56,5 @@
         codeGenerator.debug(" BANG ");
       break;
     }
+    return ret;
   }

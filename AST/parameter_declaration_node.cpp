@@ -43,7 +43,8 @@ void parameter_declaration_node::print(){
     this->absDecl->print();
   }
 }
-void parameter_declaration_node::generateCode(){
+std::string parameter_declaration_node::generateCode(){
+  std::string ret;
   if(this->decl != NULL){
     if(this->declSpec != NULL){
       this->declSpec->generateCode();
@@ -56,4 +57,5 @@ void parameter_declaration_node::generateCode(){
     }
     this->absDecl->generateCode();
   }
+  return ret;
 }

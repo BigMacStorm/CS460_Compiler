@@ -28,5 +28,7 @@ void type_qualifier_list_node::print(){
     }
   }
 }
-void type_qualifier_list_node::generateCode(){
+std::string type_qualifier_list_node::generateCode(){
+  std::string ret;
+  return ret;
 }

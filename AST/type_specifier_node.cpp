@@ -42,7 +42,8 @@ void type_specifier_node::print(){
   visualizer.addNode(this->id,type);
   visualizer.addEdge(this->pid,this->id);
 }
-void type_specifier_node::generateCode(){
+std::string type_specifier_node::generateCode(){
+  std::string ret;
   switch(this->type){
     case TypeSpecifier::VOID:
       codeGenerator.debug(" void ");
@@ -75,4 +76,6 @@ void type_specifier_node::generateCode(){
       codeGenerator.debug(" type_name ");
     break;
   }
+  
+  return ret;
 }

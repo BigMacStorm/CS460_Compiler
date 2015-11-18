@@ -39,10 +39,13 @@ std::vector<Spec*> initializer_list_node::getSpecs(){
   return specs;
 }
 */
-void initializer_list_node::generateCode(){
+std::string initializer_list_node::generateCode(){
+  //returns an empty string as nothing should be needed from here
+  std::string ret;
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
       this->children[child]->generateCode();
     }
   }
+  return ret;
 }

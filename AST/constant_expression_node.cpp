@@ -25,8 +25,11 @@ Spec* constant_expression_node::getSpec(){
   }
   return NULL;
 }
-void constant_expression_node::generateCode(){
+std::string constant_expression_node::generateCode(){
+  //returns an empty string as nothing should be needed from here
+  std::string ret;
   if(this->condExpr!=NULL){
     this->condExpr->generateCode();
   }
+  return  ret;
 }
