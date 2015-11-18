@@ -16,5 +16,6 @@ void struct_declarator_node::print(){
     this->constExpr->print();
   }
 }
-void struct_declarator_node::generateCode(){
+std::string  struct_declarator_node::generateCode(){
+  return "";
 }

@@ -21,5 +21,6 @@ void struct_declaration_list_node::print(){
     }
   }
 }
-void struct_declaration_list_node::generateCode(){
+std::string struct_declaration_list_node::generateCode(){
+  return "";
 }

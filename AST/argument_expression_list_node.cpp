@@ -29,10 +29,12 @@ void argument_expression_list_node::print(){
     }
   }
 }
-void argument_expression_list_node::generateCode(){
+std::string argument_expression_list_node::generateCode(){
+  std::string result;
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
-      this->children[child]->generateCode();
+      result = result + " " + this->children[child]->generateCode();
     }
   }
+  return result;
 }

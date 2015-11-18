@@ -34,7 +34,7 @@
       break;
     }
   }
-  void unary_operator_node::generateCode(){
+  std::string  unary_operator_node::generateCode(){
     switch(this->op){
       case OpType::AND:
         codeGenerator.debug(" AND ");
@@ -55,4 +55,5 @@
         codeGenerator.debug(" BANG ");
       break;
     }
+    return "";
   }

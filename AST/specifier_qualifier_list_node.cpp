@@ -46,7 +46,7 @@ void specifier_qualifier_list_node::print(){
     this->sqlist->print();
   }
 }
-void specifier_qualifier_list_node::generateCode(){
+std::string specifier_qualifier_list_node::generateCode(){
   if(this->spec!=NULL){
     this->spec->generateCode();
   }
@@ -56,4 +56,5 @@ void specifier_qualifier_list_node::generateCode(){
   if(this->sqlist!=NULL){
     this->sqlist->generateCode();
   }
+  return "";
 }

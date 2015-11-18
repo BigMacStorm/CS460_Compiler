@@ -57,7 +57,7 @@ void labeled_statement_node::print(){
     }
   }
 }
-void labeled_statement_node::generateCode(){
+std::string labeled_statement_node::generateCode(){
   if(this->label_type == LabelType::NONE){
     if(this->statement != NULL){
       this->statement->generateCode();
@@ -76,4 +76,5 @@ void labeled_statement_node::generateCode(){
       this->statement->generateCode();
     }
   }
+  return "";
 }

@@ -63,27 +63,32 @@ void jump_statement_node::print(){
     break;
   }
 }
-void jump_statement_node::generateCode(){
+std::string jump_statement_node::generateCode(){
+  std::string temp;
   switch(this->mode){
     case 0:
       codeGenerator.debug(" goto "+this->identifier);
     break;
     case 1:
       if(this->jump_type==JumpType::RETURN){
-        codeGenerator.debug(" return ");
+        codeGenerator.debug("return");
       }
       else if(this->jump_type==JumpType::CONTINUE){
-        codeGenerator.debug(" continue ");
+        codeGenerator.debug("continue");
       }
       else if(this->jump_type==JumpType::BREAK){
-        codeGenerator.debug(" break ");
+        codeGenerator.debug("break");
       }
     break;
     case 2:
-      codeGenerator.debug(" return ");
       if(this->expr!=NULL){
-        this->expr->generateCode();
+        temp = this->expr->generateCode();
+        codeGenerator.debug("return " +temp+";\n");
+      }
+      else{
+        codeGenerator.debug("return;\n");
       }
     break;
   }
+  return "";
 }

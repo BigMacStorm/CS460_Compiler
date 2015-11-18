@@ -17,6 +17,6 @@ void struct_declaration_node::print(){
     this->strDeclList->print();
   }
 }
-void struct_declaration_node::generateCode(){
-
+std::string  struct_declaration_node::generateCode(){
+  return "";
 }
