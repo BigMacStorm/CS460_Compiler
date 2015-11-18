@@ -44,10 +44,6 @@ void parameter_declaration_node::print(){
   }
 }
 std::string parameter_declaration_node::generateCode(){
-<<<<<<< HEAD
-  std::string ret;
-=======
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907
   if(this->decl != NULL){
     if(this->declSpec != NULL){
       this->declSpec->generateCode();
@@ -60,5 +56,4 @@ std::string parameter_declaration_node::generateCode(){
     }
     return this->absDecl->generateCode();
   }
-  return ret;
 }

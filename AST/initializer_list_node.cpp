@@ -40,11 +40,7 @@ std::vector<Spec*> initializer_list_node::getSpecs(){
 }
 */
 std::string initializer_list_node::generateCode(){
-<<<<<<< HEAD
-  //returns an empty string as nothing should be needed from here
   std::string ret;
-=======
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
       this->children[child]->generateCode();

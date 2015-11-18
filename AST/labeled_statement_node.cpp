@@ -76,9 +76,4 @@ std::string labeled_statement_node::generateCode(){
       return this->statement->generateCode();
     }
   }
-<<<<<<< HEAD
 }
-=======
-  return "";
-}
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907

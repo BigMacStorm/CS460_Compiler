@@ -47,10 +47,7 @@ void specifier_qualifier_list_node::print(){
   }
 }
 std::string specifier_qualifier_list_node::generateCode(){
-<<<<<<< HEAD
   std::string ret;
-=======
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907
   if(this->spec!=NULL){
     this->spec->generateCode();
   }
@@ -60,10 +57,5 @@ std::string specifier_qualifier_list_node::generateCode(){
   if(this->sqlist!=NULL){
     this->sqlist->generateCode();
   }
-<<<<<<< HEAD
   return ret;
 }
-=======
-  return "";
-}
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907

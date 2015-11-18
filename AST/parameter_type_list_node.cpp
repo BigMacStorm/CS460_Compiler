@@ -15,12 +15,7 @@ void parameter_type_list_node::print(){
   }
 }
 std::string parameter_type_list_node::generateCode(){
-<<<<<<< HEAD
   if(this->paramList!=NULL){
     return this->paramList->generateCode();
   }
 }
-=======
-  return this->paramList->generateCode();
-}
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907

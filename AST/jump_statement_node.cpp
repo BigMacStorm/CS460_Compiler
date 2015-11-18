@@ -64,10 +64,7 @@ void jump_statement_node::print(){
   }
 }
 std::string jump_statement_node::generateCode(){
-<<<<<<< HEAD
-=======
   std::string temp;
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907
   switch(this->mode){
     case 0:
       codeGenerator.debug(" goto "+this->identifier);
@@ -85,13 +82,6 @@ std::string jump_statement_node::generateCode(){
     break;
     case 2:
       if(this->expr!=NULL){
-<<<<<<< HEAD
-        return this->expr->generateCode();
-      }
-    break;
-  }
-}
-=======
         temp = this->expr->generateCode();
         codeGenerator.debug("return " +temp+";\n");
       }
@@ -102,4 +92,3 @@ std::string jump_statement_node::generateCode(){
   }
   return "";
 }
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907

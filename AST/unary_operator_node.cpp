@@ -34,12 +34,9 @@ void unary_operator_node::print(){
       break;
     }
   }
-<<<<<<< HEAD
+
 std::string unary_operator_node::generateCode(){
     std::string ret;
-=======
-  std::string  unary_operator_node::generateCode(){
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907
     switch(this->op){
       case OpType::AND:
         codeGenerator.debug(" AND ");
@@ -60,10 +57,5 @@ std::string unary_operator_node::generateCode(){
         codeGenerator.debug(" BANG ");
       break;
     }
-<<<<<<< HEAD
     return ret;
   }
-=======
-    return "";
-  }
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907

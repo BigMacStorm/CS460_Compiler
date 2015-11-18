@@ -26,15 +26,7 @@ Spec* constant_expression_node::getSpec(){
   return NULL;
 }
 std::string constant_expression_node::generateCode(){
-<<<<<<< HEAD
-  //returns an empty string as nothing should be needed from here
-  std::string ret;
   if(this->condExpr!=NULL){
-    this->condExpr->generateCode();
+    return this->condExpr->generateCode();
   }
-  return  ret;
 }
-=======
-  return this->condExpr->generateCode();
-}
->>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907
