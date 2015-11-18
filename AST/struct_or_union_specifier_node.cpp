@@ -22,6 +22,6 @@ void struct_or_union_specifier_node::print(){
     this->structDecl->print();
   }
 }
-void struct_or_union_specifier_node::generateCode(){
-
+std::string  struct_or_union_specifier_node::generateCode(){
+  return "";
 }

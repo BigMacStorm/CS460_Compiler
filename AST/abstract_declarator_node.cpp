@@ -14,5 +14,6 @@ void abstract_declarator_node::print(){
     this->directAbs->print();
   }
 }
-void abstract_declarator_node::generateCode(){
+std::string abstract_declarator_node::generateCode(){
+  return "";
 }

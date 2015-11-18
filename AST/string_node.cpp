@@ -14,6 +14,6 @@ void string_node::print(){
   visualizer.addNode(this->id,this->string_literal);
   visualizer.addEdge(this->pid,this->id);
 }
-void string_node::generateCode(){
-
+std::string string_node::generateCode(){
+  return "";
 }

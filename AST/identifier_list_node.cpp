@@ -24,7 +24,12 @@ void identifier_list_node::print(){
   }
 }
 std::string identifier_list_node::generateCode(){
+<<<<<<< HEAD
   //returns an empty string as nothing should be needed from here
   std::string ret;
   return ret;
 }
+=======
+
+}
+>>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907

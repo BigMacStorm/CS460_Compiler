@@ -64,26 +64,42 @@ void jump_statement_node::print(){
   }
 }
 std::string jump_statement_node::generateCode(){
+<<<<<<< HEAD
+=======
+  std::string temp;
+>>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907
   switch(this->mode){
     case 0:
       codeGenerator.debug(" goto "+this->identifier);
     break;
     case 1:
       if(this->jump_type==JumpType::RETURN){
-        codeGenerator.debug(" return ");
+        codeGenerator.debug("return");
       }
       else if(this->jump_type==JumpType::CONTINUE){
-        codeGenerator.debug(" continue ");
+        codeGenerator.debug("continue");
       }
       else if(this->jump_type==JumpType::BREAK){
-        codeGenerator.debug(" break ");
+        codeGenerator.debug("break");
       }
     break;
     case 2:
-      codeGenerator.debug(" return ");
       if(this->expr!=NULL){
+<<<<<<< HEAD
         return this->expr->generateCode();
       }
     break;
   }
 }
+=======
+        temp = this->expr->generateCode();
+        codeGenerator.debug("return " +temp+";\n");
+      }
+      else{
+        codeGenerator.debug("return;\n");
+      }
+    break;
+  }
+  return "";
+}
+>>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907

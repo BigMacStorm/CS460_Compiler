@@ -19,5 +19,6 @@ void enumerator_node::print(){
 
 }
 
-void enumerator_node::generateCode(){
+std::string enumerator_node::generateCode(){
+  return "";
 }

@@ -8,5 +8,6 @@
     visualizer.addNode(this->id,label);
     visualizer.addEdge(this->pid, this->id);
   }
-  void struct_or_union_node::generateCode(){
+  std::string  struct_or_union_node::generateCode(){
+    return "";
   }

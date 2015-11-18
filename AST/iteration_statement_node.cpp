@@ -137,4 +137,5 @@ std::string iteration_statement_node::generateCode(){
       codeGenerator.debug(label2+":\n");
     break;
   }
+  return "";
 }

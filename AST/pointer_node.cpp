@@ -25,6 +25,11 @@ void pointer_node::print(){
   }
 }
 std::string pointer_node::generateCode(){
+<<<<<<< HEAD
   std::string ret;
   return ret;
 }
+=======
+  return "";
+}
+>>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907

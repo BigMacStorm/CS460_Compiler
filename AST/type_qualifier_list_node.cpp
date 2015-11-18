@@ -28,7 +28,13 @@ void type_qualifier_list_node::print(){
     }
   }
 }
+<<<<<<< HEAD
 std::string type_qualifier_list_node::generateCode(){
   std::string ret;
   return ret;
 }
+=======
+std::string  type_qualifier_list_node::generateCode(){
+  return "";
+}
+>>>>>>> be7319b8b25d0e06628e992a04129cf8143d6907

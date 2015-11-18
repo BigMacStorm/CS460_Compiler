@@ -11,5 +11,6 @@ void type_qualifier_node::print(){
   visualizer.addNode(this->id,spec.getTypeQualifierStr());
   visualizer.addEdge(this->pid,this->id);
 }
-void type_qualifier_node::generateCode(){
+std::string  type_qualifier_node::generateCode(){
+  return "";
 }
