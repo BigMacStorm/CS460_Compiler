@@ -315,24 +315,55 @@ std::string postfix_expression_node::generateCode(){
   switch(this->mode){
     case 0:
       return primayExpr->generateCode();
-    break;
     case 1:
-      //generateArray();
-    break;
+      return generateArrayCode();
     case 2:
     case 3:
-      //generateFunction();
-    break;
+      return generateFunctionCode();
     case 4:
       return postExpr->generateCode();
-    break;
     case 5:
       if(this->op == OpType::INC){
       }
       else{
       }
       return postExpr->generateCode();
-    break;
   }
   return "";
+}
+std::string postfix_expression_node::generateArrayCode(){
+  std::string result;
+  return result;
+}
+std::string postfix_expression_node::generateFunctionCode(){
+  std::string name = this->identifierNode->getName();
+  SymbolNode* sym = this->identifierNode->getSymNode();
+  TypeFunction* function = (TypeFunction*) sym->getSpecifier();
+  Spec* returnSpec = function->getReturnSpec();
+  std::string result;
+
+  if(this->argExpr != NULL){
+    std::vector<std::string> args;
+    std::string temps = argExpr->generateCode();
+    std::string arg;
+    std::stringstream ssin(temps);
+    while (ssin.good()){
+      ssin >> arg;
+      args.push_back(arg);
+    }
+
+    for(int arg = 0; arg < args.size(); arg++){
+      codeGenerator.debug("PushParam ");
+      codeGenerator.debug(args[arg]);
+      codeGenerator.debug(";\n");
+    }
+  }
+
+  if(returnSpec->toTypeString() != "void"){
+    result = ast_node::getNewTempStr();
+    codeGenerator.debug(result);
+    codeGenerator.debug(" := ");
+  }
+  codeGenerator.debug("FuncCall "+name+";\n");
+  return result;
 }

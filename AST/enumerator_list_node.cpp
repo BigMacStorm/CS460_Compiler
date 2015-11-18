@@ -27,5 +27,6 @@ void enumerator_list_node::print(){
   }
 }
 
-void enumerator_list_node::generateCode(){
+std::string enumerator_list_node::generateCode(){
+  return "";
 }

@@ -11,5 +11,6 @@ void storage_class_specifier_node::print(){
   visualizer.addNode(this->id,spec.getStorageClassStr());
   visualizer.addEdge(this->pid,this->id);
 }
-void storage_class_specifier_node::generateCode(){
+std::string storage_class_specifier_node::generateCode(){
+  return "";
 }

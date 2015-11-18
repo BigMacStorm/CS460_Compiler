@@ -22,6 +22,6 @@ void enum_specifier_node::print(){
   }
 }
 
-void enum_specifier_node::generateCode(){
-
+std::string enum_specifier_node::generateCode(){
+  return "";
 }

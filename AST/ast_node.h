@@ -1084,6 +1084,9 @@ class postfix_expression_node : public ast_node {
     void printFunction();
     void printArray();
     std::string generateCode();
+    std::string generateArrayCode();
+    std::string generateFunctionCode();
+
   protected:
     int mode;
     identifier_node* identifierNode;
