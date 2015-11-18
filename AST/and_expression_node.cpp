@@ -68,8 +68,10 @@ std::string and_expression_node::generateCode(){
   switch(this->mode){
     case 0:
       return this->equalExpr->generateCode();
+      break;
     case 1:
       return this->andExpr->generateCode();
+      break;
   }
   return "";
 }
