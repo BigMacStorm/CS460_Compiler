@@ -155,10 +155,20 @@ std::string direct_declarator_node::generateCode(){
   switch(this->direct_type){
     case DirectType::NONE:
       return this->identifier->generateCode();
-
     case DirectType::ARRAY:
+      return generateArrayCode();
     case DirectType::FUNCTION:
     case DirectType::FUNCTION_CALL:
     return this->direct_declarator->generateCode();
   } // end switch
+}
+std::string direct_declarator_node::generateArrayCode(){
+  /*
+  std::string offset;
+  if(this->constExpr!= NULL){
+    offset = this->constExpr->generateCode();
+  }
+  codeGenerator.debug(ast_node::getNewTempStr() + " := " + offset +";\n");
+  */
+  return this->direct_declarator->generateCode();
 }

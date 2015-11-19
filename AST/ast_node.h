@@ -503,6 +503,7 @@ class direct_declarator_node : public ast_node {
     Spec* getSpec();
     void print();
     std::string generateCode();
+    std::string generateArrayCode();
 
   private:
     identifier_node* identifier;
@@ -1079,6 +1080,7 @@ class postfix_expression_node : public ast_node {
     Spec* getStructUnionSpec();
     identifier_node* getIdentifier() const;
     primary_expression_node* getPrimaryExpr() const;
+    void getExprs(std::vector<expression_node*>& exprs);
     void print();
     void printStructUnion();
     void printFunction();

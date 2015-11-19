@@ -101,7 +101,7 @@ Spec* additive_expression_node::getSpec(){
   }
 }
 std::string additive_expression_node::generateCode(){
-  std::string result, temp1, temp2;
+  std::string result, temp1, temp2, left, right;
   switch(this->mode){
     case 0:
       return this->multiExpr->generateCode();

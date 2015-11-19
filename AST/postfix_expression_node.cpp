@@ -332,8 +332,54 @@ std::string postfix_expression_node::generateCode(){
   return "";
 }
 std::string postfix_expression_node::generateArrayCode(){
-  std::string result;
-  return result;
+  std::string name = this->identifierNode->getName();
+  SymbolNode* sym = this->identifierNode->getSymNode();
+  TypeArray* array = (TypeArray*) sym->getSpecifier();
+  std::vector<int> sizes = array->getSizes();
+  std::vector<std::string> blocks;
+  int dims = sizes.size();
+  int tmp;
+  std::stringstream ss;
+  std::string temp, temp2, temp3, num;
+  std::vector<expression_node*> exprs;
+
+  blocks.push_back("1");
+  for(int dim = 1; dim < dims; dim++){
+    tmp = 1;
+    for(int idx = 0; idx < dim; idx++){
+      tmp *= sizes[idx];
+    }
+    ss << tmp;
+    blocks.push_back(ss.str());
+    ss.str("");
+  }
+
+  getExprs(exprs);
+  temp2 = "0";
+
+  for(int dim = 0; dim < dims; dim++){
+    num = exprs[dims-1-dim]->generateCode();
+    temp = ast_node::getNewTempStr();
+    temp3 = ast_node::getNewTempStr();
+    codeGenerator.debug(temp + " := " + num +" * " +blocks[dim]+ ";\n");
+    codeGenerator.debug(temp3 + " := " + temp +" + " +temp2+ ";\n");
+    temp2 = temp3;
+  }
+
+  temp = ast_node::getNewTempStr();
+  temp3 = ast_node::getNewTempStr();
+  codeGenerator.debug(temp + " := " + "4" + ";\n"); // for now - only int
+  codeGenerator.debug(temp3 + " := " + temp +" * " +temp2+ ";\n");
+  temp = ast_node::getNewTempStr();
+  codeGenerator.debug(temp + " := " + temp3 +" + " +name+ ";\n");
+
+  return "*("+temp+")";
+}
+void postfix_expression_node::getExprs(std::vector<expression_node*>& exprs){
+  if(this->primayExpr==NULL){
+    exprs.push_back(this->expr);
+    this->postExpr->getExprs(exprs);
+  }
 }
 std::string postfix_expression_node::generateFunctionCode(){
   std::string name = this->identifierNode->getName();
