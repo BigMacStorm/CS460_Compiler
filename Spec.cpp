@@ -327,6 +327,9 @@ std::string TypeArray::getElemTypeName() const{
 int TypeArray::getSize(int dim) const{
   return this->arraySizes[dim];
 }
+std::vector<int> TypeArray::getSizes() const{
+  return this->arraySizes;
+}
 int TypeArray::getDim() const{
   return this->arraySizes.size();
 }
