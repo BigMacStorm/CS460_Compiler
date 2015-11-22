@@ -79,21 +79,41 @@ Spec* init_declarator_node::getSpec(){
   return this->declarator->getSpec();
 }
 std::string init_declarator_node::generateCode(){
+  std::stringstream ss;
+  std::string temp1, temp2;
+  Spec * spec = this->declarator->getSpec();
+  SpecName::TypeKind typekind = spec->getTypeKind();
+
   if(this->initializer != NULL){
-    std::string temp2 = this->initializer->generateCode();
-    std::string temp1 = this->declarator->generateCode();
+    temp2 = this->initializer->generateCode();
+    temp1 = this->declarator->generateCode();
 
-    codeGenerator.debug("Decl " + temp1 + ";\n");
-
-    codeGenerator.debug(temp1);
-    codeGenerator.debug(" := ");
-    codeGenerator.debug(temp2);
-    codeGenerator.debug(";\n");
+    if(typekind == SpecName::Basic){
+      ss << "Decl: " << temp1 << " " << spec->toTypeString() << " " <<  temp2 << ";\n";
+      codeGenerator.debug(ss.str());
+      /*
+      codeGenerator.debug(temp1);
+      codeGenerator.debug(" := ");
+      codeGenerator.debug(temp2);
+      codeGenerator.debug(";\n");
+      */
+    }
+    else if(typekind == SpecName::Array){
+      ss << "Decl: " <<temp1 << " " << temp2 << ";\n";
+      codeGenerator.debug(ss.str());
+    }
     return temp1;
   }
   else{
-    std::string temp1 = this->declarator->generateCode();
-    codeGenerator.debug("Decl " + temp1 + ";\n");
+    if(typekind == SpecName::Basic){
+      temp1 = this->declarator->generateCode();
+      codeGenerator.debug("Decl: " + temp1 + " " + spec->toTypeString() + +";\n");
+    }
+    else if(typekind == SpecName::Array){
+      ss << "Decl: " + temp1 << " " << dynamic_cast<TypeArray*>(spec)->getSpace()
+         << " " + spec->toTypeString() << ";\n";
+    }
+    return temp1;
   }
   return "";
 }

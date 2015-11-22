@@ -43,7 +43,12 @@ std::string initializer_list_node::generateCode(){
   std::string ret;
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
-      this->children[child]->generateCode();
+      if(ret == ""){
+        ret = this->children[child]->generateCode();
+      }
+      else {
+        ret += ", " + this->children[child]->generateCode();
+      }
     }
   }
   return ret;

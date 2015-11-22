@@ -44,13 +44,12 @@ std::vector<Spec*> initializer_node::getSpecs(){
 }
 */
 std::string initializer_node::generateCode(){
+  std::string ret;
   if(this->assignExpr != NULL){
-    return this->assignExpr->generateCode();
+    ret = this->assignExpr->generateCode();
   }
-  /*
-  if(this->initList != NULL){
-    return this->initList->generateCode();
+  else if(this->initList != NULL){
+    ret = this->initList->generateCode();
   }
-  */
- return "";
+ return ret;
 }

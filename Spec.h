@@ -118,6 +118,7 @@ class TypeArray: public Spec{
    SpecName::BaseType getBaseType() const;
    std::string getElemTypeName() const;
    int getSize(int n) const;
+   int getSpace() const;
    std::vector<int> getSizes() const;
    int getDim() const;
    void setElemSpec(Spec* elemSpec);

@@ -130,26 +130,30 @@
     } // end switch
   }
 Spec* direct_declarator_node::getSpec(){
+  Spec * spec = NULL;
+
   if(this->mode == 0){
       if(this->identifier!=NULL){
-        return this->identifier->getSpec();
+        spec = this->identifier->getSpec();
       }
-      return NULL;
+      return spec;
   }
+
+  spec = this->direct_declarator->getSpec();
+
   if(this->direct_type == DirectType::ARRAY){
     if(this->constExpr!=NULL){
       if(this->constExpr->getSpec()->getBaseType() != SpecName::Int){
         error("[A] ERROR: array size must be integer");
       }
     }
+    spec->setTypeKind(SpecName::Array);
   }
   else if(this->direct_type == DirectType::FUNCTION){
-
   }
   else if(this->direct_type == DirectType::FUNCTION_CALL){
-
   }
-  return this->direct_declarator->getSpec();
+  return spec;
 }
 std::string direct_declarator_node::generateCode(){
   switch(this->direct_type){

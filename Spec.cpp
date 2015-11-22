@@ -327,6 +327,13 @@ std::string TypeArray::getElemTypeName() const{
 int TypeArray::getSize(int dim) const{
   return this->arraySizes[dim];
 }
+int TypeArray::getSpace() const{
+  int result = 1;
+  for(int dim = 0; dim < this->arraySizes.size(); dim++){
+    result *= this->arraySizes[dim];
+  }
+  return result;
+}
 std::vector<int> TypeArray::getSizes() const{
   return this->arraySizes;
 }

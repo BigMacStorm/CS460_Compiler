@@ -104,7 +104,7 @@ program
 : translation_unit {
 treeHanger = $1;
 treeHanger->print(); // traverse print functions
-treeHanger->generateCode();
+treeHanger->generateCode(); // traverse generateCode functions
 std::cout << "Success!" << std::endl;
 }
 
