@@ -16,7 +16,7 @@ int ast_node::tempNum;
 int ast_node::labelNum;
 int ast_node::unique_id;
 
-SymbolTable symTable = *SymbolTable::getInstance();
+SymbolTable symTable = SymbolTable();
 Graph visualizer;
 CodeDumper codeGenerator;
 Debugger lexDebugger;

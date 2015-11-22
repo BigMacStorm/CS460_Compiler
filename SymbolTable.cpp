@@ -1,6 +1,4 @@
 #include "SymbolTable.h"
-SymbolTable* SymbolTable::instance = NULL;
-
 SymbolTable::SymbolTable(): levels(-1){
   /*default constructor*/
   this->debugger = new Debugger();
@@ -9,13 +7,6 @@ SymbolTable::~SymbolTable(){
   /*destructor*/
   delete this->debugger;
   debugger = NULL;
-}
-SymbolTable* SymbolTable::getInstance(){
-  /*return an unique instance of symboltable*/
-  if(SymbolTable::instance == NULL){
-    SymbolTable::instance = new SymbolTable();
-  }
-  return SymbolTable::instance;
 }
 int SymbolTable::getLevel() const{
   /*return levels*/

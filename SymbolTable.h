@@ -11,7 +11,7 @@
 class SymbolTable{
 public:
   ~SymbolTable();
-  static SymbolTable* getInstance();
+  SymbolTable();
   void pushTable(std::map<std::string, SymbolNode*>);
   void pushTable();
   void popTable();
@@ -30,8 +30,6 @@ public:
   Debugger* getDebugger() const;
 
 private:
-  SymbolTable();
-  static SymbolTable* instance; // singleton
   Debugger* debugger;
   std::vector< std::map<std::string, SymbolNode*> > symTables;
   std::string filename;
