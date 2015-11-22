@@ -88,7 +88,8 @@ std::string equality_expression_node::generateCode(){
         codeGenerator.debug(" != ");
       }
       codeGenerator.debug(temp2);
-    break;
+      codeGenerator.debug(";\n");
+    return result;
   }
   return "";
 }
