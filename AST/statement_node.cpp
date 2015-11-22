@@ -104,23 +104,17 @@ void statement_node::print(){
 std::string statement_node::generateCode(){
   switch(this->mode){
     case 0:
-      this->labelStmt->generateCode();
-    break;
+      return this->labelStmt->generateCode();
     case 1:
-      this->compStmt->generateCode();
-    break;
+      return this->compStmt->generateCode();
     case 2:
       return this->exprStmt->generateCode();
-    break;
     case 3:
-      this->selectStmt->generateCode();
-    break;
+      return this->selectStmt->generateCode();
     case 4:
-      this->iterStmt->generateCode();
-    break;
+      return this->iterStmt->generateCode();
     case 5:
-      this->jumpStmt->generateCode();
-    break;
+      return this->jumpStmt->generateCode();
   }
   return "";
 }

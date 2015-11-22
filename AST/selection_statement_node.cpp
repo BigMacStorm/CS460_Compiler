@@ -67,6 +67,7 @@ std::string selection_statement_node::generateCode(){
     if(this->statement2 != NULL){
       this->statement2->generateCode();
     }
+
     codeGenerator.debug("goto " + label2 + ";\n");
     codeGenerator.debug(label1+":\n");
     this->statement1->generateCode();
@@ -80,4 +81,5 @@ std::string selection_statement_node::generateCode(){
       this->statement1->generateCode();
     }
   }
+  return "";
 }
