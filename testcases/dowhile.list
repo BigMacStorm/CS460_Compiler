@@ -1,13 +1,11 @@
 [p]: type_specifier -> INTtok
 [p]: declaration_specifiers -> type_specifier
-[p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
 [p]: direct_declarator -> direct_declarator OPEN_PARENtok CLOSE_PARENtok
 [p]: declarator -> direct_declarator
 int main ( ) { 
 [p]: type_specifier -> INTtok
 [p]: declaration_specifiers -> type_specifier
-[p]: identifier -> IDENTIFIERtok
 [p]: direct_declarator -> identifier
 [p]: declarator -> direct_declarator
 [p]: constant -> INTEGER_CONSTANTtok
@@ -34,7 +32,6 @@ int main ( ) {
 [p]: declaration_list -> declaration
 int ctr = 10 ; 
 do { 
-[p]: identifier -> IDENTIFIERtok
 [p]: primary_expression -> identifier
 [p]: postfix_expression -> primary_expression
 [p]: postfix_expression -> postfix_expression DEC_OPtok
@@ -59,7 +56,6 @@ do {
 ctr -- ; 
 [p]: compound_statement -> OPEN_CURLYtok statement_list CLOSE_CURLYtok
 [p]: statement -> compound_statement
-[p]: identifier -> IDENTIFIERtok
 [p]: primary_expression -> identifier
 [p]: postfix_expression -> primary_expression
 [p]: unary_expression -> postfix_expression
