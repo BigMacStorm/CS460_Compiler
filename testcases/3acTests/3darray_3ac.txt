@@ -1,0 +1,71 @@
+main:
+BeginFunc;
+Decl: idx1 int;
+Decl: idx2 int;
+Decl: idx3 int;
+idx1 := 0;
+_LABEL1:
+_TEMP1 := idx1 < 10;
+if _TEMP1 goto _LABEL2;
+goto _LABEL3;
+_LABEL4:
+idx1 := idx1 + 1;
+goto _LABEL1;
+_LABEL2:
+idx2 := 0;
+_LABEL5:
+_TEMP2 := idx2 < 10;
+if _TEMP2 goto _LABEL6;
+goto _LABEL7;
+_LABEL8:
+idx2 := idx2 + 1;
+goto _LABEL5;
+_LABEL6:
+idx3 := 0;
+_LABEL9:
+_TEMP3 := idx3 < 10;
+if _TEMP3 goto _LABEL10;
+goto _LABEL11;
+_LABEL12:
+idx3 := idx3 + 1;
+goto _LABEL9;
+_LABEL10:
+_TEMP4 := idx1 * 1;
+_TEMP5 := _TEMP4 + 0;
+_TEMP6 := idx2 * 10;
+_TEMP7 := _TEMP6 + _TEMP5;
+_TEMP8 := idx3 * 100;
+_TEMP9 := _TEMP8 + _TEMP7;
+_TEMP10 := 4;
+_TEMP11 := _TEMP10 * _TEMP9;
+_TEMP12 := _TEMP11 + arr;
+_TEMP13 := idx1 * idx2;
+_TEMP14 := _TEMP13 * idx3;
+*(_TEMP12) := _TEMP14;
+goto _LABEL12;
+_LABEL11:
+goto _LABEL8;
+_LABEL7:
+goto _LABEL4;
+_LABEL3:
+_TEMP15 := 1 * 1;
+_TEMP16 := _TEMP15 + 0;
+_TEMP17 := 2 * 10;
+_TEMP18 := _TEMP17 + _TEMP16;
+_TEMP19 := 3 * 100;
+_TEMP20 := _TEMP19 + _TEMP18;
+_TEMP21 := 4;
+_TEMP22 := _TEMP21 * _TEMP20;
+_TEMP23 := _TEMP22 + arr;
+_TEMP24 := 9 * 1;
+_TEMP25 := _TEMP24 + 0;
+_TEMP26 := 9 * 10;
+_TEMP27 := _TEMP26 + _TEMP25;
+_TEMP28 := 9 * 100;
+_TEMP29 := _TEMP28 + _TEMP27;
+_TEMP30 := 4;
+_TEMP31 := _TEMP30 * _TEMP29;
+_TEMP32 := _TEMP31 + arr;
+_TEMP33 := *(_TEMP32) * 2;
+*(_TEMP23) := _TEMP33;
+EndFunc;

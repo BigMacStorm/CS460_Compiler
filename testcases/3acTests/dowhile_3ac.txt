@@ -1,0 +1,11 @@
+main:
+BeginFunc;
+Decl: ctr int 10;
+_LABEL1:
+_TEMP1 := ctr;
+ctr := ctr - 1;
+_TEMP2 := ctr >= 0;
+if _TEMP2 goto _LABEL1;
+goto _LABEL2;
+_LABEL2:
+EndFunc;
