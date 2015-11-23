@@ -558,6 +558,7 @@ class parameter_declaration_node : public ast_node {
     parameter_declaration_node(declaration_specifiers_node* declSpec, abstract_declarator_node* absDecl);
     ~parameter_declaration_node();
     void print();
+    void init();
     std::string generateCode();
   private:
     declaration_specifiers_node* declSpec;

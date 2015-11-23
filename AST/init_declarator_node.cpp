@@ -82,7 +82,11 @@ std::string init_declarator_node::generateCode(){
   std::stringstream ss;
   std::string temp1, temp2;
   Spec * spec = this->declarator->getSpec();
-  SpecName::TypeKind typekind = spec->getTypeKind();
+  SpecName::TypeKind typekind = SpecName::NoKind;
+
+  if(spec != NULL){
+    typekind = spec->getTypeKind();
+  }
 
   if(this->initializer != NULL){
     temp2 = this->initializer->generateCode();
