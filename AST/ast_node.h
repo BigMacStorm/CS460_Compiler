@@ -1088,6 +1088,7 @@ class postfix_expression_node : public ast_node {
     std::string generateCode();
     std::string generateArrayCode();
     std::string generateFunctionCode();
+    std::string generatePostfixedCode();
 
   protected:
     int mode;

@@ -301,13 +301,14 @@ void postfix_expression_node::printStructUnion(){
   visualizer.addEdge(this->id,structUnion_id);
 }
 Spec* postfix_expression_node::getStructUnionSpec(){
-  std::stringstream ss;
+  /*std::stringstream ss;
   SymbolNode* sym = this->identifierNode->getSymNode();
   Spec* spec = sym->getSpecifier();
   std::string name = this->identifierNode->getName();
 
   // check identifier
   //ss << "no member named \'" << this->identifier << "\'in \'struct" << name <<"\'";
+  */
 
   return NULL;
 }
@@ -323,11 +324,7 @@ std::string postfix_expression_node::generateCode(){
     case 4:
       return postExpr->generateCode();
     case 5:
-      if(this->op == OpType::INC){
-      }
-      else{
-      }
-      return postExpr->generateCode();
+      return generatePostfixedCode();
   }
   return "";
 }
@@ -411,5 +408,26 @@ std::string postfix_expression_node::generateFunctionCode(){
     codeGenerator.debug(" := ");
   }
   codeGenerator.debug("FuncCall "+name+";\n");
+  return result;
+}
+std::string postfix_expression_node::generatePostfixedCode(){
+  std::string result, temp;
+  temp = this->postExpr->generateCode();
+  result = ast_node::getNewTempStr();
+  codeGenerator.debug(result);
+  codeGenerator.debug(" := ");
+  codeGenerator.debug(temp);
+  codeGenerator.debug(";\n");
+
+  codeGenerator.debug(temp);
+  codeGenerator.debug(" := ");
+  if(this->op == OpType::INC){
+    codeGenerator.debug(temp + " + 1");
+  }
+  else{
+    codeGenerator.debug(temp + " - 1");
+  }
+  codeGenerator.debug(";\n");
+
   return result;
 }
