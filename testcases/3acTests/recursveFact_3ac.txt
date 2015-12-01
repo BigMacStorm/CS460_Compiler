@@ -1,0 +1,23 @@
+main:
+BeginFunc;
+Decl: fact int 5;
+Decl: total int 1;
+PushParam fact;
+_TEMP1 := FuncCall factorial;
+total := _TEMP1;
+return 0;
+EndFunc;
+factorial:
+BeginFunc;
+_TEMP2 := num <= 1;
+if _TEMP2 goto _LABEL1;
+goto _LABEL2;
+_LABEL1:
+return 1;
+_LABEL2:
+_TEMP3 := num - 1;
+PushParam _TEMP3;
+_TEMP4 := FuncCall factorial;
+_TEMP5 := _TEMP4 * num;
+return _TEMP5;
+EndFunc;
