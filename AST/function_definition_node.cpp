@@ -49,9 +49,10 @@ void function_definition_node::print(){
   }
 }
 std::string function_definition_node::generateCode(){
+  std::stringstream ss;
   std::string func_name = this->decl->generateCode();
-  codeGenerator.debug(func_name);
-  codeGenerator.debug(":\n");
+  ss << func_name << ":\n";
+  codeGenerator.debug(ss.str());
   codeGenerator.debug("BeginFunc;\n");
   if(this->decList!=NULL){
     this->decList->generateCode();

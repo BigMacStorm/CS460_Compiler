@@ -102,6 +102,7 @@ Spec* additive_expression_node::getSpec(){
 }
 std::string additive_expression_node::generateCode(){
   std::string result, temp1, temp2, left, right;
+  std::stringstream ss;
   switch(this->mode){
     case 0:
       return this->multiExpr->generateCode();
@@ -111,19 +112,16 @@ std::string additive_expression_node::generateCode(){
       temp2 = this->multiExpr->generateCode();
       result = ast_node::getNewTempStr();
 
-      codeGenerator.debug(result);
-      codeGenerator.debug(" := ");
-      codeGenerator.debug(temp1);
+      ss << result << " := " << temp1;
 
       if(this->op == OpType::PLUS){
-        codeGenerator.debug(" + ");
+        ss << " + ";
       }
       else{
-        codeGenerator.debug(" - ");
+        ss << " - ";
       }
-
-      codeGenerator.debug(temp2);
-      codeGenerator.debug(";\n");
+      ss << temp2 << ";\n";
+      codeGenerator.debug(ss.str());
 
     return result;
   }

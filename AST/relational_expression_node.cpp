@@ -74,7 +74,7 @@ Spec* relational_expression_node::getSpec(){
 }
 std::string relational_expression_node::generateCode(){
   std::string result, temp1, temp2;
-
+  std::stringstream ss;
   switch(this->mode){
     case 0:
       return this->shiftExpr->generateCode();
@@ -84,22 +84,20 @@ std::string relational_expression_node::generateCode(){
       temp2 = this->shiftExpr->generateCode();
       result = ast_node::getNewTempStr();
 
-      codeGenerator.debug(result);
-      codeGenerator.debug(" := ");
-      codeGenerator.debug(temp1);
+       ss << result << " := " << temp1;
 
       if(this->op == OpType::L){
-        codeGenerator.debug(" < ");
+        ss << " < ";
       }else if(this->op == OpType::G){
-        codeGenerator.debug(" > ");
+        ss << " > ";
       }else if(this->op == OpType::LE){
-        codeGenerator.debug(" <= ");
+        ss << " <= ";
       }else if(this->op == OpType::GE){
-        codeGenerator.debug(" >= ");
+        ss << " >= ";
       }
 
-      codeGenerator.debug(temp2);
-      codeGenerator.debug(";\n");
+      ss << temp2 << ";\n";
+      codeGenerator.debug(ss.str());
       return result;
   }
   return "";

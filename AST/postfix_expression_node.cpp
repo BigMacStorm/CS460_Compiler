@@ -384,6 +384,7 @@ std::string postfix_expression_node::generateFunctionCode(){
   TypeFunction* function = (TypeFunction*) sym->getSpecifier();
   Spec* returnSpec = function->getReturnSpec();
   std::string result;
+  std::stringstream ss;
 
   if(this->argExpr != NULL){
     std::vector<std::string> args;
@@ -396,38 +397,37 @@ std::string postfix_expression_node::generateFunctionCode(){
     }
 
     for(int arg = 0; arg < args.size(); arg++){
-      codeGenerator.debug("PushParam ");
-      codeGenerator.debug(args[arg]);
-      codeGenerator.debug(";\n");
+      codeGenerator.debug("PushParam " + args[arg] + ";\n");
     }
   }
 
   if(returnSpec->toTypeString() != "void"){
     result = ast_node::getNewTempStr();
-    codeGenerator.debug(result);
-    codeGenerator.debug(" := ");
+    ss << result + " := ";
   }
-  codeGenerator.debug("FuncCall "+name+";\n");
+  ss << "FuncCall " << name << ";\n";
+  codeGenerator.debug(ss.str());
   return result;
 }
 std::string postfix_expression_node::generatePostfixedCode(){
   std::string result, temp;
+  std::stringstream ss;
   temp = this->postExpr->generateCode();
   result = ast_node::getNewTempStr();
-  codeGenerator.debug(result);
-  codeGenerator.debug(" := ");
-  codeGenerator.debug(temp);
-  codeGenerator.debug(";\n");
+  ss << result << " := " << temp << ";\n";
+  codeGenerator.debug(ss.str());
+  ss.str("");
 
-  codeGenerator.debug(temp);
-  codeGenerator.debug(" := ");
+  ss << temp << " := ";
+
   if(this->op == OpType::INC){
-    codeGenerator.debug(temp + " + 1");
+    ss << temp << " + 1";
   }
   else{
-    codeGenerator.debug(temp + " - 1");
+    ss << temp << " - 1";
   }
-  codeGenerator.debug(";\n");
+  ss << ";\n";
+  codeGenerator.debug(ss.str());
 
   return result;
 }

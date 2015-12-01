@@ -110,6 +110,7 @@ Spec *leftSpec, *rightSpec;
 }
 std::string assignment_expression_node::generateCode(){
   std::string temp1,temp2,result;
+  std::stringstream ss;
   switch(this->mode){
     case 0:
       return this->cond_expr->generateCode();
@@ -117,11 +118,8 @@ std::string assignment_expression_node::generateCode(){
     case 1:
       temp1 = this->unary_expr->generateCode();
       temp2 = this->assign_expr->generateCode();
-
-      codeGenerator.debug(temp1);
-      codeGenerator.debug(this->assign_op->generateCode());
-      codeGenerator.debug(temp2);
-      codeGenerator.debug(";\n");
+      ss << temp1 << this->assign_op->generateCode() << temp2 << ";\n";
+      codeGenerator.debug(ss.str());
 
       return temp1;
   }

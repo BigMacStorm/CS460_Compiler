@@ -1,5 +1,6 @@
 #include "SymbolTable.h"
 #include "Debugger.h"
+#include "CodeDumper.h"
 #include "AST/ast_node.h"
 #include "graph.h"
 #include <sstream>
