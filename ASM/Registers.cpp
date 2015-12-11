@@ -1,5 +1,5 @@
 #include "Registers.h"
-
+#include <iostream>
 Registers::Registers(){
   int reg;
   for(reg = 0; reg < 4; reg++){
