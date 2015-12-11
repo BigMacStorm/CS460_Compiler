@@ -7,6 +7,9 @@ identifier_list_node::identifier_list_node(std::string child){
 identifier_list_node::~identifier_list_node(){
 
 }
+void identifier_list_node::clear(){
+
+}
 void identifier_list_node::addIdentifier(std::string child){
   this->children.push_back(child);
 }

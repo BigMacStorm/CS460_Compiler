@@ -6,10 +6,15 @@ initializer_node::initializer_node(initializer_list_node* initList){
   this->initList = initList;
 }
 initializer_node::~initializer_node(){
+
+}
+void initializer_node::clear(){
   if(this->assignExpr!=NULL){
+    this->assignExpr->clear();
     delete this->assignExpr;
   }
   if(this->initList!=NULL){
+    this->initList->clear();
     delete this->initList;
   }
 }

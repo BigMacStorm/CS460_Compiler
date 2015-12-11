@@ -5,7 +5,14 @@ expression_node::expression_node(assignment_expression_node* child): ast_node(){
   this->children.push_back(child);
 }
 expression_node::~expression_node(){
-
+}
+void expression_node::clear(){
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      this->children[child]->clear();
+      delete this->children[child];
+    }
+  }
 }
 void expression_node::addAssignmentExpr(assignment_expression_node* child){
   this->children.push_back(child);

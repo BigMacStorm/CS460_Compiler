@@ -3,6 +3,9 @@ assignment_operator_node::assignment_operator_node(): ast_node(){}
 assignment_operator_node::assignment_operator_node(AssignType::Type op): ast_node(){
   this->op = op;
 }
+void assignment_operator_node::clear(){
+
+}
 void assignment_operator_node::print(){
   visualizer.debug("assignment_operator");
   switch(this->op){

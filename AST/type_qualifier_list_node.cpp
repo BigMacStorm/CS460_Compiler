@@ -5,8 +5,11 @@ type_qualifier_list_node::type_qualifier_list_node(type_qualifier_node* child): 
   this->children.push_back(child);
 }
 type_qualifier_list_node::~type_qualifier_list_node(){
+}
+void type_qualifier_list_node::clear(){
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
+      this->children[child]->clear();
       delete this->children[child];
     }
   }

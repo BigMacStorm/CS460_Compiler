@@ -16,7 +16,11 @@ jump_statement_node::jump_statement_node(expression_node* expr): ast_node(){
   this->mode = 2;
 }
 jump_statement_node::~jump_statement_node(){
+
+}
+void jump_statement_node::clear(){
   if(this->expr!=NULL){
+    this->expr->clear();
     delete this->expr;
   }
 }
@@ -83,10 +87,10 @@ std::string jump_statement_node::generateCode(){
     case 2:
       if(this->expr!=NULL){
         temp = this->expr->generateCode();
-        codeGenerator.debug("return " +temp+";\n");
+        codeGenerator.debug("return " +temp+"\n");
       }
       else{
-        codeGenerator.debug("return;\n");
+        codeGenerator.debug("return\n");
       }
     break;
   }

@@ -6,6 +6,9 @@ string_node::string_node(std::string string_literal): ast_node(){
 std::string string_node::getStringLiteral(){
   return string_literal;
 }
+void string_node::clear(){
+
+}
 void string_node::setStringLiteral(std::string string_literal){
   this->string_literal = string_literal;
 }

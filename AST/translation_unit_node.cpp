@@ -7,8 +7,11 @@ translation_unit_node::translation_unit_node(external_declaration_node* child): 
     this->children.push_back(child);
 }
 translation_unit_node::~translation_unit_node(){
+}
+void translation_unit_node::clear(){
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
+      this->children[child]->clear();
       delete this->children[child];
     }
   }

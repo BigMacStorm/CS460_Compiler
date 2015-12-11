@@ -7,9 +7,19 @@ struct_or_union_specifier_node::struct_or_union_specifier_node(
   this->identifier = identifier;
   this->structDecl = structDecl;
 }
+void struct_or_union_specifier_node::clear(){
+  if(this->structUnion!=NULL){
+    this->structUnion->clear();
+    delete this->structUnion;
+  }
+  if(this->structDecl!=NULL){
+    this->structDecl->clear();
+    delete this->structDecl;
+  }
+}
 void struct_or_union_specifier_node::print(){
   visualizer.debug("struct_or_union_specifier");
-  this->structUnion->setPID(this->pid); // assume structUnion is valid
+  this->structDecl->setPID(this->pid); // assume structUnion is valid
   this->structUnion->print();
 
   if(this->identifier != ""){

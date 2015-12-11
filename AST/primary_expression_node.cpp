@@ -20,13 +20,19 @@ primary_expression_node::primary_expression_node(expression_node* expr): ast_nod
   this->expr = expr;
 }
 primary_expression_node::~primary_expression_node(){
+
+}
+void primary_expression_node::clear(){
   if(this->identifier!=NULL){
+    this->identifier->clear();
     delete this->identifier;
   }
   if(this->constant!=NULL){
+    this->constant->clear();
     delete this->constant;
   }
   if(this->expr!=NULL){
+    this->expr->clear();
     delete this->expr;
   }
 }

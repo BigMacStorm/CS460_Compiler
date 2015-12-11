@@ -7,7 +7,16 @@ enum_specifier_node::enum_specifier_node(identifier_node* identifier, enumerator
     this->enumList = enm;
     this->identifier = identifier;
 }
-
+void enum_specifier_node::clear(){
+  if(this->identifier!=NULL){
+    this->identifier->clear();
+    delete this->identifier;
+  }
+  if(this->enumList!=NULL){
+    this->enumList->clear();
+    delete this->enumList;
+  }
+}
 void enum_specifier_node::print(){
   visualizer.debug("enum_specifier");
   visualizer.addNode(this->id, "enum");

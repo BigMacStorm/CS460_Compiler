@@ -14,10 +14,15 @@ relational_expression_node::relational_expression_node(
   this->mode = 1;
 }
 relational_expression_node::~relational_expression_node(){
+
+}
+void relational_expression_node::clear(){
   if(this->relExpr!=NULL){
+    this->relExpr->clear();
     delete this->relExpr;
   }
   if(this->shiftExpr!=NULL){
+    this->shiftExpr->clear();
     delete this->shiftExpr;
   }
 }
@@ -96,7 +101,7 @@ std::string relational_expression_node::generateCode(){
         ss << " >= ";
       }
 
-      ss << temp2 << ";\n";
+      ss << temp2 << "\n";
       codeGenerator.debug(ss.str());
       return result;
   }

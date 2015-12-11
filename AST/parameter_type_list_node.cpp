@@ -3,7 +3,11 @@ parameter_type_list_node::parameter_type_list_node(parameter_list_node* paramLis
   this->paramList = paramList;
 }
 parameter_type_list_node::~parameter_type_list_node(){
+
+}
+void parameter_type_list_node::clear(){
   if(this->paramList!=NULL){
+    this->paramList->clear();
     delete this->paramList;
   }
 }

@@ -10,20 +10,26 @@ unary_expression_node::unary_expression_node(OpType::Type op, unary_expression_n
   this->unaryExpr = unaryExpr;
   this->mode = 1;
 }
+unary_expression_node::~unary_expression_node(){
+
+}
 unary_expression_node::unary_expression_node(unary_operator_node* unaryOp, cast_expression_node* castExpr): ast_node(){
   init();
   this->unaryOp = unaryOp;
   this->castExpr = castExpr;
   this->mode = 2;
 }
-unary_expression_node::~unary_expression_node(){
+void unary_expression_node::clear(){
   if(this->postExpr!=NULL){
+    this->postExpr->clear();
     delete this->postExpr;
   }
   if(this->unaryExpr!=NULL){
+    this->unaryExpr->clear();
     delete this->unaryExpr;
   }
   if(this->castExpr!=NULL){
+    this->castExpr->clear();
     delete this->castExpr;
   }
 }
@@ -109,10 +115,10 @@ std::string unary_expression_node::generateCode(){
      temp1 = this->unaryExpr->generateCode();
      codeGenerator.debug(temp1 + " := " + temp1);
      if(this->op == OpType::INC){
-       codeGenerator.debug(" + 1;\n");
+       codeGenerator.debug(" + 1\n");
      }
      else if(this->op == OpType::DEC){
-       codeGenerator.debug(" - 1;\n");
+       codeGenerator.debug(" - 1\n");
      }
      return temp1;
     case 2:

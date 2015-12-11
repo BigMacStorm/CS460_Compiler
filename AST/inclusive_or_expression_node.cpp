@@ -15,10 +15,14 @@ inclusive_or_expression_node::inclusive_or_expression_node(
   this->mode = 1;
 }
 inclusive_or_expression_node::~inclusive_or_expression_node(){
+}
+void inclusive_or_expression_node::clear(){
   if(this->iorExpr!=NULL){
+    this->iorExpr->clear();
     delete this->iorExpr;
   }
   if(this->exorExpr!=NULL){
+    this->exorExpr->clear();
     delete this->exorExpr;
   }
 }

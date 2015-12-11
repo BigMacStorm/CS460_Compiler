@@ -10,6 +10,14 @@ void struct_declaration_list_node::addStrDecl(struct_declaration_node* child){
 std::vector<struct_declaration_node*> struct_declaration_list_node::getChildren() const{
   return this->children;
 }
+void struct_declaration_list_node::clear(){
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      this->children[child]->clear();
+      delete this->children[child];
+    }
+  }
+}
 void struct_declaration_list_node::print(){
  visualizer.debug("struct_declaration_list");
   visualizer.addNode(this->id,"struct_declaration_list");

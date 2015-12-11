@@ -6,8 +6,11 @@ identifier_node::identifier_node(std::string name, SymbolNode* symnode, int line
   this->col = col;
 }
 identifier_node::~identifier_node(){
+}
+void identifier_node::clear(){
   if(this->id_symnode!=NULL){
     delete this->id_symnode;
+    std::cout << id_name + " was freed" << std::endl;
   }
 }
 void identifier_node::setSymNode(SymbolNode* sym){

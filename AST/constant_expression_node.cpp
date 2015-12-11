@@ -8,6 +8,12 @@ constant_expression_node::~constant_expression_node(){
     delete this->condExpr;
   }
 }
+void constant_expression_node::clear(){
+  if(this->condExpr!=NULL){
+    this->condExpr->clear();
+    delete this->condExpr;
+  }
+}
 void constant_expression_node::init(){
   this->condExpr = NULL;
 }
@@ -29,4 +35,5 @@ std::string constant_expression_node::generateCode(){
   if(this->condExpr!=NULL){
     return this->condExpr->generateCode();
   }
+  return "";
 }

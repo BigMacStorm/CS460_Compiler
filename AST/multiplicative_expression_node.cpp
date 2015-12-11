@@ -15,10 +15,15 @@ multiplicative_expression_node::multiplicative_expression_node(
   this->mode = 1;
 }
 multiplicative_expression_node::~multiplicative_expression_node(){
+
+}
+void multiplicative_expression_node::clear(){
   if(this->castExpr!=NULL){
+    this->castExpr->clear();
     delete this->castExpr;
   }
   if(this->multiExpr!=NULL){
+    this->multiExpr->clear();
     delete this->multiExpr;
   }
 }
@@ -140,7 +145,7 @@ std::string multiplicative_expression_node::generateCode(){
       else{
         ss << " %% ";
       }
-      ss << temp2 << ";\n";
+      ss << temp2 << "\n";
       codeGenerator.debug(ss.str());
       return result;
   }

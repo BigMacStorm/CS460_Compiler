@@ -6,8 +6,11 @@ declaration_list_node::declaration_list_node(declaration_node* child){
   this->children.push_back(child);
 }
 declaration_list_node::~declaration_list_node(){
+}
+void declaration_list_node::clear(){
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
+      this->children[child]->clear();
       delete this->children[child];
     }
   }

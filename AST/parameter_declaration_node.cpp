@@ -19,13 +19,19 @@ void parameter_declaration_node::init(){
   this->absDecl = NULL;
 }
 parameter_declaration_node::~parameter_declaration_node(){
+
+}
+void parameter_declaration_node::clear(){
   if(this->declSpec!=NULL){
+    this->declSpec->clear();
     delete this->declSpec;
   }
   if(this->decl!=NULL){
+    this->decl->clear();
     delete this->decl;
   }
   if(this->absDecl!=NULL){
+    this->absDecl->clear();
     delete this->absDecl;
   }
 }

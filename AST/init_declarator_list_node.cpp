@@ -5,8 +5,12 @@ init_declarator_list_node::init_declarator_list_node(init_declarator_node* child
   this->children.push_back(child);
 }
 init_declarator_list_node::~init_declarator_list_node(){
+
+}
+void init_declarator_list_node::clear(){
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
+      this->children[child]->clear();
       delete this->children[child];
     }
   }

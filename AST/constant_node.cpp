@@ -29,6 +29,9 @@ void constant_node::setCval(char cval){
 void constant_node::setFval(float fval){
   this->fval = fval;
 }
+void constant_node::clear(){
+
+}
 void constant_node::print(){
   visualizer.debug("constant");
   std::stringstream ss;

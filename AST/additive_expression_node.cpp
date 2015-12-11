@@ -12,10 +12,14 @@ additive_expression_node::additive_expression_node(additive_expression_node* add
   this->mode = 1;
 }
 additive_expression_node::~additive_expression_node(){
+}
+void additive_expression_node::clear(){
   if(this->addExpr!=NULL){
+    this->addExpr->clear();
     delete this->addExpr;
   }
   if(this->multiExpr!=NULL){
+    this->multiExpr->clear();
     delete this->multiExpr;
   }
 }
@@ -120,7 +124,7 @@ std::string additive_expression_node::generateCode(){
       else{
         ss << " - ";
       }
-      ss << temp2 << ";\n";
+      ss << temp2 << "\n";
       codeGenerator.debug(ss.str());
 
     return result;

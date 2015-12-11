@@ -18,16 +18,22 @@ declaration_specifiers_node::declaration_specifiers_node(type_qualifier_node* qu
   this->declSpec = declSpec;
 }
 declaration_specifiers_node::~declaration_specifiers_node(){
+}
+void declaration_specifiers_node::clear(){
   if(this->storage!=NULL){
+    this->storage->clear();
     delete this->storage;
   }
   if(this->typeSpec!=NULL){
+    this->typeSpec->clear();
     delete this->typeSpec;
   }
   if(this->qualifier!=NULL){
+    this->qualifier->clear();
     delete this->qualifier;
   }
   if(this->declSpec!=NULL){
+    this->declSpec->clear();
     delete this->declSpec;
   }
 }
@@ -69,4 +75,5 @@ std::string declaration_specifiers_node::generateCode(){
   if(this->declSpec != NULL){
     return this->declSpec->generateCode();
   }
+  return "";
 }

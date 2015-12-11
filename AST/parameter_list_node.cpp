@@ -5,8 +5,12 @@ parameter_list_node::parameter_list_node(parameter_declaration_node* child): ast
   this->children.push_back(child);
 }
 parameter_list_node::~parameter_list_node(){
+
+}
+void parameter_list_node::clear(){
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
+      this->children[child]->clear();
       delete this->children[child];
     }
   }

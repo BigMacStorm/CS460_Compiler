@@ -14,10 +14,14 @@ equality_expression_node::equality_expression_node(
   this->mode = 1;
 }
 equality_expression_node::~equality_expression_node(){
+}
+void equality_expression_node::clear(){
   if(this->equalExpr!=NULL){
+    this->equalExpr->clear();
     delete this->equalExpr;
   }
   if(this->relExpr!=NULL){
+    this->relExpr->clear();
     delete this->relExpr;
   }
 }
@@ -88,7 +92,7 @@ std::string equality_expression_node::generateCode(){
         codeGenerator.debug(" != ");
       }
       codeGenerator.debug(temp2);
-      codeGenerator.debug(";\n");
+      codeGenerator.debug("\n");
     return result;
   }
   return "";

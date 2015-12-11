@@ -11,7 +11,10 @@
     }
   }
   cast_expression_node::~cast_expression_node(){
+  }
+  void cast_expression_node::clear(){
     if(this->unaryExpr!=NULL){
+      this->unaryExpr->clear();
       delete this->unaryExpr;
     }
   }

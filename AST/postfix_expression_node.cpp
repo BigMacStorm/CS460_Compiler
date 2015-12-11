@@ -42,16 +42,22 @@ postfix_expression_node::postfix_expression_node(postfix_expression_node* postEx
   this->identifierNode = getIdentifier();
 }
 postfix_expression_node::~postfix_expression_node(){
+}
+void postfix_expression_node::clear(){
   if(this->primayExpr!=NULL){
+    this->primayExpr->clear();
     delete this->primayExpr;
   }
   if(this->postExpr!=NULL){
+    this->postExpr->clear();
     delete this->postExpr;
   }
   if(this->expr!=NULL){
+    this->expr->clear();
     delete this->expr;
   }
   if(this->argExpr!=NULL){
+    this->argExpr->clear();
     delete this->argExpr;
   }
 }
@@ -358,17 +364,17 @@ std::string postfix_expression_node::generateArrayCode(){
     num = exprs[dims-1-dim]->generateCode();
     temp = ast_node::getNewTempStr();
     temp3 = ast_node::getNewTempStr();
-    codeGenerator.debug(temp + " := " + num +" * " +blocks[dim]+ ";\n");
-    codeGenerator.debug(temp3 + " := " + temp +" + " +temp2+ ";\n");
+    codeGenerator.debug(temp + " := " + num +" * " +blocks[dim]+ "\n");
+    codeGenerator.debug(temp3 + " := " + temp +" + " +temp2+ "\n");
     temp2 = temp3;
   }
 
   temp = ast_node::getNewTempStr();
   temp3 = ast_node::getNewTempStr();
-  codeGenerator.debug(temp + " := " + "4" + ";\n"); // for now - only int
-  codeGenerator.debug(temp3 + " := " + temp +" * " +temp2+ ";\n");
+  codeGenerator.debug(temp + " := " + "4" + "\n"); // for now - only int
+  codeGenerator.debug(temp3 + " := " + temp +" * " +temp2+ "\n");
   temp = ast_node::getNewTempStr();
-  codeGenerator.debug(temp + " := " + temp3 +" + " +name+ ";\n");
+  codeGenerator.debug(temp + " := " + temp3 +" + " +name+ "\n");
 
   return "*("+temp+")";
 }
@@ -397,7 +403,7 @@ std::string postfix_expression_node::generateFunctionCode(){
     }
 
     for(int arg = 0; arg < args.size(); arg++){
-      codeGenerator.debug("PushParam " + args[arg] + ";\n");
+      codeGenerator.debug("PushParam " + args[arg] + "\n");
     }
   }
 
@@ -405,7 +411,7 @@ std::string postfix_expression_node::generateFunctionCode(){
     result = ast_node::getNewTempStr();
     ss << result + " := ";
   }
-  ss << "FuncCall " << name << ";\n";
+  ss << "FuncCall " << name << "\n";
   codeGenerator.debug(ss.str());
   return result;
 }
@@ -414,7 +420,7 @@ std::string postfix_expression_node::generatePostfixedCode(){
   std::stringstream ss;
   temp = this->postExpr->generateCode();
   result = ast_node::getNewTempStr();
-  ss << result << " := " << temp << ";\n";
+  ss << result << " := " << temp << "\n";
   codeGenerator.debug(ss.str());
   ss.str("");
 
@@ -426,7 +432,7 @@ std::string postfix_expression_node::generatePostfixedCode(){
   else{
     ss << temp << " - 1";
   }
-  ss << ";\n";
+  ss << "\n";
   codeGenerator.debug(ss.str());
 
   return result;

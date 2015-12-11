@@ -6,13 +6,18 @@ compound_statement_node::compound_statement_node(
   this->stateList = stateList;
 }
 compound_statement_node::~compound_statement_node(){
+}
+void compound_statement_node::clear(){
   if(this->declList!=NULL){
+    this->declList->clear();
     delete this->declList;
   }
   if(this->stateList!=NULL){
+    this->stateList->clear();
     delete this->stateList;
   }
 }
+
 void compound_statement_node::init(){
   this->declList = NULL;
   this->stateList = NULL;

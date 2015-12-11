@@ -4,8 +4,18 @@ enumerator_node::enumerator_node(): ast_node(){
 }
 
 enumerator_node::enumerator_node(identifier_node* identifier, constant_expression_node* constExpr): ast_node(){
-    this -> identifier = identifier;
-    this -> constExpr = constExpr;
+    this->identifier = identifier;
+    this->constExpr = constExpr;
+}
+void enumerator_node::clear(){
+  if(this->identifier!=NULL){
+    this->identifier->clear();
+    delete this->identifier;
+  }
+  if(this->constExpr!=NULL){
+    this->constExpr->clear();
+    delete this->constExpr;
+  }
 }
 void enumerator_node::print(){
   visualizer.debug("enumerator");

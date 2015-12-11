@@ -3,6 +3,16 @@ abstract_declarator_node::abstract_declarator_node(pointer_node* pointer,direct_
   this->pointer = pointer;
   this->directAbs = directAbs;
 }
+void abstract_declarator_node::clear(){
+  if(this->pointer != NULL){
+    this->pointer->clear();
+    delete this->pointer;
+  }
+  if(this->directAbs != NULL){
+    this->directAbs->clear();
+    delete this->directAbs;
+  }
+}
 void abstract_declarator_node::print(){
   visualizer.debug("abstract_declarator");
   if(this->pointer != NULL){

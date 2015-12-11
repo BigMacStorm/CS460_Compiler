@@ -30,22 +30,31 @@ statement_node::statement_node(jump_statement_node* jumpStmt): ast_node(){
   this->mode = 5;
 }
 statement_node::~statement_node(){
+
+}
+void statement_node::clear(){
   if(this->labelStmt!=NULL){
+    this->labelStmt->clear();
     delete this->labelStmt;
   }
   if(this->compStmt!=NULL){
+    this->compStmt->clear();
     delete this->compStmt;
   }
   if(this->exprStmt!=NULL){
+    this->exprStmt->clear();
     delete this->exprStmt;
   }
   if(this->selectStmt!=NULL){
+    this->selectStmt->clear();
     delete this->selectStmt;
   }
   if(this->iterStmt!=NULL){
+    this->iterStmt->clear();
     delete this->iterStmt;
   }
   if(this->jumpStmt!=NULL){
+    this->jumpStmt->clear();
     delete this->jumpStmt;
   }
 }

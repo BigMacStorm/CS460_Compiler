@@ -2,6 +2,9 @@
 unary_operator_node::unary_operator_node(OpType::Type op): ast_node(){
     this->op = op;
   }
+void unary_operator_node::clear(){
+
+}
 void unary_operator_node::print(){
     visualizer.debug("unary_operator");
     switch(this->op){

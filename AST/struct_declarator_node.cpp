@@ -3,6 +3,16 @@ struct_declarator_node::struct_declarator_node(declarator_node* decl, constant_e
   this->decl = decl;
   this->constExpr = constExpr;
 }
+void struct_declarator_node::clear(){
+  if(this->decl!=NULL){
+    this->decl->clear();
+    delete this->decl;
+  }
+  if(this->constExpr!=NULL){
+    this->constExpr->clear();
+    delete this->constExpr;
+  }
+}
 void struct_declarator_node::print(){
   visualizer.debug("struct_declarator");
   visualizer.addNode(this->id,"struct_declarator");

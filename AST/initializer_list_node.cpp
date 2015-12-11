@@ -5,8 +5,12 @@ initializer_list_node::initializer_list_node(initializer_node* child): ast_node(
   this->children.push_back(child);
 }
 initializer_list_node::~initializer_list_node(){
+
+}
+void initializer_list_node::clear(){
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
+      this->children[child]->clear();
       delete this->children[child];
     }
   }
@@ -47,7 +51,7 @@ std::string initializer_list_node::generateCode(){
         ret = this->children[child]->generateCode();
       }
       else {
-        ret += ", " + this->children[child]->generateCode();
+        ret += "," + this->children[child]->generateCode();
       }
     }
   }

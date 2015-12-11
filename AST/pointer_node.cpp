@@ -4,10 +4,15 @@ pointer_node::pointer_node(type_qualifier_list_node* typeQualList, pointer_node*
   this->pointer = pointer;
 }
 pointer_node::~pointer_node(){
+
+}
+void pointer_node::clear(){
   if(this->typeQualList!=NULL){
+    this->typeQualList->clear();
     delete this->typeQualList;
   }
   if(this->pointer!=NULL){
+    this->pointer->clear();
     delete this->pointer;
   }
 }

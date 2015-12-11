@@ -11,16 +11,23 @@ function_definition_node::function_definition_node(declaration_specifiers_node* 
   this->compStmt = compStmt;
 }
 function_definition_node::~function_definition_node(){
+
+}
+void function_definition_node::clear(){
   if(this->specifiers!=NULL){
+    this->specifiers->clear();
     delete this->specifiers;
   }
   if(this->decl!=NULL){
+    this->decl->clear();
     delete this->decl;
   }
   if(this->decList!=NULL){
+    this->decList->clear();
     delete this->decList;
   }
   if(this->compStmt!=NULL){
+    this->compStmt->clear();
     delete this->compStmt;
   }
 }
@@ -51,15 +58,15 @@ void function_definition_node::print(){
 std::string function_definition_node::generateCode(){
   std::stringstream ss;
   std::string func_name = this->decl->generateCode();
-  ss << func_name << ":\n";
+  ss << "Function: " << func_name << "\n";
   codeGenerator.debug(ss.str());
-  codeGenerator.debug("BeginFunc;\n");
+  codeGenerator.debug("BeginFunc\n");
   if(this->decList!=NULL){
     this->decList->generateCode();
   }
   if(this->compStmt!=NULL){
     this->compStmt->generateCode();
   }
-  codeGenerator.debug("EndFunc;\n");
+  codeGenerator.debug("EndFunc\n");
   return "";
 }

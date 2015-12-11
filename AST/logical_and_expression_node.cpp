@@ -15,10 +15,15 @@ logical_and_expression_node::logical_and_expression_node(
   this->mode = 1;
 }
 logical_and_expression_node::~logical_and_expression_node(){
+
+}
+void logical_and_expression_node::clear(){
   if(this->logAndExpr!=NULL){
+    this->logAndExpr->clear();
     delete this->logAndExpr;
   }
   if(this->iorExpr!=NULL){
+    this->iorExpr->clear();
     delete this->iorExpr;
   }
 }

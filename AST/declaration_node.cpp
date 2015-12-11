@@ -7,10 +7,14 @@ declaration_node::declaration_node(declaration_specifiers_node* specifier,
     this->decList = decList;
 }
 declaration_node::~declaration_node(){
+}
+void declaration_node::clear(){
   if(this->decList!=NULL){
+    this->decList->clear();
     delete this->decList;
   }
   if(this->specifier!=NULL){
+    this->specifier->clear();
     delete this->specifier;
   }
 }

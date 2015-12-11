@@ -11,10 +11,14 @@ labeled_statement_node::labeled_statement_node(LabelType::Type label_type, const
   this->statement = statement;
 }
 labeled_statement_node::~labeled_statement_node(){
+}
+void labeled_statement_node::clear(){
   if(this->statement!=NULL){
+    this->statement->clear();
     delete this->statement;
   }
   if(this->constExpr!=NULL){
+    this->constExpr->clear();
     delete this->constExpr;
   }
 }
@@ -76,4 +80,5 @@ std::string labeled_statement_node::generateCode(){
       return this->statement->generateCode();
     }
   }
+  return "";
 }

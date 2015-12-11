@@ -15,13 +15,18 @@ conditional_expression_node::conditional_expression_node(
   this->mode = 1;
 }
 conditional_expression_node::~conditional_expression_node(){
+}
+void conditional_expression_node::clear(){
   if(this->logOrExpr!=NULL){
+    this->logOrExpr->clear();
     delete this->logOrExpr;
   }
   if(this->condExpr!=NULL){
+    this->condExpr->clear();
     delete this->condExpr;
   }
   if(this->expr!=NULL){
+    this->expr->clear();
     delete this->expr;
   }
 }

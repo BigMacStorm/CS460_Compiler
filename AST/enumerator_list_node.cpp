@@ -10,7 +10,14 @@ enumerator_list_node::enumerator_list_node(enum_specifier_node* child): ast_node
 void enumerator_list_node::addEnumSpec(enum_specifier_node* child){
   this->children.push_back(child);
 }
-
+void enumerator_list_node::clear(){
+  for(int child = 0; child < this->children.size(); child++){
+    if(this->children[child]!=NULL){
+      this->children[child]->clear();
+      delete this->children[child];
+    }
+  }
+}
 std::vector<enum_specifier_node*> enumerator_list_node::getChildren() const{
   return this->children;
 }

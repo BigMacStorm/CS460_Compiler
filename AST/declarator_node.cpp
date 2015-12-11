@@ -5,10 +5,14 @@ declarator_node::declarator_node(pointer_node* pointer, direct_declarator_node* 
 
 }
 declarator_node::~declarator_node(){
+}
+void declarator_node::clear(){
   if(this->pointer!=NULL){
+    this->pointer->clear();
     delete this->pointer;
   }
   if(this->directDecl!=NULL){
+    this->directDecl->clear();
     delete this->directDecl;
   }
 }
@@ -35,13 +39,4 @@ Spec* declarator_node::getSpec(){
 }
 std::string declarator_node::generateCode(){
   return this->directDecl->generateCode();
-  /*
-  if(this->pointer != NULL){
-    this->pointer->generateCode();
-    this->directDecl->generateCode();
-  }
-  else if(this->directDecl!=NULL){
-    this->directDecl->generateCode();
-  }
-   */
 }

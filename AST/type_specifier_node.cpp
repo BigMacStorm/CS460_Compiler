@@ -4,6 +4,9 @@ type_specifier_node::type_specifier_node(): ast_node(){
 type_specifier_node::type_specifier_node(TypeSpecifier::Type type): ast_node(){
   this->type = type;
 }
+void type_specifier_node::clear(){
+
+}
 void type_specifier_node::print(){
   visualizer.debug("type_specifier");
   std::string type;

@@ -12,10 +12,14 @@ shift_expression_node::shift_expression_node(shift_expression_node* shiftExpr, O
   mode = 1;
 }
 shift_expression_node::~shift_expression_node(){
+}
+void shift_expression_node::clear(){
   if(this->shiftExpr!=NULL){
+    this->shiftExpr->clear();
     delete this->shiftExpr;
   }
   if(this->addExpr!=NULL){
+    this->addExpr->clear();
     delete this->addExpr;
   }
 }

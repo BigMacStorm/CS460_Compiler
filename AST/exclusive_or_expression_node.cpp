@@ -14,10 +14,14 @@ exclusive_or_expression_node::exclusive_or_expression_node(
   this->mode = 1;
 }
 exclusive_or_expression_node::~exclusive_or_expression_node(){
+}
+void exclusive_or_expression_node::clear(){
   if(this->andExpr!=NULL){
+    this->andExpr->clear();
     delete this->andExpr;
   }
   if(this->exorExpr!=NULL){
+    this->exorExpr->clear();
     delete this->exorExpr;
   }
 }

@@ -6,10 +6,15 @@ init_declarator_node::init_declarator_node(declarator_node* declarator,
   this->initializer = initializer;
 }
 init_declarator_node::~init_declarator_node(){
+
+}
+void init_declarator_node::clear(){
   if(this->declarator!=NULL){
+    this->declarator->clear();
     delete this->declarator;
   }
   if(this->initializer!=NULL){
+    this->initializer->clear();
     delete this->initializer;
   }
 }
@@ -93,29 +98,25 @@ std::string init_declarator_node::generateCode(){
     temp1 = this->declarator->generateCode();
 
     if(typekind == SpecName::Basic){
-      ss << "Decl: " << temp1 << " " << spec->toTypeString() << " " <<  temp2 << ";\n";
+      ss << "Init: " << temp1 << " " << spec->toTypeString() << " " <<  temp2 << "\n";
       codeGenerator.debug(ss.str());
-      /*
-      codeGenerator.debug(temp1);
-      codeGenerator.debug(" := ");
-      codeGenerator.debug(temp2);
-      codeGenerator.debug(";\n");
-      */
     }
     else if(typekind == SpecName::Array){
-      ss << "Decl: " <<temp1 << " " << temp2 << ";\n";
+      ss << "Init: " << temp1 << " array " << dynamic_cast<TypeArray*>(spec)->getSpace()
+         << " " + dynamic_cast<TypeArray*>(spec)->getElemTypeName() << " " << temp2 << "\n";
       codeGenerator.debug(ss.str());
     }
     return temp1;
   }
   else{
+    temp1 = this->declarator->generateCode();
     if(typekind == SpecName::Basic){
-      temp1 = this->declarator->generateCode();
-      codeGenerator.debug("Decl: " + temp1 + " " + spec->toTypeString() + +";\n");
+      codeGenerator.debug("Decl: " + temp1 + " " + spec->toTypeString() + +"\n");
     }
     else if(typekind == SpecName::Array){
-      ss << "Decl: " + temp1 << " " << dynamic_cast<TypeArray*>(spec)->getSpace()
-         << " " + spec->toTypeString() << ";\n";
+      ss << "Decl: " << temp1 << " array " << dynamic_cast<TypeArray*>(spec)->getSpace()
+         << " " + dynamic_cast<TypeArray*>(spec)->getElemTypeName() << "\n";
+      codeGenerator.debug(ss.str());
     }
     return temp1;
   }

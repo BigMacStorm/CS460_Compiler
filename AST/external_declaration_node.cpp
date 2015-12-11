@@ -17,10 +17,15 @@ external_declaration_node::external_declaration_node(
 }
 
 external_declaration_node::~external_declaration_node(){
+
+}
+void external_declaration_node::clear(){
   if(this->declChild!=NULL){
+    this->declChild->clear();
     delete this->declChild;
   }
   if(this->functionChild!=NULL){
+    this->functionChild->clear();
     delete this->functionChild;
   }
 }

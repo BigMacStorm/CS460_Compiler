@@ -15,19 +15,24 @@ assignment_expression_node::assignment_expression_node(
   this->mode = 1;
 }
 assignment_expression_node::~assignment_expression_node(){
+}
+void assignment_expression_node::clear(){
   if(this->unary_expr!=NULL){
+    this->unary_expr->clear();
     delete this->unary_expr;
   }
   if(this->assign_expr!=NULL){
+    this->assign_expr->clear();
     delete this->assign_expr;
   }
   if(this->cond_expr!=NULL){
+    this->cond_expr->clear();
     delete this->cond_expr;
   }
   if(this->assign_op!=NULL){
+    this->assign_op->clear();
     delete this->assign_op;
   }
-
 }
 void assignment_expression_node::init(){
   this->cond_expr = NULL;
@@ -118,7 +123,7 @@ std::string assignment_expression_node::generateCode(){
     case 1:
       temp1 = this->unary_expr->generateCode();
       temp2 = this->assign_expr->generateCode();
-      ss << temp1 << this->assign_op->generateCode() << temp2 << ";\n";
+      ss << temp1 << this->assign_op->generateCode() << temp2 << "\n";
       codeGenerator.debug(ss.str());
 
       return temp1;

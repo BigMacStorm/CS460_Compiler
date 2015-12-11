@@ -42,22 +42,31 @@
   }
 
   direct_declarator_node::~direct_declarator_node(){
+  }
+
+  void direct_declarator_node::clear(){
     if(this->identifier!=NULL){
+      this->identifier->clear();
       delete this->identifier;
     }
     if(this->declarator!=NULL){
+      this->declarator->clear();
       delete this->declarator;
     }
     if(this->direct_declarator!=NULL){
+      this->direct_declarator->clear();
       delete this->direct_declarator;
     }
     if(this->constExpr!=NULL){
+      this->constExpr->clear();
       delete this->constExpr;
     }
     if(this->paramList!=NULL){
+      this->paramList->clear();
       delete this->paramList;
     }
     if(this->idList!=NULL){
+      this->idList->clear();
       delete this->idList;
     }
   }
@@ -175,4 +184,10 @@ std::string direct_declarator_node::generateArrayCode(){
   codeGenerator.debug(ast_node::getNewTempStr() + " := " + offset +";\n");
   */
   return this->direct_declarator->generateCode();
+}
+std::string direct_declarator_node::getName(){
+  if(this->identifier!=NULL){
+    return this->identifier->getName();
+  }
+  return this->direct_declarator->getName();
 }

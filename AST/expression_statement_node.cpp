@@ -7,7 +7,10 @@ expression_statement_node::expression_statement_node(expression_node* expr): ast
   this->expr = expr;
 }
 expression_statement_node::~expression_statement_node(){
+}
+void expression_statement_node::clear(){
   if(this->expr!=NULL){
+    this->expr->clear();
     delete this->expr;
   }
 }

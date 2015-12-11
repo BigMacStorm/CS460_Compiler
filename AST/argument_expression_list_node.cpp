@@ -8,13 +8,15 @@ void argument_expression_list_node::addAssignmentExpr(assignment_expression_node
   this->children.push_back(child);
 }
 argument_expression_list_node::~argument_expression_list_node(){
+}
+void argument_expression_list_node::clear(){
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
+      this->children[child]->clear();
       delete this->children[child];
     }
   }
 }
-
 std::vector<assignment_expression_node*> argument_expression_list_node::getChildren() const{
   return this->children;
 }
