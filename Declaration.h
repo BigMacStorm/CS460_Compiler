@@ -7,7 +7,7 @@
 #include <vector>
 #include <iostream>
 
-extern SymbolTable symTable;
+extern SymbolTable *symTable;
 extern void error(const std::string& message);
 extern void warning(const std::string& message);
 

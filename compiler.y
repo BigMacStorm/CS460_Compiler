@@ -15,7 +15,7 @@ int yylex();
 
 extern Debugger warningDebugger;
 extern Debugger reductionDebugger;
-extern SymbolTable symTable;
+extern SymbolTable * symTable;
 extern int linenum;
 extern int colnum;
 extern char* yytext;
@@ -102,10 +102,17 @@ SpecName::TypeKind tkval;
 
 program
 : translation_unit {
+
+std::cout << "Deleting SymbolTable ..." << std::endl;
+symTable->popTable();
+delete symTable;
 treeHanger = $1;
-treeHanger->print(); // traverse print functions
-treeHanger->generateCode(); // traverse generateCode functions
+std::cout << "Traverse print functions ..." << std::endl;
+treeHanger->print();
+std::cout << "Traverse generateCode functions ..." << std::endl;
+treeHanger->generateCode();
 std::cout << "Success!" << std::endl;
+//treeHanger->clear();
 }
 
 translation_unit
@@ -141,21 +148,21 @@ enter_scope
 : {
   if(insert_mode && decl.isMode(DeclMode::Function)){
     decl.complete(); // complete function definition
-    symTable.pushTable();
+    symTable->pushTable();
 
     // push argments if possible
     std::vector<SymbolNode*> args = decl.getArgSymbolNodes();
     if(args.size() > 0){
       for(int arg = 0; arg < args.size(); arg++){
-        symTable.insertSymbol(args[arg]->getName(),args[arg]);
+        symTable->insertSymbol(args[arg]->getName(),args[arg]);
         }
     }
     // function is complete
     std::string func_name = decl.getID(0);
-    symTable.lookupSymbol(func_name)->setDefined(true);
+    symTable->lookupSymbol(func_name)->setDefined(true);
 
     // set symbol node for ast
-    current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
+    current_id_ast->setSymNode(symTable->lookupSymbol(current_id));
 
     // clears
     decl.clear();
@@ -163,12 +170,12 @@ enter_scope
     decl.setMode(DeclMode::NoMode);
   }
   else{
-    symTable.pushTable();
+    symTable->pushTable();
   }
 }
 ;
 end_scope
-: {symTable.popTable();}
+: {symTable->popTable();}
 ;
 
 function_definition
@@ -235,14 +242,14 @@ init_declarator
 : declarator{
   // declaration
   decl.complete();
-  current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
+  current_id_ast->setSymNode(symTable->lookupSymbol(current_id));
   $$ = new init_declarator_node((declarator_node*)$1, NULL);
   reductionOut("[p]: init_declarator -> declarator", $$);
 }
 | declarator EQUALtok initializer {
   // initialization
   decl.complete();
-  current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
+  current_id_ast->setSymNode(symTable->lookupSymbol(current_id));
   $$ = new init_declarator_node((declarator_node*)$1, (initializer_node*)$3);
   reductionOut("[p]: init_declarator -> declarator EQUALtok initializer", $$);
 }
@@ -1373,7 +1380,7 @@ postfix_expression
 primary_expression
   : identifier {
       // use before declaration check
-      if(!symTable.lookupSymbol($1)) {
+      if(!symTable->lookupSymbol($1)) {
         std::stringstream ss;
         ss << "[p]: ERROR: identifier \'" << $1 << "\' not found" << ", line " << linenum << " col " << colnum;
         error(ss.str());
@@ -1383,7 +1390,7 @@ primary_expression
       insert_mode = false; // turn lookup mode on
 
       // ast node creation
-      SymbolNode *sym = symTable.lookupSymbol($1);
+      SymbolNode *sym = symTable->lookupSymbol($1);
       if(sym != NULL){
         $$ = new primary_expression_node(new identifier_node($1, sym, current_line, current_col));
       }
