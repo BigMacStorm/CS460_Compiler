@@ -18,7 +18,7 @@ lex.yy.c: compiler.lex y.tab.c
 	$(LEX) $(LFLAG) $<
 
 clean:
-	-rm -f compiler lex.yy.* y.tab.* y.output *.o  AST/*.o *~
+	-rm -f compiler lex.yy.* y.tab.* y.output *.o  AST/*.o *~ ASM/*.o *~
 
 .SUFFIXES: .cpp .c .o
 
