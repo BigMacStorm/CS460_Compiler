@@ -343,7 +343,7 @@ std::string postfix_expression_node::generateArrayCode(){
   int dims = sizes.size();
   int tmp;
   std::stringstream ss;
-  std::string temp, temp2, temp3, num;
+  std::string temp, temp2, temp3, num, result;
   std::vector<expression_node*> exprs;
 
   blocks.push_back("1");
@@ -376,7 +376,10 @@ std::string postfix_expression_node::generateArrayCode(){
   temp = ast_node::getNewTempStr();
   codeGenerator.debug(temp + " := " + temp3 +" + " +name+ "\n");
 
-  return "*("+temp+")";
+  result = ast_node::getNewTempStr();
+  codeGenerator.debug(result + " := " +"*("+temp+")"+ "\n");
+
+  return result;
 }
 void postfix_expression_node::getExprs(std::vector<expression_node*>& exprs){
   if(this->primayExpr==NULL){

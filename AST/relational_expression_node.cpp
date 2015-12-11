@@ -89,8 +89,7 @@ std::string relational_expression_node::generateCode(){
       temp2 = this->shiftExpr->generateCode();
       result = ast_node::getNewTempStr();
 
-       ss << result << " := " << temp1;
-
+       ss << temp1;
       if(this->op == OpType::L){
         ss << " < ";
       }else if(this->op == OpType::G){
@@ -100,10 +99,8 @@ std::string relational_expression_node::generateCode(){
       }else if(this->op == OpType::GE){
         ss << " >= ";
       }
-
-      ss << temp2 << "\n";
-      codeGenerator.debug(ss.str());
-      return result;
+      ss << temp2;
+      return ss.str();
   }
   return "";
 }

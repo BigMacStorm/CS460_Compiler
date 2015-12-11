@@ -65,10 +65,12 @@ void selection_statement_node::print(){
 }
 std::string selection_statement_node::generateCode(){
   std::string temp1, label1, label2;
+
   if(this->selec_type == SelecType::IF){
     temp1 = this->expr->generateCode();
     label1 = ast_node::getNewLabelStr();
     label2 = ast_node::getNewLabelStr();
+
     codeGenerator.debug("if " + temp1 + " goto " + label1 + "\n");
     if(this->statement2 != NULL){
       this->statement2->generateCode();

@@ -5,6 +5,7 @@ ASMGenerator::ASMGenerator(){
 void ASMGenerator::build(){
   readASM();
   makeDataSegment();
+  //replaceTempsByRegs();
   buildASM();
   writeASM();
 }
@@ -52,7 +53,7 @@ void ASMGenerator::makeDataSegment(){
 void ASMGenerator::buildASM(){
   int line;
   for(line = 0; line < this->tacLines.size(); line++){
-    this->asmLines.push_back(toASM(this->tacLines[line]));
+    this->asmLines.push_back(toASM(this->tacLines[line])+"\n");
   }
 }
 std::string ASMGenerator::toASM(std::string aTacLine){
@@ -65,17 +66,21 @@ std::string ASMGenerator::toASM(std::string aTacLine){
   }
   else if(linevec[1] == "if"){
     if(linevec[3] == "<=")
-        ss << "ble, ";
+        ss << "ble " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
     else if(linevec[3] == ">=")
-        ss << "bge, ";
+        ss << "bge " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
     else if(linevec[3] == ">")
-        ss << "bgt, ";
+        ss << "bgt " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
     else if(linevec[3] == "<")
-        ss << "blt, ";
+        ss << "blt " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
     else if(linevec[3] == "==")
-        ss << "beq, ";
+        ss << "beq " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
     else if(linevec[3] == "!=")
-        ss << "bne, ";
+        ss << "bne " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
+    else{
+      // assume it is a single condition
+        ss << "beq, 1, " << linevec[2] << ", " << linevec[4];
+    }
   }
   return ss.str();
 }
@@ -124,6 +129,7 @@ std::string ASMGenerator::vecToStr(std::vector<std::string> vec ){
   }
   return result;
 }
+
 std::vector<std::string> ASMGenerator::split(std::string line){
   std::string tok;
   std::stringstream ss(line);
