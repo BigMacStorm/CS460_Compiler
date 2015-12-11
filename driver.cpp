@@ -1,11 +1,11 @@
 #include "SymbolTable.h"
 #include "Debugger.h"
 #include "CodeDumper.h"
-#include "AST/ast_node.h"
 #include "graph.h"
+#include "AST/ast_node.h"
+#include "ASM/ASMGenerator.h"
 #include <sstream>
 #include <iostream>
-
 extern "C"{
   int yyparse();
   int yylex();
@@ -17,7 +17,7 @@ int ast_node::tempNum;
 int ast_node::labelNum;
 int ast_node::unique_id;
 
-SymbolTable symTable = SymbolTable();
+SymbolTable *symTable;
 Graph visualizer;
 CodeDumper codeGenerator;
 Debugger lexDebugger;
@@ -27,16 +27,23 @@ Debugger reductionDebugger;
 extern std::string listFileName;
 
 int main(int argc, char** argv){
+  ASMGenerator *asmGenerator = NULL;
+  symTable = new SymbolTable();
+
+  // flags
   bool sdebug = false, ldebug = false, pdebug = false, genAST = false;
   bool gen3AC = false, genAssembly = false, compileAssemble = false;
 
+  // filenames
   std::string logFile = "log.txt";
   const std::string symTableLogFile = "symTableLog.txt";
   const std::string LEX_FILE = "list_file";
   const std::string GRAPH_DOT_FILE = "graph.dot";
   const std::string AST_LOG = "astlog.txt";
-  const std::string CODE_LOG = "3aclog.txt";
+  std::string tac_file;
+  std::string asm_file;
 
+  // arguments handling
   std::vector<std::string> args(argv, argv+argc);
   for (int arg = 1; arg < (int)args.size()-1; ++arg) {
        if (args[arg] == "-o"){
@@ -63,28 +70,34 @@ int main(int argc, char** argv){
          gen3AC = true;
        }
        else if (args[arg] == "-S"){
-         printf("'-S' flag, assembly language not implemented\n");
+        compileAssemble = true;
        }
    }
 
   // Get source code file
   std::stringstream sourceFileName(args[args.size()-1]);
+  std::string cfilename;
   yyin = fopen(sourceFileName.str().c_str(), "r");
 
-  // Make .list file from source name
-  getline(sourceFileName, listFileName, '.');
-  listFileName += ".list";
+  // Make files from source name
+  getline(sourceFileName, cfilename, '.');
+  listFileName = cfilename + ".list";
+  tac_file = cfilename + "_3ac.txt";
+  asm_file = cfilename + "_mips.s";
 
   std::cout << listFileName << std::endl;
+  std::cout << tac_file << std::endl;
+  std::cout << asm_file << std::endl;
 
-  // remove logs
+  // remove existing files
   std::remove(logFile.c_str());
   std::remove(symTableLogFile.c_str());
   std::remove(listFileName.c_str());
   std::remove(LEX_FILE.c_str());
   std::remove(GRAPH_DOT_FILE.c_str());
   std::remove(AST_LOG.c_str());
-  std::remove(CODE_LOG.c_str());
+  std::remove(tac_file.c_str());
+  std::remove(asm_file.c_str());
 
   lexDebugger.setFileName(logFile);
   lexDebugger.setDebug(ldebug);
@@ -94,21 +107,32 @@ int main(int argc, char** argv){
   reductionDebugger.setFileName(logFile);
   reductionDebugger.setDebug(pdebug);
 
-  symTable.setFileName(symTableLogFile);
-  symTable.getDebugger()->setFileName(logFile);
-  symTable.getDebugger()->setDebug(sdebug);
+  symTable->setFileName(symTableLogFile);
+  symTable->getDebugger()->setFileName(logFile);
+  symTable->getDebugger()->setDebug(sdebug);
 
   visualizer.setVisualizer(true);
   visualizer.setDebug(genAST);
   visualizer.startBuild();
 
-  codeGenerator.setFileName(CODE_LOG);
+  codeGenerator.setFileName(tac_file);
   codeGenerator.setDebug(gen3AC);
 
-  symTable.pushTable();
+  symTable->pushTable();
   yyparse();
-  symTable.popTable();
   // sometimes cause seg fault around the end?
+
+  // close files
+  codeGenerator.close();
+  lexDebugger.close();
+  lexSymbolDebugger.close();
+  reductionDebugger.close();
+
+  asmGenerator = new ASMGenerator();
+  asmGenerator->setTACFileName(tac_file);
+  asmGenerator->setASMFileName(asm_file);
+  asmGenerator->build();
+  delete asmGenerator;
 
   return 0;
 }
