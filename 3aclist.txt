@@ -1,0 +1,7 @@
+labels
+if
+goto
+assignment :=
+comparisons > < >= <= == !=
+arithmetic operators + - * /
+address stuff _TEMP1 := *(_TEMP2)
