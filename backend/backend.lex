@@ -1,10 +1,16 @@
-digit [0-9]
+/* Helpful regex's */
+
 letter [a-zA-Z_]
-ws   [ \r\t\v\f]
-newlines \n+
+digit [0-9]
+id {letter}({letter}|{digit})*
+label [a-zA-Z_]+:
+temp [a-zA-Z_]+
 %%
 
-"Decl:" {
+/* Actual regex's for 3ac code */
+
+"Decl:"
+{
   BEGIN(DECLARE);
 }
 				
@@ -25,9 +31,15 @@ newlines \n+
   BEGIN(INITIAL);
 }
 
-[a-zA-Z_]+:	{
-							printf("%s\n", yytext);
-						}
+label {
+  printf("%s\n", yytext);
+}
+
+"if "id" goto "label {
+}
+
+"if "temp" goto "label {
+}
 
 %%
 
