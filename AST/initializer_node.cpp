@@ -1,9 +1,15 @@
 #include "ast_node.h"
 initializer_node::initializer_node(assignment_expression_node* assignExpr): ast_node(){
+  init();
   this->assignExpr = assignExpr;
 }
-initializer_node::initializer_node(initializer_list_node* initList){
+initializer_node::initializer_node(initializer_list_node* initList): ast_node(){
+  init();
   this->initList = initList;
+}
+void initializer_node::init(){
+   this->assignExpr = NULL;
+   this->initList = NULL;
 }
 initializer_node::~initializer_node(){
 
