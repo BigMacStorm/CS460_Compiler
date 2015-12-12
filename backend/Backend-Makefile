@@ -1,0 +1,29 @@
+CC  = g++
+CFLAGS = -c -g -Wall -std=c++11
+LEX	= flex
+YACC	= bison
+YFLAG = -d --debug --verbose
+LFLAG =
+LIBS = -ll -ly
+SRCS = lex.yy.c y.tab.c
+OBJS = ${SRCS:.cpp=.o}
+
+compiler: $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LIBS)
+
+y.tab.c: backend.y
+	$(YACC) $(YFLAG) -o y.tab.c $<
+
+lex.yy.c: backend.lex y.tab.c
+	$(LEX) $(LFLAG) $<
+
+clean:
+	-rm -f backend lex.yy.* y.tab.* y.output *.o
+
+.SUFFIXES: .cpp .c .o
+
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+.c.o:
+	$(CC) $(CFLAGS) $< -o $@
