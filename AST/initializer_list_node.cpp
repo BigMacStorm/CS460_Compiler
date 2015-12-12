@@ -32,17 +32,6 @@ void initializer_list_node::print(){
     }
   }
 }
-/*
-std::vector<Spec*> initializer_list_node::getSpecs(){
-  std::vector<Spec*> specs;
-  for(int child = 0; child < this->children.size(); child++){
-    if(this->children[child]!=NULL){
-      specs[child] = this->children[child]->getSpec(); // assume 1D
-    }
-  }
-  return specs;
-}
-*/
 std::string initializer_list_node::generateCode(){
   std::string ret;
   for(int child = 0; child < this->children.size(); child++){

@@ -6,11 +6,13 @@
 #include <vector>
 #include "../SymbolTable.h"
 #include "../SymbolNode.h"
+#include "../SymDumper.h"
 #include "../graph.h"
 #include "../CodeDumper.h"
 
 extern Graph visualizer;
 extern CodeDumper codeGenerator;
+extern SymDumper symDumper;
 
 // forward declaration
 class ast_node;
@@ -128,65 +130,33 @@ namespace LabelType{
 
 class ast_node {
   public:
-    ast_node(){
-      this->name = "";
-      this->parent = NULL;
-      this->source = "";
-      setID();
-    };
-    virtual ~ast_node(){}
+    ast_node();
+    virtual ~ast_node();
     virtual void clear()=0;
     virtual void print()=0;
     virtual std::string generateCode()=0;
 
-    static int getTempNum(){ return tempNum; }
-    static int getLabelNum(){ return labelNum; }
-    static void incrTempNum(){tempNum++;}
-    static void incrLabelNum(){labelNum++;}
-    static std::string getTempStr(){
-       std::stringstream ss;
-       ss << "_TEMP" << tempNum;
-       return ss.str();
-     }
-    static std::string getNewTempStr(){
-       std::stringstream ss;
-       ss << "_TEMP" << ++tempNum;
-       return ss.str();
-     }
-    static std::string getLastTempStr(){
-       std::stringstream ss;
-       ss << "_TEMP" << tempNum-1;
-       return ss.str();
-    }
-    static std::string getNewLabelStr(){
-       std::stringstream ss;
-       ss << "_LABEL" << ++labelNum;
-       return ss.str();
-    }
-    static std::string getLabelStr(){
-       std::stringstream ss;
-       ss << "_LABEL" << labelNum;
-       return ss.str();
-    }
-    static int getUID(){ return unique_id++; }
+    static int getTempNum();
+    static int getLabelNum();
+    static void incrTempNum();
+    static void incrLabelNum();
+    static std::string getTempStr();
+    static std::string getNewTempStr();
+    static std::string getLastTempStr();
+    static std::string getNewLabelStr();
+    static std::string getLabelStr();
+    static int getUID();
 
-    void setID(){ this->id = getUID(); }
-    int getID(){ return this->id; }
-    int getPID(){ return this->pid; }
-    void setPID(int pid){this->pid = pid; }
-
-    void setSource(std::string source) { this->source = source; }
-    std::string getSource() { return this->source; }
-
+    void setID();
+    int getID();
+    int getPID();
+    void setPID(int pid);
+    void setSource(std::string source);
+    std::string getSource();
     Spec* getSpec();
 
-    void error(const std::string& message) {
-        std::cout << message << std::endl;
-        exit(1);
-    }
-    void warning(const std::string& message) {
-        std::cout << message << std::endl;
-    }
+    void error(const std::string& message);
+    void warning(const std::string& message);
 
   private:
     std::string name;
@@ -204,10 +174,6 @@ class ast_node {
     int pid;
     Spec* spec;
     std::string source;
-
-    // If we need polymorphism
-    //virtual std::vector<ast_node*> getChildren();
-    // Otherwise, have specialized children getters
 };
 
 class translation_unit_node : public ast_node {
@@ -615,6 +581,7 @@ class initializer_node : public ast_node {
     initializer_node(assignment_expression_node* assignExpr);
     initializer_node(initializer_list_node* initList);
     ~initializer_node();
+    void init();
     std::vector<Spec*> getSpecs();
     Spec* getSpec();
     void clear();

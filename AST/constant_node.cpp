@@ -30,49 +30,39 @@ void constant_node::setFval(float fval){
   this->fval = fval;
 }
 void constant_node::clear(){
-
 }
 void constant_node::print(){
   visualizer.debug("constant");
   std::stringstream ss;
-  switch(this->type){
-    case ConstType::INT:
+  if(this->type == ConstType::INT){
       ss << this->ival;
       visualizer.addNode(this->id,ss.str());
       visualizer.addEdge(this->pid,this->id);
-    break;
-    case ConstType::CHAR:
+  }else if(this->type == ConstType::CHAR){
       ss << this->cval;
       visualizer.addNode(this->id,ss.str());
       visualizer.addEdge(this->pid,this->id);
-    break;
-    case ConstType::FLOAT:
+  }else if(this->type == ConstType::FLOAT){
       ss << this->fval;
       visualizer.addNode(this->id,ss.str());
       visualizer.addEdge(this->pid,this->id);
-    break;
-    default:
+  }else {
       error("[A] ERROR: Unknown constant type while print");
-    break;
   }
 }
 Spec* constant_node::getSpec(){
   TypeBasic* typebasic = NULL;
-  switch(this->type){
-    case ConstType::INT:
+  if(this->type == ConstType::INT){
       typebasic = new TypeBasic(SpecName::Int);
       typebasic->setValue(true);
-    break;
-    case ConstType::CHAR:
+    }else if(this->type == ConstType::CHAR){
       typebasic = new TypeBasic(SpecName::Char);
       typebasic->setValue(true);
-    break;
-    case ConstType::FLOAT:
+    }else if(this->type == ConstType::FLOAT){
       typebasic = new TypeBasic(SpecName::Float);
       typebasic->setValue(true);
-    break;
-    case ConstType::ENUM:
-    break;
+   }else {
+      error("[A] ERROR: Unknown constant type while getSpec");
   }
   return typebasic;
 }

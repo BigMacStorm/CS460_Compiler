@@ -14,8 +14,10 @@ int yylex();
 #include "Spec.h"
 
 extern Debugger warningDebugger;
+extern Debugger parseDebugger;
 extern Debugger reductionDebugger;
-extern SymbolTable * symTable;
+extern SymbolTable symTable;
+extern SymDumper symDumper;
 extern int linenum;
 extern int colnum;
 extern char* yytext;
@@ -24,7 +26,6 @@ extern char* yytext;
 //const char* listFileName = "list_file";
 //extern std::vector<std::string> sourceLine;
 extern std::string sourceLineStr;
-extern std::string listFileName;
 
 void yyerror(const char* message);
 void error(const std::string& message);
@@ -103,16 +104,22 @@ SpecName::TypeKind tkval;
 program
 : translation_unit {
 
-std::cout << "Deleting SymbolTable ..." << std::endl;
-symTable->popTable();
-delete symTable;
+// std::cout << "Deleting SymbolTable ..." << std::endl;
+symTable.popTable();
 treeHanger = $1;
-std::cout << "Traverse print functions ..." << std::endl;
+
+// std::cout << "Generating AST ..." << std::endl;
 treeHanger->print();
-std::cout << "Traverse generateCode functions ..." << std::endl;
+
+// std::cout << "Generating 3AC ..." << std::endl;
 treeHanger->generateCode();
-std::cout << "Success!" << std::endl;
-//treeHanger->clear();
+
+// std::cout << "Deleting AST ..." << std::endl;
+treeHanger->clear();
+delete treeHanger;
+
+// std::cout << "Deleting symbol nodes ..." << std::endl;
+symDumper.clearSymDump();
 }
 
 translation_unit
@@ -148,21 +155,21 @@ enter_scope
 : {
   if(insert_mode && decl.isMode(DeclMode::Function)){
     decl.complete(); // complete function definition
-    symTable->pushTable();
+    symTable.pushTable();
 
     // push argments if possible
     std::vector<SymbolNode*> args = decl.getArgSymbolNodes();
     if(args.size() > 0){
       for(int arg = 0; arg < args.size(); arg++){
-        symTable->insertSymbol(args[arg]->getName(),args[arg]);
+        symTable.insertSymbol(args[arg]->getName(),args[arg]);
         }
     }
     // function is complete
     std::string func_name = decl.getID(0);
-    symTable->lookupSymbol(func_name)->setDefined(true);
+    symTable.lookupSymbol(func_name)->setDefined(true);
 
     // set symbol node for ast
-    current_id_ast->setSymNode(symTable->lookupSymbol(current_id));
+    current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
 
     // clears
     decl.clear();
@@ -170,12 +177,12 @@ enter_scope
     decl.setMode(DeclMode::NoMode);
   }
   else{
-    symTable->pushTable();
+    symTable.pushTable();
   }
 }
 ;
 end_scope
-: {symTable->popTable();}
+: {symTable.popTable();}
 ;
 
 function_definition
@@ -242,14 +249,14 @@ init_declarator
 : declarator{
   // declaration
   decl.complete();
-  current_id_ast->setSymNode(symTable->lookupSymbol(current_id));
+  current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
   $$ = new init_declarator_node((declarator_node*)$1, NULL);
   reductionOut("[p]: init_declarator -> declarator", $$);
 }
 | declarator EQUALtok initializer {
   // initialization
   decl.complete();
-  current_id_ast->setSymNode(symTable->lookupSymbol(current_id));
+  current_id_ast->setSymNode(symTable.lookupSymbol(current_id));
   $$ = new init_declarator_node((declarator_node*)$1, (initializer_node*)$3);
   reductionOut("[p]: init_declarator -> declarator EQUALtok initializer", $$);
 }
@@ -1380,7 +1387,7 @@ postfix_expression
 primary_expression
   : identifier {
       // use before declaration check
-      if(!symTable->lookupSymbol($1)) {
+      if(!symTable.lookupSymbol($1)) {
         std::stringstream ss;
         ss << "[p]: ERROR: identifier \'" << $1 << "\' not found" << ", line " << linenum << " col " << colnum;
         error(ss.str());
@@ -1390,7 +1397,7 @@ primary_expression
       insert_mode = false; // turn lookup mode on
 
       // ast node creation
-      SymbolNode *sym = symTable->lookupSymbol($1);
+      SymbolNode *sym = symTable.lookupSymbol($1);
       if(sym != NULL){
         $$ = new primary_expression_node(new identifier_node($1, sym, current_line, current_col));
       }
@@ -1477,11 +1484,9 @@ void warning(const std::string& message){
 }
 // Simultaneous output to debugging and list_file
 void reductionOut(const char* reductionCStr, ast_node* node) {
+
     // Append the reduction to listFileName
-    std::ofstream fout;
-    fout.open(listFileName.c_str(), std::ofstream::out | std::ofstream::app);
-    fout << reductionCStr << std::endl;
-    fout.close();
+    parseDebugger.debug(reductionCStr);
 
     // Put the source line in the node
     node->setSource(sourceLineStr);
