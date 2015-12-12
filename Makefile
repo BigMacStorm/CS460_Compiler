@@ -5,7 +5,7 @@ YACC	= bison
 YFLAG = -d --debug --verbose
 LFLAG =
 LIBS = -ll -ly
-SRCS = driver.cpp lex.yy.c y.tab.c Debugger.cpp CodeDumper.cpp Spec.cpp SymbolNode.cpp SymbolTable.cpp Declaration.cpp graph.cpp $(wildcard AST/*.cpp) $(wildcard ASM/*.cpp)
+SRCS = driver.cpp lex.yy.c y.tab.c Debugger.cpp CodeDumper.cpp Spec.cpp SymDumper.cpp SymbolNode.cpp SymbolTable.cpp Declaration.cpp graph.cpp $(wildcard AST/*.cpp) $(wildcard ASM/*.cpp)
 OBJS = ${SRCS:.cpp=.o}
 
 compiler: $(OBJS)
