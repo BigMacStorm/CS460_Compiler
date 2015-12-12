@@ -254,7 +254,7 @@ bool Declaration::buildSign(Spec* spec, std::vector<SpecName::Sign> signs){
     }
   }
   // file scope
-  else if(symTable->getLevel() == 1){
+  else if(symTable.getLevel() == 1){
     if(storage == SpecName::Auto || storage == SpecName::Register){
       error("[P]: ERROR: illegal storage class on file-scoped variable");
       return false;
@@ -265,7 +265,7 @@ bool Declaration::buildSign(Spec* spec, std::vector<SpecName::Sign> signs){
  }
  bool Declaration::buildStorage(Spec* spec, std::vector<SpecName::Storage> storages){
    // local variable has auto by default
-   if(spec->getStorage() == SpecName::NoStorage && symTable->getLevel() > 1){
+   if(spec->getStorage() == SpecName::NoStorage && symTable.getLevel() > 1){
      spec->setStorage(SpecName::Auto);
    }
    // check validness
@@ -602,18 +602,18 @@ bool Declaration::pushFunction(std::string name){
   return insertSymbol(name, val,this->lines[0], this->cols[0]);
 }
 bool Declaration::insertSymbol(std::string name, SymbolNode* val, int line, int col){
-  SymbolNode *sym = symTable->lookupTopTable(name);
+  SymbolNode *sym = symTable.lookupTopTable(name);
   if(sym != NULL && sym->isDefined()){
     std::stringstream ss;
     ss << "[P]: ERROR: Redefinition of \'" << name << "\'" << ", line " << line << " col " << col;
     error(ss.str());
   }
-  else if(symTable->lookUpShadowedSymbol(name)) {
+  else if(symTable.lookUpShadowedSymbol(name)) {
     std::stringstream ss;
     ss << "[P]: WARNING: Symbol \'"+name+"\' shadows another" << ", line " << line << " col " << col;
     warning(ss.str());
   }
-  return symTable->insertSymbol(name, val);
+  return symTable.insertSymbol(name, val);
 }
 
 
@@ -622,7 +622,7 @@ bool Declaration::pushStruct(std::string name){
   int memberSize = this->kindsHolder.size();
   bool isComplete = (memberSize > 0)? true: false;
   TypeStruct* structspec = new TypeStruct();
-  symTable->pushTable();  // poor way
+  symTable.pushTable();  // poor way
 
   // member types ===========================================================
   for(kind = 1; kind < memberSize; kind++){
@@ -634,7 +634,7 @@ bool Declaration::pushStruct(std::string name){
         structspec->addMember(ids[kind],base);
       }
   } // end member types  ====================================================
-  symTable->popTable(); // poor way
+  symTable.popTable(); // poor way
 
   SymbolNode *val = new SymbolNode(name,structspec,this->lines[0],this->cols[0],isComplete);
   return insertSymbol(name, val,this->lines[0], this->cols[0]);
