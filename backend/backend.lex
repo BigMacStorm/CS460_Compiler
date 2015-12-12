@@ -1,12 +1,29 @@
 
 %%
 
-"Decl:" {
-				}
+/* Helpful regex's */
 
-[a-zA-Z_]+:	{
-							printf("%s\n", yytext);
-						}
+letter [a-zA-Z_]
+digit [0-9]
+id {letter}({letter}|{digit})*
+label [a-zA-Z_]+:
+temp [a-zA-Z_]+
+
+/* Actual regex's for 3ac code */
+
+"Decl:"
+{
+}
+
+label {
+  printf("%s\n", yytext);
+}
+
+"if "id" goto "label {
+}
+
+"if "temp" goto "label {
+}
 
 %%
 
