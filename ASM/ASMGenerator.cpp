@@ -1,6 +1,7 @@
 #include "ASMGenerator.h"
 
 ASMGenerator::ASMGenerator(){
+  this->isMain = false;
 }
 void ASMGenerator::build(){
   readASM();
@@ -10,7 +11,14 @@ void ASMGenerator::build(){
   writeASM();
 }
 void ASMGenerator::makeDataSegment(){
-  int line, space;
+  // make data segment:
+  // 1. labeling .data
+  // 2. declaring or initializing global variables at memory
+  // 3. labeling .text
+
+  int line;
+  int space;
+  bool inGlobal = true;
   std::stringstream ss;
 
   this->asmWriter.debug(".data\n");
@@ -19,34 +27,39 @@ void ASMGenerator::makeDataSegment(){
     // split
     std::vector<std::string> linevec = split(this->tacLines[line]);
 
-    if(this->tacLines[line].size() > 2){ // idk why there is an extra line....
+    // check global
+    if(linevec[1] == "BeginFunc"){
+      inGlobal = false;
+    }
+    else if(linevec[1] == "EndFunc"){
+      inGlobal = true;
+    }
 
-      if(linevec[1] == "Init:" || linevec[1] == "Decl:"){
-        this->asmWriter.debug("#" + this->tacLines[line]);
-        // array
-        if(linevec[3] == "array"){
-          if(linevec[1] == "Decl:"){
-            space = stoi(linevec[4]) * typeToSize(linevec[5]);
-            ss << linevec[2] << ": .space " << space;
-          }
-          else{
-            ss << linevec[2] << ": .word " << linevec[6];
-          }
+    if(inGlobal && (linevec[1] == "Init:" || linevec[1] == "Decl:")){
+      this->asmWriter.debug("#" + this->tacLines[line]);
+      // array
+      if(linevec[3] == "array"){
+        if(linevec[1] == "Decl:"){
+          space = stoi(linevec[4]) * typeToSize(linevec[5]);
+          ss << linevec[2] << ": .space " << space;
         }
-        // basic variable
         else{
-          if(linevec[1] == "Decl:"){
-            space = typeToSize(linevec[3]);
-            ss << linevec[2] << ": .space " << space;
-          }
-          else{
-            ss << linevec[2] << ": .word " << linevec[4];
-          }
+          ss << linevec[2] << ": .word " << linevec[6];
         }
-        this->asmWriter.debug(ss.str()+"\n");
-        ss.str("");
-      } // end init/decl case
-    } // care extra line (have to remove later)
+      }
+      // basic variable
+      else{
+        if(linevec[1] == "Decl:"){
+          space = typeToSize(linevec[3]);
+          ss << linevec[2] << ": .space " << space;
+        }
+        else{
+          ss << linevec[2] << ": .word " << linevec[4];
+        }
+      }
+      this->asmWriter.debug(ss.str()+"\n");
+      ss.str("");
+    } // end init/decl case
   } // end for loop
   this->asmWriter.debug(".text\n");
 }
@@ -61,25 +74,41 @@ std::string ASMGenerator::toASM(std::string aTacLine){
   std::vector<std::string> linevec = split(aTacLine);
   ss << "#" << aTacLine << "\n";
 
-  if(linevec[1] == "Function:"){
-    ss << linevec[2] << ":" << "\n";
+  if(std::regex_match(linevec[1],std::regex("(_LABEL)([0-9]+):"))){
+    ss << linevec[1];
+  }
+  else if(linevec[1] == "goto"){
+    ss << "goto " << linevec[2];
+  }
+  else if(linevec[1] == "Function:"){
+    if(linevec[2] == "main"){
+      this->isMain = true;
+    }
+    ss << linevec[2] << ":";
+  }
+  else if(linevec[1] == "EndFunc"){
+    if(this->isMain){
+      ss << "li $v0, 10     # set up for exit\n"
+         << "syscall        # exit";
+      this->isMain = false;
+    }
   }
   else if(linevec[1] == "if"){
-    if(linevec[3] == "<=")
+    if(linevec[3] == "<="){
         ss << "ble " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
-    else if(linevec[3] == ">=")
+    }else if(linevec[3] == ">="){
         ss << "bge " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
-    else if(linevec[3] == ">")
+    }else if(linevec[3] == ">"){
         ss << "bgt " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
-    else if(linevec[3] == "<")
+    }else if(linevec[3] == "<"){
         ss << "blt " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
-    else if(linevec[3] == "==")
+    }else if(linevec[3] == "=="){
         ss << "beq " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
-    else if(linevec[3] == "!=")
+    }else if(linevec[3] == "!="){
         ss << "bne " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
-    else{
+    }else{
       // assume it is a single condition
-        ss << "beq, 1, " << linevec[2] << ", " << linevec[4];
+        ss << "beq " << linevec[2] << ", 1 " << linevec[4];
     }
   }
   return ss.str();

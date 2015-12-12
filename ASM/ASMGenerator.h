@@ -6,6 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <regex>
 
 class ASMGenerator{
 public:
@@ -25,6 +26,7 @@ private:
   std::string vecToStr(std::vector<std::string> vec);
   std::vector<std::string> split(std::string line);
 
+  bool isMain;
   Registers registers;
   Debugger asmWriter;
   std::string tacFileName;
