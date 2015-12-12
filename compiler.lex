@@ -15,13 +15,15 @@ extern "C"{
 
 extern SymbolTable symTable;
 extern Debugger lexSymbolDebugger;
+extern Debugger lexDebugger;
+extern Debugger parseDebugger;
+
 void error(const std::string& message);
 unsigned int linenum = 1;
 unsigned int colnum = 1;
 
 std::vector<std::string> sourceLineVec;
 std::string sourceLineStr;
-std::string listFileName;
 
 char errormsg [70];
 void addCol(int);
@@ -36,7 +38,6 @@ unsigned long long otoi(char* text);
 unsigned long long htoi(char* text);
 int myatoi(char*);
 char myatoc(char* text);
-const char* LEX_FILE = "llog.txt";
 %}
 
 %option noyywrap
@@ -90,19 +91,12 @@ scomment "//".*
                zeroCol();
 
                // Print the line of source code
-               std::ofstream fout;
-               fout.open(listFileName.c_str(), std::ofstream::out | std::ofstream::app);
                std::stringstream sourceLine;
                for(int i = 0; i < sourceLineVec.size(); ++i)
                    sourceLine << sourceLineVec[i] << " ";
                sourceLine << std::endl;
-
-               fout << (sourceLineStr = sourceLine.str());
-
+               parseDebugger.debug((sourceLineStr = sourceLine.str()));
                //std::cout << "[l]: " << sourceLineStr << std::endl;
-
-               fout.close();
-
                sourceLineVec.clear();
              }
 {ws}         {  addCol(yyleng); }
@@ -751,13 +745,7 @@ char myatoc(char* text){
 void dumpNextSymbol(const char* token){
   std::stringstream ss;
   ss << "//" << yytext << std::endl << token << std::endl;
-
-  // Append the reduction to LEX_FILE
-  std::ofstream fout;
-  fout.open(LEX_FILE, std::ofstream::out | std::ofstream::app);
-  fout << ss.str() << std::endl;
-  fout.close();
-
+  lexDebugger.debug(ss.str());
   lexSymbolDebugger.debug(ss.str());
 }
 
