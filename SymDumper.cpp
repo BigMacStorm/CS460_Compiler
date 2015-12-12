@@ -1,4 +1,5 @@
 #include "SymDumper.h"
+#include <algorithm>
 
 void SymDumper::addSymToDump(SymbolNode* sym){
   std::vector<SymbolNode*>::iterator iter;
