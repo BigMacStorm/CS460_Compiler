@@ -9,8 +9,7 @@ identifier_node::~identifier_node(){
 }
 void identifier_node::clear(){
   if(this->id_symnode!=NULL){
-    delete this->id_symnode;
-    std::cout << id_name + " was freed" << std::endl;
+    symDumper.addSymToDump(this->id_symnode);
   }
 }
 void identifier_node::setSymNode(SymbolNode* sym){
