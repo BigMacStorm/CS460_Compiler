@@ -394,6 +394,7 @@ std::string postfix_expression_node::generateFunctionCode(){
   Spec* returnSpec = function->getReturnSpec();
   std::string result;
   std::stringstream ss;
+  int argSpace = 0;
 
   if(this->argExpr != NULL){
     std::vector<std::string> args;
@@ -406,15 +407,18 @@ std::string postfix_expression_node::generateFunctionCode(){
     }
 
     for(int arg = 0; arg < args.size(); arg++){
+      argSpace += 4; // only integer
       codeGenerator.debug("PushParam " + args[arg] + "\n");
     }
   }
 
+  ss << "FuncCall " << name << " " << argSpace << "\n";
+
   if(returnSpec->toTypeString() != "void"){
     result = ast_node::getNewTempStr();
-    ss << result + " := ";
+    ss << result + " := _RETURN" << "\n";
   }
-  ss << "FuncCall " << name << "\n";
+
   codeGenerator.debug(ss.str());
   return result;
 }

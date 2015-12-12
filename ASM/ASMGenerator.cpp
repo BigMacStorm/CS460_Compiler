@@ -77,8 +77,28 @@ std::string ASMGenerator::toASM(std::string aTacLine){
   if(std::regex_match(linevec[1],std::regex("(_LABEL)([0-9]+):"))){
     ss << linevec[1];
   }
+  else if(linevec[1] == "FuncCall"){
+    if(linevec[2] == "print_int"){
+      // called with integer pushed on the stack
+      ss << "li $v0, 1\n"
+         << "lw $a0, 0(sp)\n"
+         << "syscall\n";
+    }
+    else if(linevec[2] == "print_string"){
+      // called with the address of string pushed on the stack
+      ss << "li $v0, 4\n"
+         << "lw $a0, 0(sp)\n"
+         << "syscall\n";
+    }else{
+      ss << "jal " << linevec[2] << "\n";
+    }
+  }
+  else if(linevec[1] == "PushParam"){
+    ss << "sq " << linevec[2] << " -" << 4 << "(sp)\n"
+       << "la $sp," << " -" <<  4 << "(sp)\n";
+  }
   else if(linevec[1] == "goto"){
-    ss << "goto " << linevec[2];
+    ss << "j " << linevec[2];
   }
   else if(linevec[1] == "Function:"){
     if(linevec[2] == "main"){
@@ -91,6 +111,8 @@ std::string ASMGenerator::toASM(std::string aTacLine){
       ss << "li $v0, 10     # set up for exit\n"
          << "syscall        # exit";
       this->isMain = false;
+    }else{
+      ss << "jr $ra     # return";
     }
   }
   else if(linevec[1] == "if"){
