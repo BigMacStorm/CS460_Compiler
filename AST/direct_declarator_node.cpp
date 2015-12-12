@@ -59,7 +59,7 @@
     }
     if(this->constExpr!=NULL){
       this->constExpr->clear();
-      delete this->constExpr;
+      //delete this->constExpr; // ERROR: pointer being freed was not allocated
     }
     if(this->paramList!=NULL){
       this->paramList->clear();
