@@ -11,7 +11,8 @@ class Debugger{
     Debugger();
     ~Debugger();
     void create();
-    void close();
+    void clear();
+    bool IsSet();
     void setDebug(bool debug);
     void setFileName(const std::string& message);
     void debug(const std::string& message);
