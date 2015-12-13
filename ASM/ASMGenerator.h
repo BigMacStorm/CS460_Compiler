@@ -7,6 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <regex>
+#include <map>
 
 class ASMGenerator{
 public:
@@ -18,19 +19,25 @@ public:
 private:
   void readASM();
   void makeDataSegment();
+  void AssignReg();
   void buildASM();
   std::string toASM(std::string aTacLine);
+  std::string makeOp(std::string dest, std::string op1,
+    std::string op, std::string op2);
+  std::string makeSimpleAssign(std::string dest, std::string op1);
   void writeASM();
-  void showTacLines();
+  void showLines(std::vector<std::string> lines);
   int typeToSize(std::string type);
   std::string vecToStr(std::vector<std::string> vec);
   std::vector<std::string> split(std::string line);
+  bool replace(std::string& str, const std::string& from, const std::string& to);
 
   bool isMain;
   Registers registers;
   Debugger asmWriter;
   std::string tacFileName;
   std::vector<std::string> tacLines;
+  std::vector<std::string> tempLines;
   std::vector<std::string> asmLines;
 };
 #endif

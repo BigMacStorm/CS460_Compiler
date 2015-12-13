@@ -6,7 +6,9 @@ ASMGenerator::ASMGenerator(){
 void ASMGenerator::build(){
   readASM();
   makeDataSegment();
-  //replaceTempsByRegs();
+  AssignReg();
+  //showLines(this->tacLines);
+  //showLines(this->tempLines);
   buildASM();
   writeASM();
 }
@@ -18,7 +20,6 @@ void ASMGenerator::makeDataSegment(){
 
   int line;
   int space;
-  bool inGlobal = true;
   std::stringstream ss;
 
   this->asmWriter.debug(".data\n");
@@ -27,15 +28,7 @@ void ASMGenerator::makeDataSegment(){
     // split
     std::vector<std::string> linevec = split(this->tacLines[line]);
 
-    // check global
-    if(linevec[1] == "BeginFunc"){
-      inGlobal = false;
-    }
-    else if(linevec[1] == "EndFunc"){
-      inGlobal = true;
-    }
-
-    if(inGlobal && (linevec[1] == "Init:" || linevec[1] == "Decl:")){
+    if((linevec[1] == "Init:" || linevec[1] == "Decl:")){
       this->asmWriter.debug("#" + this->tacLines[line]);
       // array
       if(linevec[3] == "array"){
@@ -61,41 +54,46 @@ void ASMGenerator::makeDataSegment(){
       ss.str("");
     } // end init/decl case
   } // end for loop
+  this->asmWriter.debug("newline: .asciiz \"\\n\"\n");
   this->asmWriter.debug(".text\n");
 }
 void ASMGenerator::buildASM(){
-  int line;
-  for(line = 0; line < this->tacLines.size(); line++){
-    this->asmLines.push_back(toASM(this->tacLines[line])+"\n");
+  for(int line = 0; line < this->tempLines.size(); line++){
+    this->asmLines.push_back("#" + this->tacLines[line] + "\n"
+                             + toASM(this->tempLines[line])+"\n");
   }
 }
 std::string ASMGenerator::toASM(std::string aTacLine){
   std::stringstream ss;
   std::vector<std::string> linevec = split(aTacLine);
-  ss << "#" << aTacLine << "\n";
 
   if(std::regex_match(linevec[1],std::regex("(_LABEL)([0-9]+):"))){
     ss << linevec[1];
   }
-  else if(linevec[1] == "FuncCall"){
+  else if(aTacLine.find("FuncCall") != std::string::npos){
     if(linevec[2] == "print_int"){
       // called with integer pushed on the stack
       ss << "li $v0, 1\n"
-         << "lw $a0, 0(sp)\n"
+         << "lw $a0, 0($sp)\n"
+         << "addiu $sp, $sp, 4\n"
          << "syscall\n";
-    }
-    else if(linevec[2] == "print_string"){
-      // called with the address of string pushed on the stack
+
       ss << "li $v0, 4\n"
-         << "lw $a0, 0(sp)\n"
-         << "syscall\n";
-    }else{
-      ss << "jal " << linevec[2] << "\n";
+         << "la $a0, newline\n"
+         << "syscall";
+    }
+    else{
+      if(linevec[1] != "FuncCall"){
+      ss << "jal " << linevec[4] << "\n";
+      ss << "la " << linevec[1]  << ", $v0";
+      }else{
+        ss << "jal " << linevec[2];
+      }
     }
   }
   else if(linevec[1] == "PushParam"){
-    ss << "sq " << linevec[2] << " -" << 4 << "(sp)\n"
-       << "la $sp," << " -" <<  4 << "(sp)\n";
+    ss << "sw " << linevec[2] << ", -" << 4 << "($sp)\n"
+       << "la $sp," << " -" <<  4 << "($sp)";
   }
   else if(linevec[1] == "goto"){
     ss << "j " << linevec[2];
@@ -111,28 +109,218 @@ std::string ASMGenerator::toASM(std::string aTacLine){
       ss << "li $v0, 10     # set up for exit\n"
          << "syscall        # exit";
       this->isMain = false;
-    }else{
+    }
+    else{
       ss << "jr $ra     # return";
     }
   }
+  else if(linevec[1] == "return"){
+    ss << "la $v0, (" << linevec[2]  << ")";
+  }
   else if(linevec[1] == "if"){
+    std::string exp_1, op, exp_2, label, reg1, reg2;
+    bool single_exp = false;
+
     if(linevec[3] == "<="){
-        ss << "ble " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
+       op = "ble ";
     }else if(linevec[3] == ">="){
-        ss << "bge " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
+       op = "bge ";
     }else if(linevec[3] == ">"){
-        ss << "bgt " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
+       op = "bgt ";
     }else if(linevec[3] == "<"){
-        ss << "blt " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
+       op = "blt ";
     }else if(linevec[3] == "=="){
-        ss << "beq " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
+       op = "beq ";
     }else if(linevec[3] == "!="){
-        ss << "bne " << linevec[2] << ", " << linevec[4] << ", " << linevec[6];
+       op = "bne ";
     }else{
       // assume it is a single condition
-        ss << "beq " << linevec[2] << ", 1 " << linevec[4];
+       op = "beq ";
+       single_exp = true;
+    }
+
+    if(single_exp){
+      exp_1 = linevec[2]; exp_2 = "1"; label = linevec[4];
+    }
+    else{
+      exp_1 = linevec[2]; exp_2 = linevec[4]; label = linevec[6];
+    }
+
+    if(exp_1[0] != '$'){
+      reg1 = this->registers.getSavedTempReg();
+      ss << "la " << reg1 << ", " << exp_1 << "\n";
+      ss << "lw " << reg1 << ", " <<  "(" << reg1 << ")" << "\n";
+      exp_1 = reg1;
+    }
+
+    if(exp_1[0] != '$'){
+      reg2 = this->registers.getSavedTempReg();
+      ss << "la " << reg2 << ", " <<  exp_2 << "\n";
+      ss << "lw " << reg2 << ", " <<  "(" << reg2 << ")" << "\n";
+      exp_2 = reg2;
+    }
+
+    ss << op << exp_1 << ", " << exp_2 << ", " << label;
+    registers.freeRegister(reg1);
+    registers.freeRegister(reg2);
+
+  }
+  else if(linevec[2] == ":="){
+    std::string dest, op1, op, op2;
+
+    // simple assignment XXXX A := B unnecessary ...
+    if(linevec.size() < 5){
+
+      dest = linevec[1];
+      op1 = linevec[3];
+      ss << makeSimpleAssign(dest,op1);
+    }
+    else{
+      dest = linevec[1];
+      op1 = linevec[3];
+      op = linevec[4];
+      op2 = linevec[5];
+
+      ss << makeOp(dest,op1,op,op2);
     }
   }
+  return ss.str();
+}
+std::string ASMGenerator::makeSimpleAssign(std::string dest, std::string op1){
+  std::string reg1, reg2;
+  std::stringstream ss;
+
+  // integer (immediate)
+  if(std::regex_match(op1,std::regex("[0-9]+"))){
+    reg1 = this->registers.getSavedTempReg();
+    ss << "li " << reg1 << ", " << op1 << "\n";
+    op1 = reg1;
+  }
+  // dereference
+  else if(op1[0] == '('){
+    reg1 = this->registers.getSavedTempReg();
+    ss << "lw " << reg1 << ", " <<  op1 << "\n";
+    op1 = reg1;
+  }
+  // variable
+  else if(op1[0] != '$'){
+    reg1 = this->registers.getSavedTempReg();
+    ss << "la " << reg1 << ", " <<  op1 << "\n";
+    ss << "lw " << reg1 << ", " <<  "(" << reg1 << ")" << "\n";
+    op1 = reg1;
+  }
+
+  if(dest[0] == '('){
+    // ($temp)
+    reg2 = this->registers.getSavedTempReg();
+    ss << "move " << reg2 << ", " << op1;
+    ss << "\n" << "sw " << reg2 << ", " << dest;
+  }
+  else if(dest[0] != '$'){
+    // variable
+    reg2 = this->registers.getSavedTempReg();
+    ss << "move " << reg2 << ", " << op1;
+    ss << "\n" << "sw " << reg2 << ", " << dest;
+  }
+  else{
+    // register
+    ss << "move " << dest << ", " << op1;
+  }
+
+  // free registers
+  this->registers.freeRegister(reg1);
+  this->registers.freeRegister(reg2);
+
+  return ss.str();
+}
+std::string ASMGenerator::makeOp(std::string dest, std::string op1,
+  std::string op, std::string op2){
+
+  std::stringstream ss;
+  std::string reg1, reg2, reg3;
+
+  if(op == "*"){op = "mul";}
+  else if(op == "/"){op = "div";}
+  else if(op == "+"){op = "add";}
+  else if(op == "-"){op = "sub";}
+
+  // integer (immediate)
+  if(std::regex_match(op1,std::regex("[0-9]+"))){
+    // std::cout << op1 << std::endl;
+    reg1 = this->registers.getSavedTempReg();
+    ss << "li " << reg1 << ", " << op1 << "\n";
+    op1 = reg1;
+  }
+  // dereference
+  else if(op1[0] == '('){
+    reg1 = this->registers.getSavedTempReg();
+    ss << "lw " << reg1 << ", " <<  op1 << "\n";
+    op1 = reg1;
+  }
+  // address
+  else if(op1[0] == '&'){
+    reg1 = this->registers.getSavedTempReg();
+    op1.erase(0,1);
+    ss << "la " << reg1 << ", " <<  op1 << "\n";
+    op1 = reg1;
+  }
+  // variable
+  else if(op1[0] != '$'){
+    reg1 = this->registers.getSavedTempReg();
+    ss << "la " << reg1 << ", " <<  op1 << "\n";
+    ss << "lw " << reg1 << ", " <<  "(" << reg1 << ")" << "\n";
+    op1 = reg1;
+  }
+
+  // integer (immediate)
+  if(std::regex_match(op2,std::regex("[0-9]+"))){
+    reg2 = this->registers.getSavedTempReg();
+    ss << "li " << reg2 << ", " << op2 << "\n";
+    op2 = reg2;
+  }
+  // dereference
+  else if(op2[0] == '('){
+    reg2 = this->registers.getSavedTempReg();
+    ss << "lw " << reg2 << ", " <<  op2 << "\n";
+    op2 = reg2;
+  }
+  // address
+  else if(op2[0] == '&'){
+    reg2 = this->registers.getSavedTempReg();
+    op2.erase(0,1);
+    ss << "la " << reg2 << ", " <<  op2 << "\n";
+    op2 = reg2;
+  }
+  // variable
+  else if(op2[0] != '$'){
+    reg2 = this->registers.getSavedTempReg();
+    ss << "la " << reg2 << ", " <<  op2 << "\n";
+    ss << "lw " << reg2 << ", " <<  "(" << reg2 << ")" << "\n";
+    op2 = reg2;
+  }
+
+  if(dest[0] == '('){
+    // ($temp)
+    reg3 = this->registers.getSavedTempReg();
+    ss << op << " " << reg3 << ", " << op1 << ", " << op2;
+    ss << "\n" << "sw " << reg3 << ", " << dest;
+  }
+  else if(dest[0] != '$'){
+    // variable
+    reg3 = this->registers.getSavedTempReg();
+    ss << op << " " << reg3 << ", " << op1 << ", " << op2;
+    ss << "\n" << "sw " << reg3 << ", " << dest;
+  }
+  else{
+    // register
+    ss << op << " " << dest << ", " << op1 << ", " << op2;
+  }
+
+  // free registers
+  this->registers.freeRegister(reg1);
+  this->registers.freeRegister(reg2);
+  this->registers.freeRegister(reg3);
+
   return ss.str();
 }
 void ASMGenerator::readASM(){
@@ -160,10 +348,10 @@ void ASMGenerator::setASMFileName(std::string filename){
   this->asmWriter.setFileName(filename);
   this->asmWriter.setDebug(true);
 }
-void ASMGenerator::showTacLines(){
+void ASMGenerator::showLines(std::vector<std::string> lines){
   int line;
-  for (line = 0; line < this->tacLines.size(); line++){
-    std::cout << this->tacLines[line] << std::endl;
+  for (line = 0; line < lines.size(); line++){
+    std::cout << lines[line] << std::endl;
   }
 }
 int ASMGenerator::typeToSize(std::string type){
@@ -189,4 +377,55 @@ std::vector<std::string> ASMGenerator::split(std::string line){
       linevec.push_back(tok);
   }
   return linevec;
+}
+
+bool ASMGenerator::replace(std::string& str, const std::string& from, const std::string& to) {
+    size_t pos = str.find(from);
+    if(pos == std::string::npos)
+        return false;
+    str.replace(pos, from.length(), to);
+    return true;
+}
+
+void ASMGenerator::AssignReg(){
+  std::string reg, repStr, tempStr;
+  std::vector<std::string> dump_regs;
+  std::map<std::string,std::string> used_regs;
+  std::map<std::string,std::string>::iterator iter;
+
+  for(int line = 0; line < this->tacLines.size(); line++){
+    std::string temp = this->tacLines[line];
+    std::vector<std::string> linevec = split(temp);
+    // std::cout << temp << std::endl;
+
+    for(int tok = 0; tok < linevec.size(); tok++){
+      if(std::regex_match(linevec[tok],std::regex("(\\(?)(_TEMP)([0-9]+)(\\)?)"))){
+        tempStr = linevec[tok];
+        if(tempStr[0] == '('){
+          tempStr.erase(tempStr.begin(), tempStr.begin()+1);
+          tempStr.erase(tempStr.end()-1, tempStr.end());
+        }
+        iter = used_regs.find(tempStr);
+        if (iter != used_regs.end()){
+          repStr =  used_regs[tempStr];
+          dump_regs.push_back(used_regs[tempStr]);
+        }
+        else{
+          reg = this->registers.getRegister(); // hopefully get next register
+          used_regs[tempStr] = reg;
+          repStr = reg;
+        }
+
+        if(linevec[tok][0] == '('){
+          repStr = "(" + repStr + ")";
+        }
+        replace(temp, linevec[tok], repStr);
+      }
+    } // end line
+    for(int reg = 0; reg < dump_regs.size(); reg++){
+      this->registers.freeRegister(dump_regs[reg]);
+    }
+    dump_regs.clear();
+    this->tempLines.push_back(temp);
+  } // end whole lines
 }
