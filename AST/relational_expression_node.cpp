@@ -87,7 +87,6 @@ std::string relational_expression_node::generateCode(){
     case 1:
       temp1 = this->relExpr->generateCode();
       temp2 = this->shiftExpr->generateCode();
-      result = ast_node::getNewTempStr();
 
        ss << temp1;
       if(this->op == OpType::L){
