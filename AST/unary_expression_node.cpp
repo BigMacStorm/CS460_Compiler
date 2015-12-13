@@ -108,18 +108,21 @@ Spec* unary_expression_node::getSpec(){
 
 std::string unary_expression_node::generateCode(){
   std::string temp1;
+  std::stringstream ss;
   switch(this->mode){
     case 0:
       return this->postExpr->generateCode();
     case 1:
      temp1 = this->unaryExpr->generateCode();
-     codeGenerator.debug(temp1 + " := " + temp1);
+     ss << temp1 << " := " << temp1;
+
      if(this->op == OpType::INC){
-       codeGenerator.debug(" + 1\n");
+       ss << " + 1\n";
      }
      else if(this->op == OpType::DEC){
-       codeGenerator.debug(" - 1\n");
+       ss << " - 1\n";
      }
+     codeGenerator.debug(ss.str());
      return temp1;
     case 2:
      return this->castExpr->generateCode();
