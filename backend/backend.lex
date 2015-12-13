@@ -59,8 +59,15 @@ assign " := "
 }
 
 %{ /* Aaron */ %}
+%{ /* regex's for all the assignments */ %}
 {id}{assign}{id} {
 }
+
+%{ /* assignments here */ %}
+
+%{ /* comparisons here */ %}
+
+%{ /* address stuff here */ %}
 
 %%
 
