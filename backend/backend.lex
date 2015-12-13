@@ -18,14 +18,27 @@ temp [a-zA-Z_]+
   //prints match as the label of the variable and .word
   //yytext + : + \t + .word + \t
 }
+
 <DECLARE>{digit}+ {
-  //prints number
+  //prints number continuing a list
   //yytext + , + space
 }
+
 <DECLARE>{letter} {
-  //prints letter
+  //prints letter continuing a list
   //yytext + , + space
 }
+
+<DECLARE>{digit}+; {
+  //prints single number or number at the end of a list
+  //yytext
+}
+
+<DECLARE>{letter} {
+  //prints single letter or letter at the end of a list
+  //yytext
+}
+
 <DECLARE>";"  {
   //returns to regular lex
   BEGIN(INITIAL);
