@@ -9,7 +9,7 @@ assign " := "
 
 %%
 
-/* Actual regex's for 3ac code */
+%{ /* Actual regex's for 3ac code */ %}
 
 %{ /* Niki */ %}
 "Decl:"
