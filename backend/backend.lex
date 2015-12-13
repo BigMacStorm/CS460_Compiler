@@ -5,43 +5,61 @@ digit [0-9]
 id {letter}({letter}|{digit})*
 label [a-zA-Z_]+:
 temp [a-zA-Z_]+
+assign " := "
+
 %%
 
 /* Actual regex's for 3ac code */
 
+%{ /* Niki */ %}
 "Decl:"
 {
   BEGIN(DECLARE);
 }
 
+%{ /* Niki */ %}
 <DECLARE>{letter}+{digit}+  {
   //prints match as the label of the variable and .word
   //yytext + : + \t + .word + \t
 }
+
+%{ /* Niki */ %}
 <DECLARE>{digit}+ {
   //prints number
   //yytext + , + space
 }
+
+%{ /* Niki */ %}
 <DECLARE>{letter} {
   //prints letter
   //yytext + , + space
 }
+
+%{ /* Niki */ %}
 <DECLARE>";"  {
   //returns to regular lex
   BEGIN(INITIAL);
 }
 
-label {
+%{ /* David */ %}
+{label} {
   printf("%s\n", yytext);
 }
 
-"if "id" goto "label {
+%{ /* David */ %}
+"if "{id}" goto "{label} {
 }
 
-"if "temp" goto "label {
+%{ /* David */ %}
+"if "{temp}" goto "{label} {
 }
 
-"goto "label {
+%{ /* David */ %}
+"goto "{label} {
+}
+
+%{ /* Aaron */ %}
+{id}{assign}{id} {
 }
 
 %%
