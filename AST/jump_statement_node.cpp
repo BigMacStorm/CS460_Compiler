@@ -87,7 +87,9 @@ std::string jump_statement_node::generateCode(){
     case 2:
       if(this->expr!=NULL){
         temp = this->expr->generateCode();
-        codeGenerator.debug("return " +temp+"\n");
+        std::string ret = ast_node::getNewTempStr();
+        codeGenerator.debug(ret + " := " + temp + "\n");
+        codeGenerator.debug("return " +ret+"\n");
       }
       else{
         codeGenerator.debug("return\n");
