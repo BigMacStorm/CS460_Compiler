@@ -145,9 +145,22 @@ int main(int argc, char** argv){
   codeGenerator.setFileName(tac_file);
   codeGenerator.setDebug(gen3AC);
 
+  // global symbol table
+  symTable.pushTable();
+
+  // print_int
+  TypeFunction * spec = new TypeFunction();
+  TypeBasic *base = new TypeBasic();
+  TypeBasic *voidtype = new TypeBasic();
+  voidtype->setBaseType(SpecName::Void);
+  base->setBaseType(SpecName::Int);
+  spec->insertArg(base);
+  spec->setReturnSpec(voidtype);
+  SymbolNode *symNode = new SymbolNode("print_int", spec, -1, -1, true);
+  symTable.insertSymbol("print_int", symNode);
+
   // syntax-directed translation
   // std::cout << "Start syntax-directed translation ..." << std::endl;
-  symTable.pushTable();
   yyparse();
 
   // create image
