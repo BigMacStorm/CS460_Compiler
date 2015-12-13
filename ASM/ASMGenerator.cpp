@@ -146,14 +146,23 @@ std::string ASMGenerator::toASM(std::string aTacLine){
       exp_1 = linevec[2]; exp_2 = linevec[4]; label = linevec[6];
     }
 
-    if(exp_1[0] != '$'){
+    if(std::regex_match(exp_1,std::regex("[0-9]+"))){
+      reg1 = this->registers.getSavedTempReg();
+      ss << "li " << reg1 << ", " << exp_1 << "\n";
+      exp_1 = reg1;
+    }
+    else if(exp_1[0] != '$'){
       reg1 = this->registers.getSavedTempReg();
       ss << "la " << reg1 << ", " << exp_1 << "\n";
       ss << "lw " << reg1 << ", " <<  "(" << reg1 << ")" << "\n";
       exp_1 = reg1;
     }
-
-    if(exp_1[0] != '$'){
+    if(std::regex_match(exp_2,std::regex("[0-9]+"))){
+      reg2 = this->registers.getSavedTempReg();
+      ss << "li " << reg2 << ", " << exp_2 << "\n";
+      exp_2 = reg2;
+    }
+    else if(exp_2[0] != '$'){
       reg2 = this->registers.getSavedTempReg();
       ss << "la " << reg2 << ", " <<  exp_2 << "\n";
       ss << "lw " << reg2 << ", " <<  "(" << reg2 << ")" << "\n";
