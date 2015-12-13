@@ -29,12 +29,12 @@ temp [a-zA-Z_]+
   //yytext + , + space
 }
 
-<DECLARE>{digit}+; {
+<DECLARE>{digit}+";" {
   //prints single number or number at the end of a list
   //yytext
 }
 
-<DECLARE>{letter} {
+<DECLARE>{letter}";" {
   //prints single letter or letter at the end of a list
   //yytext
 }
