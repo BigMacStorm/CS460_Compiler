@@ -12,28 +12,37 @@ Registers::Registers(){
     this->savedTempPool.push(this->savedTempRegs[reg]);
   }
 }
+std::string Registers::getRegister(){
+  std::string reg = getTempReg();
+  if(reg == "n/a"){
+    reg = getSavedTempReg();
+  }
+  // std::cout << "Get " << reg << std::endl;
+  return reg;
+}
 void Registers::freeRegister(std::string reg){
-  if(reg[0] == 'a'){
+  //std::cout << "Free " << reg << std::endl;
+  if(reg[1] == 'a'){
     this->argPool.push(reg);
-  }else if(reg[0] == 't'){
+  }else if(reg[1] == 't'){
     this->tempPool.push(reg);
-  }else if(reg[0] == 's'){
+  }else if(reg[1] == 's'){
     this->savedTempPool.push(reg);
   }
 }
 std::string Registers::getTempReg(){
   std::string reg = "n/a";
-  if(!this->argPool.empty()){
-    reg = this->argPool.front();
-    this->argPool.pop();
+  if(!this->tempPool.empty()){
+    reg = this->tempPool.front();
+    this->tempPool.pop();
   }
   return reg;
 }
 std::string Registers::getArgReg(){
   std::string reg = "n/a";
-  if(!this->tempPool.empty()){
-    reg = this->tempPool.front();
-    this->tempPool.pop();
+  if(!this->argPool.empty()){
+    reg = this->argPool.front();
+    this->argPool.pop();
   }
   return reg;
 }
