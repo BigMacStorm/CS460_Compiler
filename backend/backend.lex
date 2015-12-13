@@ -25,14 +25,26 @@ assign " := "
 
 %{ /* Niki */ %}
 <DECLARE>{digit}+ {
-  //prints number
+  //prints number continuing a list
   //yytext + , + space
 }
 
 %{ /* Niki */ %}
 <DECLARE>{letter} {
-  //prints letter
+  //prints letter continuing a list
   //yytext + , + space
+}
+
+%{ /* Niki */ %}
+<DECLARE>{digit}+";" {
+  //prints single number or number at the end of a list
+  //yytext
+}
+
+%{ /* Niki */ %}
+<DECLARE>{letter}";" {
+  //prints single letter or letter at the end of a list
+  //yytext
 }
 
 %{ /* Niki */ %}
