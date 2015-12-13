@@ -13,7 +13,7 @@ temp [a-zA-Z_]+
 {
   BEGIN(DECLARE);
 }
-				
+
 <DECLARE>{letter}+{digit}+  {
   //prints match as the label of the variable and .word
   //yytext + : + \t + .word + \t
@@ -52,6 +52,9 @@ label {
 }
 
 "if "temp" goto "label {
+}
+
+"goto "label {
 }
 
 %%
