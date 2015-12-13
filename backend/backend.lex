@@ -71,14 +71,14 @@ assign " := "
 }
 
 %{ /* Aaron */ %}
-%{ /* regex's for all the assignments */ %}
+%{ /* assignments here */ %}
 {id}{assign}{id} {
 }
 
-%{ /* assignments here */ %}
-
+%{ /* Niki */ %}
 %{ /* comparisons here */ %}
 
+%{ /* David */ %}
 %{ /* address stuff here */ %}
 
 %%
