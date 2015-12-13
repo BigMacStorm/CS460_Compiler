@@ -22,6 +22,10 @@ std::string Registers::getRegister(){
 }
 void Registers::freeRegister(std::string reg){
   //std::cout << "Free " << reg << std::endl;
+  if(reg.empty()){
+    return;
+  }
+
   if(reg[1] == 'a'){
     this->argPool.push(reg);
   }else if(reg[1] == 't'){
