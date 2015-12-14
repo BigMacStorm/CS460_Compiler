@@ -56,9 +56,10 @@ void parameter_declaration_node::print(){
 }
 std::string parameter_declaration_node::generateCode(){
   std::string ret;
-  if(this->declSpec != NULL){
+  /*if(this->declSpec != NULL){
     this->declSpec->generateCode();
   }
+  */
   if(this->decl != NULL){
     ret = this->decl->generateCode();
   }
