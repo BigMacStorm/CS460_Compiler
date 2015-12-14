@@ -165,12 +165,18 @@ Spec* direct_declarator_node::getSpec(){
   return spec;
 }
 std::string direct_declarator_node::generateCode(){
+  std::string ret;
   switch(this->direct_type){
     case DirectType::NONE:
       return this->identifier->generateCode();
     case DirectType::ARRAY:
       return generateArrayCode();
     case DirectType::FUNCTION:
+      ret = this->direct_declarator->generateCode();
+      if(this->paramList!=NULL){
+        ret = ret + " " + this->paramList->generateCode();
+      }
+      return ret;
     case DirectType::FUNCTION_CALL:
     return this->direct_declarator->generateCode();
   } // end switch
