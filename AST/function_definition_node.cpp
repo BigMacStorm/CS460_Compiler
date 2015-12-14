@@ -57,10 +57,25 @@ void function_definition_node::print(){
 }
 std::string function_definition_node::generateCode(){
   std::stringstream ss;
-  std::string func_name = this->decl->generateCode();
+  std::string func_str = this->decl->generateCode();
+  std::string tok, func_name;
+  std::stringstream func_ss(func_str);
+  std::vector<std::string> linevec;
+
+  while(getline(func_ss, tok,' ')) {
+      linevec.push_back(tok);
+  }
+  func_name = linevec[0];
+
   ss << "Function: " << func_name << "\n";
   codeGenerator.debug(ss.str());
-  codeGenerator.debug("BeginFunc\n");
+  ss.str("");
+  ss << "BeginFunc " << (linevec.size()-1)*4 << "\n";
+  codeGenerator.debug(ss.str());
+
+  for(int arg = linevec.size()-1; arg > 0; arg--){
+    codeGenerator.debug("PopParam "+ linevec[arg] + "\n");
+  }
   if(this->decList!=NULL){
     this->decList->generateCode();
   }
