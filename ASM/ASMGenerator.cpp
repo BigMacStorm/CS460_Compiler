@@ -3,6 +3,7 @@
 ASMGenerator::ASMGenerator(){
   this->isMain = false;
   this->param = 0;
+  this->func_name = "";
 }
 void ASMGenerator::build(){
   readASM();
@@ -110,26 +111,24 @@ std::string ASMGenerator::toASM(std::string aTacLine){
     param = 0;
   }
   else if(linevec[1] == "PushParam"){
-    ss << "move $a" << param << ", " << linevec[2] << "\n";
+    ss << "move $a" << param << ", " << linevec[2];
     param++;
-    /*
-    ss << "sw " << linevec[2] << ", -" << 4 << "($sp)\n"
-       << "la $sp," << " -" <<  4 << "($sp)";
-       */
   }
   else if(linevec[1] == "PopParam"){
-    /*ss << "lw " << linevec[2] << ", " << 0 << "($sp)\n"
-       << "addiu $sp, $sp, 4";
-       */
+    // pass
   }
   else if(linevec[1] == "goto"){
     ss << "j " << linevec[2];
   }
   else if(linevec[1] == "Function:"){
-    if(linevec[2] == "main"){
+    this->func_name = linevec[2];
+    if(this->func_name == "main"){
       this->isMain = true;
     }
-    ss << linevec[2] << ":";
+    ss << this->func_name << ":";
+  }
+  else if(linevec[1] == "Decl:" || linevec[1] == "Init:"){
+    // pass
   }
   else if(linevec[1] == "BeginFunc"){
     if(!this->isMain){
@@ -144,19 +143,20 @@ std::string ASMGenerator::toASM(std::string aTacLine){
            << "la $sp, -4($sp)";
       }
     }
-
   }
   else if(linevec[1] == "EndFunc"){
     if(this->isMain){
-      ss << "li $v0, 10     # set up for exit\n"
+      ss << "_end_" + this->func_name + ":\n"
+         << "li $v0, 10     # set up for exit\n"
          << "syscall        # exit";
       this->isMain = false;
     }
     else{
-      ss << "la $sp, 0($fp)\n"
+      ss << "_end_" + this->func_name + ":\n"
+         << "la $sp, 0($fp)\n"
          << "lw $ra, -8($sp)\n"
          << "lw $fp, -4($sp)\n";
-      ss << "jr $ra    # return";
+      ss << "jr $ra   # return";
     }
   }
   else if(linevec[1] == "return"){
@@ -164,18 +164,7 @@ std::string ASMGenerator::toASM(std::string aTacLine){
       // return x
       ss << "move $v0, " << linevec[2] << "\n";
     }
-
-    if(this->isMain){
-      ss << "li $v0, 10     # set up for exit\n"
-         << "syscall        # exit";
-      this->isMain = false;
-    }
-    else{
-      ss << "la $sp, 0($fp)\n"
-         << "lw $ra, -8($sp)\n"
-         << "lw $fp, -4($sp)\n";
-      ss << "jr $ra    # return";
-    }
+    ss << "j _end_" + this->func_name;
   }
   else if(linevec[1] == "if"){
     std::string exp_1, op, exp_2, label, reg1, reg2;
@@ -233,7 +222,7 @@ std::string ASMGenerator::toASM(std::string aTacLine){
     registers.freeRegister(reg1);
     registers.freeRegister(reg2);
 
-  }
+  } // end if statement
   else if(linevec[2] == ":="){
     std::string dest, op1, op, op2;
 
@@ -252,7 +241,7 @@ std::string ASMGenerator::toASM(std::string aTacLine){
 
       ss << makeOp(dest,op1,op,op2);
     }
-  }
+  } // end assignment
 
   return ss.str();
 }

@@ -30,7 +30,6 @@ move $t0, $s0
 #0005 PushParam _TEMP1
 move $a0, $t0
 
-
 #0006 _TEMP2 := FuncCall factorial 4
 jal factorial
 move $t1, $v0
@@ -47,7 +46,6 @@ move $t2, $s2
 #0009 PushParam _TEMP3
 move $a0, $t2
 
-
 #0010 FuncCall print_int 4
 li $v0, 1
 syscall
@@ -61,7 +59,6 @@ move $t3, $s3
 
 #0012 PushParam _TEMP4
 move $a0, $t3
-
 
 #0013 _TEMP5 := FuncCall factorial 4
 jal factorial
@@ -79,7 +76,6 @@ move $t5, $s5
 #0016 PushParam _TEMP6
 move $a0, $t5
 
-
 #0017 FuncCall print_int 4
 li $v0, 1
 syscall
@@ -93,14 +89,12 @@ move $t6, $s6
 
 #0019 return _TEMP7
 move $v0, $t6
-li $v0, 10     # set up for exit
-syscall        # exit
+j _end_main
 
 #0020 EndFunc
-la $sp, 0($fp)
-lw $ra, -8($sp)
-lw $fp, -4($sp)
-jr $ra    # return
+_end_main:
+li $v0, 10     # set up for exit
+syscall        # exit
 
 #0021 Function: factorial
 factorial:
@@ -132,10 +126,7 @@ move $t7, $s0
 
 #0028 return _TEMP8
 move $v0, $t7
-la $sp, 0($fp)
-lw $ra, -8($sp)
-lw $fp, -4($sp)
-jr $ra    # return
+j _end_factorial
 
 #0029 _LABEL2:
 _LABEL2:
@@ -149,7 +140,6 @@ move $t9, $t8
 
 #0032 PushParam _TEMP10
 move $a0, $t9
-
 
 #0033 _TEMP11 := FuncCall factorial 4
 jal factorial
@@ -165,14 +155,12 @@ move $t2, $t1
 
 #0036 return _TEMP13
 move $v0, $t2
-la $sp, 0($fp)
-lw $ra, -8($sp)
-lw $fp, -4($sp)
-jr $ra    # return
+j _end_factorial
 
 #0037 EndFunc
+_end_factorial:
 la $sp, 0($fp)
 lw $ra, -8($sp)
 lw $fp, -4($sp)
-jr $ra    # return
+jr $ra   # return
 

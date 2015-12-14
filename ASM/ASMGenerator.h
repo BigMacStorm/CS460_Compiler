@@ -34,6 +34,7 @@ private:
 
   bool isMain;
   int param;
+  std::string func_name;
   Registers registers;
   Debugger asmWriter;
   std::string tacFileName;

@@ -29,7 +29,6 @@ move $t0, $s0
 #0004 PushParam _TEMP1
 move $a0, $t0
 
-
 #0005 _TEMP2 := FuncCall square 4
 jal square
 move $t1, $v0
@@ -46,7 +45,6 @@ move $t2, $s2
 #0008 PushParam _TEMP3
 move $a0, $t2
 
-
 #0009 FuncCall print_int 4
 li $v0, 1
 syscall
@@ -61,14 +59,12 @@ move $t3, $s3
 #0011 PushParam _TEMP4
 move $a0, $t3
 
-
 #0012 _TEMP5 := 6
 li $s4, 6
 move $t4, $s4
 
 #0013 PushParam _TEMP5
 move $a1, $t4
-
 
 #0014 _TEMP6 := FuncCall sum 8
 jal sum
@@ -86,7 +82,6 @@ move $t6, $s6
 #0017 PushParam _TEMP7
 move $a0, $t6
 
-
 #0018 FuncCall print_int 4
 li $v0, 1
 syscall
@@ -95,6 +90,7 @@ la $a0, newline
 syscall
 
 #0019 EndFunc
+_end_main:
 li $v0, 10     # set up for exit
 syscall        # exit
 
@@ -106,6 +102,8 @@ sw $fp, -4($sp)
 sw $ra, -8($sp)
 la $fp, 0($sp)
 la $sp, -8($sp)
+sw $a0, -4($sp)
+la $sp, -4($sp)
 
 #0022 PopParam x
 
@@ -127,16 +125,14 @@ move $t8, $s0
 
 #0027 return _TEMP9
 move $v0, $t8
-la $sp, 0($fp)
-lw $ra, -8($sp)
-lw $fp, -4($sp)
-jr $ra    # return
+j _end_square
 
 #0028 EndFunc
+_end_square:
 la $sp, 0($fp)
 lw $ra, -8($sp)
 lw $fp, -4($sp)
-jr $ra    # return
+jr $ra   # return
 
 #0029 Function: sum
 sum:
@@ -146,6 +142,10 @@ sw $fp, -4($sp)
 sw $ra, -8($sp)
 la $fp, 0($sp)
 la $sp, -8($sp)
+sw $a0, -4($sp)
+la $sp, -4($sp)
+sw $a1, -4($sp)
+la $sp, -4($sp)
 
 #0031 PopParam y
 
@@ -170,14 +170,12 @@ move $t0, $s2
 
 #0037 return _TEMP11
 move $v0, $t0
-la $sp, 0($fp)
-lw $ra, -8($sp)
-lw $fp, -4($sp)
-jr $ra    # return
+j _end_sum
 
 #0038 EndFunc
+_end_sum:
 la $sp, 0($fp)
 lw $ra, -8($sp)
 lw $fp, -4($sp)
-jr $ra    # return
+jr $ra   # return
 
