@@ -36,7 +36,7 @@ std::string parameter_list_node::generateCode(){
   std::string ret;
   for(int child = 0; child < this->children.size(); child++){
     if(this->children[child]!=NULL){
-      this->children[child]->generateCode();
+      ret = ret + this->children[child]->generateCode() + " ";
     }
   }
   return ret;
