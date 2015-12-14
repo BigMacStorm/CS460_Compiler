@@ -70,7 +70,8 @@ std::string ASMGenerator::toASM(std::string aTacLine){
   std::stringstream ss;
   std::vector<std::string> linevec = split(aTacLine);
 
-  if(std::regex_match(linevec[1],std::regex("(_LABEL)([0-9]+):"))){
+  //if(std::regex_match(linevec[1],std::regex("(_LABEL)([0-9]+):"))){
+  if(linevec[1].substr(0,6) == "_LABEL"){
     ss << linevec[1];
   }
   else if(aTacLine.find("FuncCall") != std::string::npos){
@@ -195,7 +196,7 @@ std::string ASMGenerator::toASM(std::string aTacLine){
       exp_1 = linevec[2]; exp_2 = linevec[4]; label = linevec[6];
     }
 
-    if(std::regex_match(exp_1,std::regex("[0-9]+"))){
+    if(is_number(exp_1)){
       reg1 = this->registers.getSavedTempReg();
       ss << "li " << reg1 << ", " << exp_1 << "\n";
       exp_1 = reg1;
@@ -206,7 +207,7 @@ std::string ASMGenerator::toASM(std::string aTacLine){
       ss << "lw " << reg1 << ", " <<  "(" << reg1 << ")" << "\n";
       exp_1 = reg1;
     }
-    if(std::regex_match(exp_2,std::regex("[0-9]+"))){
+    if(is_number(exp_2)){
       reg2 = this->registers.getSavedTempReg();
       ss << "li " << reg2 << ", " << exp_2 << "\n";
       exp_2 = reg2;
@@ -250,7 +251,7 @@ std::string ASMGenerator::makeSimpleAssign(std::string dest, std::string op1){
   std::stringstream ss;
 
   // integer (immediate)
-  if(std::regex_match(op1,std::regex("[0-9]+"))){
+  if(is_number(op1)){
     reg1 = this->registers.getSavedTempReg();
     ss << "li " << reg1 << ", " << op1 << "\n";
     op1 = reg1;
@@ -304,7 +305,7 @@ std::string ASMGenerator::makeOp(std::string dest, std::string op1,
   else if(op == "-"){op = "sub";}
 
   // integer (immediate)
-  if(std::regex_match(op1,std::regex("[0-9]+"))){
+  if(is_number(op1)){
     // std::cout << op1 << std::endl;
     reg1 = this->registers.getSavedTempReg();
     ss << "li " << reg1 << ", " << op1 << "\n";
@@ -332,7 +333,7 @@ std::string ASMGenerator::makeOp(std::string dest, std::string op1,
   }
 
   // integer (immediate)
-  if(std::regex_match(op2,std::regex("[0-9]+"))){
+  if(is_number(op2)){
     reg2 = this->registers.getSavedTempReg();
     ss << "li " << reg2 << ", " << op2 << "\n";
     op2 = reg2;
@@ -437,7 +438,12 @@ std::vector<std::string> ASMGenerator::split(std::string line){
   }
   return linevec;
 }
-
+bool ASMGenerator::is_number(const std::string& str)
+{
+    std::string::const_iterator it = str.begin();
+    while (it != str.end() && std::isdigit(*it)) ++it;
+    return !str.empty() && it == str.end();
+}
 bool ASMGenerator::replace(std::string& str, const std::string& from, const std::string& to) {
     size_t pos = str.find(from);
     if(pos == std::string::npos)
@@ -474,7 +480,8 @@ void ASMGenerator::AssignReg(){
 
     for(int tok = 0; tok < linevec.size(); tok++){
       // temporaries
-      if(std::regex_match(linevec[tok],std::regex("(\\(?)(_TEMP)([0-9]+)(\\)?)"))){
+      if(linevec[tok].substr(0,6) == "(_TEMP" || linevec[tok].substr(0,5) == "_TEMP"){
+        //if(std::regex_match(linevec[tok],std::regex("(\\(?)(_TEMP)([0-9]+)(\\)?)")))
         tempStr = linevec[tok];
         if(tempStr[0] == '('){
           tempStr.erase(tempStr.begin(), tempStr.begin()+1);

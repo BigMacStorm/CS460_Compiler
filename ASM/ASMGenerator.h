@@ -6,7 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
-#include <regex>
+//#include <regex>
 #include <map>
 
 class ASMGenerator{
@@ -30,6 +30,7 @@ private:
   int typeToSize(std::string type);
   std::string vecToStr(std::vector<std::string> vec);
   std::vector<std::string> split(std::string line);
+  bool is_number(const std::string& str);
   bool replace(std::string& str, const std::string& from, const std::string& to);
 
   bool isMain;
