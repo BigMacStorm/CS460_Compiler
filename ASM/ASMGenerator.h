@@ -33,6 +33,7 @@ private:
   bool replace(std::string& str, const std::string& from, const std::string& to);
 
   bool isMain;
+  int param;
   Registers registers;
   Debugger asmWriter;
   std::string tacFileName;

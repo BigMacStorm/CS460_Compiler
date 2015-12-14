@@ -2,6 +2,7 @@
 
 ASMGenerator::ASMGenerator(){
   this->isMain = false;
+  this->param = 0;
 }
 void ASMGenerator::build(){
   readASM();
@@ -59,8 +60,9 @@ void ASMGenerator::makeDataSegment(){
 }
 void ASMGenerator::buildASM(){
   for(int line = 0; line < this->tempLines.size(); line++){
+    //std::cout << this->tacLines[line] << std::endl;
     this->asmLines.push_back("#" + this->tacLines[line] + "\n"
-                             + toASM(this->tempLines[line])+"\n");
+                             + toASM(this->tempLines[line]) + "\n");
   }
 }
 std::string ASMGenerator::toASM(std::string aTacLine){
@@ -73,27 +75,52 @@ std::string ASMGenerator::toASM(std::string aTacLine){
   else if(aTacLine.find("FuncCall") != std::string::npos){
     if(linevec[2] == "print_int"){
       // called with integer pushed on the stack
+      /*
       ss << "li $v0, 1\n"
          << "lw $a0, 0($sp)\n"
          << "addiu $sp, $sp, 4\n"
          << "syscall\n";
+      */
+     // assume int is loaded into $a0
+     ss << "li $v0, 1\n"
+        << "syscall\n";
 
       ss << "li $v0, 4\n"
          << "la $a0, newline\n"
          << "syscall";
     }
     else{
+
       if(linevec[1] != "FuncCall"){
-      ss << "jal " << linevec[4] << "\n";
-      ss << "la " << linevec[1]  << ", $v0";
+      ss << "jal " << linevec[4] << "\n"
+         << "move " << linevec[1]  << ", $v0";
       }else{
         ss << "jal " << linevec[2];
       }
+
+      // pop out parameters
+      if(!this->isMain){
+       for(int arg = param - 1; arg >= 0; arg--){
+          ss << "\nlw $a" << arg << ", " << 0 << "($sp)\n"
+             << "addiu $sp, $sp, 4";
+        }
+      }
     }
+    // reset param
+    param = 0;
   }
   else if(linevec[1] == "PushParam"){
+    ss << "move $a" << param << ", " << linevec[2] << "\n";
+    param++;
+    /*
     ss << "sw " << linevec[2] << ", -" << 4 << "($sp)\n"
        << "la $sp," << " -" <<  4 << "($sp)";
+       */
+  }
+  else if(linevec[1] == "PopParam"){
+    /*ss << "lw " << linevec[2] << ", " << 0 << "($sp)\n"
+       << "addiu $sp, $sp, 4";
+       */
   }
   else if(linevec[1] == "goto"){
     ss << "j " << linevec[2];
@@ -104,6 +131,21 @@ std::string ASMGenerator::toASM(std::string aTacLine){
     }
     ss << linevec[2] << ":";
   }
+  else if(linevec[1] == "BeginFunc"){
+    if(!this->isMain){
+      ss << "sw $fp, -4($sp)\n"
+         << "sw $ra, -8($sp)\n"
+         << "la $fp, 0($sp)\n"
+         << "la $sp, -8($sp)";
+
+      // push parameters
+      for(int arg = 0; arg < stoi(linevec[2])/4; arg++){
+        ss << "\nsw $a" << arg << ", -" << 4 << "($sp)\n"
+           << "la $sp, -4($sp)";
+      }
+    }
+
+  }
   else if(linevec[1] == "EndFunc"){
     if(this->isMain){
       ss << "li $v0, 10     # set up for exit\n"
@@ -111,11 +153,29 @@ std::string ASMGenerator::toASM(std::string aTacLine){
       this->isMain = false;
     }
     else{
-      ss << "jr $ra     # return";
+      ss << "la $sp, 0($fp)\n"
+         << "lw $ra, -8($sp)\n"
+         << "lw $fp, -4($sp)\n";
+      ss << "jr $ra    # return";
     }
   }
   else if(linevec[1] == "return"){
-    ss << "la $v0, (" << linevec[2]  << ")";
+    if(linevec.size() >= 3){
+      // return x
+      ss << "move $v0, " << linevec[2] << "\n";
+    }
+
+    if(this->isMain){
+      ss << "li $v0, 10     # set up for exit\n"
+         << "syscall        # exit";
+      this->isMain = false;
+    }
+    else{
+      ss << "la $sp, 0($fp)\n"
+         << "lw $ra, -8($sp)\n"
+         << "lw $fp, -4($sp)\n";
+      ss << "jr $ra    # return";
+    }
   }
   else if(linevec[1] == "if"){
     std::string exp_1, op, exp_2, label, reg1, reg2;
@@ -193,6 +253,7 @@ std::string ASMGenerator::toASM(std::string aTacLine){
       ss << makeOp(dest,op1,op,op2);
     }
   }
+
   return ss.str();
 }
 std::string ASMGenerator::makeSimpleAssign(std::string dest, std::string op1){
@@ -401,13 +462,29 @@ void ASMGenerator::AssignReg(){
   std::vector<std::string> dump_regs;
   std::map<std::string,std::string> used_regs;
   std::map<std::string,std::string>::iterator iter;
+  std::map<std::string,std::string> arg_regs;
+  bool inLocal = false;
+  int paramNum = 0;
 
   for(int line = 0; line < this->tacLines.size(); line++){
     std::string temp = this->tacLines[line];
     std::vector<std::string> linevec = split(temp);
     // std::cout << temp << std::endl;
 
+    // replace argument with register
+    if(linevec[1] == "PopParam"){
+      std::string reg = "$a" + std::to_string(paramNum);
+      paramNum++;
+      arg_regs[linevec[2]] = reg;
+      inLocal = true;
+    }
+    else if(linevec[1] == "EndFunc" && inLocal){
+      paramNum = 0;
+      inLocal = false;
+    }
+
     for(int tok = 0; tok < linevec.size(); tok++){
+      // temporaries
       if(std::regex_match(linevec[tok],std::regex("(\\(?)(_TEMP)([0-9]+)(\\)?)"))){
         tempStr = linevec[tok];
         if(tempStr[0] == '('){
@@ -430,11 +507,26 @@ void ASMGenerator::AssignReg(){
         }
         replace(temp, linevec[tok], repStr);
       }
+      else{
+        if(inLocal){
+          // if match with any argument, replace it with its register
+          for(iter = arg_regs.begin(); iter != arg_regs.end(); ++iter){
+            std::string key = iter->first;
+            if(key == linevec[tok]){
+              replace(temp, linevec[tok], arg_regs[key]);
+            }
+          }
+        } // end argument replacement
+      }
     } // end line
+
+    // free registers
     for(int reg = 0; reg < dump_regs.size(); reg++){
       this->registers.freeRegister(dump_regs[reg]);
     }
     dump_regs.clear();
+
+    // add new line
     this->tempLines.push_back(temp);
   } // end whole lines
 }
