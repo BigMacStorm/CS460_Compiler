@@ -1,1 +1,12 @@
-Our C compiler for CS460
+C compiler for CS460
+------------------------------
+To run:
+./compiler SOURCEFILE
+
+Command line flags to preceed source file:
+-d[slp]         : follow d with s, l, and/or p to toggle Symbol Tabel, Lexical, and Parser debugging
+-c              : compile and assemble
+-a              : generate intermediate Abstract Symbol Tree code
+-q              : generate intermediate 3 Address Code
+-s              : generate assembly
+-o LOGFILE_NAME : specify the total output logfile
